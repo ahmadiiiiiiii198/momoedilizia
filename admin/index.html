@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Gruppo Momo Edilizia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { DEFAULT: '#2ba8b4', dark: '#1e7f88', light: '#4ec1cb' },
+                        sidebar: '#0f172a',
+                        card: '#ffffff',
+                        page: '#f1f5f9'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        [v-cloak] { display: none; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Sidebar scrollbar */
+        .sidebar-nav::-webkit-scrollbar { width: 4px; }
+        .sidebar-nav::-webkit-scrollbar-thumb { background: #334155; border-radius: 99px; }
+
+        /* Toast animation */
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes slideOutRight { from { transform: translateX(0); opacity: 1; } to { transform: translateX(100%); opacity: 0; } }
+        .toast-enter { animation: slideInRight 0.3s ease-out; }
+        .toast-exit { animation: slideOutRight 0.3s ease-in forwards; }
+
+        /* Smooth tab transitions */
+        .fade-in { animation: fadeIn 0.25s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* File input styling */
+        input[type="file"] {
+            font-size: 13px;
+        }
+        input[type="file"]::file-selector-button {
+            background: linear-gradient(135deg, #2ba8b4, #1e7f88);
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            margin-right: 10px;
+            transition: all 0.2s;
+        }
+        input[type="file"]::file-selector-button:hover {
+            filter: brightness(1.1);
+        }
+    </style>
+</head>
+<body class="bg-page min-h-screen">
+    <div id="app" v-cloak class="flex min-h-screen">
+
+        <!-- Sidebar -->
+        <aside class="fixed inset-y-0 left-0 z-50 w-64 bg-sidebar text-white flex flex-col transition-transform duration-300"
+               :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'">
+            
+            <!-- Logo -->
+            <div class="px-6 py-6 border-b border-white/10">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center shadow-lg shadow-brand/20">
+                        <i class="fas fa-city text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-sm tracking-wide">GRUPPO MOMO</h1>
+                        <p class="text-[11px] text-slate-400 font-medium">Pannello Admin</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 px-3 py-4 space-y-1 sidebar-nav overflow-y-auto">
+                <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-2">Gestione</p>
+                
+                <button v-for="tab in tabs" :key="tab.id"
+                    @click="currentTab = tab.id; sidebarOpen = false"
+                    :class="currentTab === tab.id 
+                        ? 'bg-brand/15 text-brand border-brand/30' 
+                        : 'text-slate-300 border-transparent hover:bg-white/5 hover:text-white'"
+                    class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 border">
+                    <div :class="currentTab === tab.id ? 'bg-brand text-white' : 'bg-slate-700 text-slate-400'"
+                         class="w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200">
+                        <i :class="tab.icon" class="text-xs"></i>
+                    </div>
+                    <span>{{ tab.label }}</span>
+                    <span v-if="tab.id === 'messages' && messages.length > 0" 
+                          class="ml-auto bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        {{ messages.length }}
+                    </span>
+                </button>
+            </nav>
+
+            <!-- Sidebar Footer -->
+            <div class="px-4 py-4 border-t border-white/10">
+                <a href="/" class="flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 text-white text-sm font-semibold hover:bg-white/20 transition-colors">
+                    <i class="fas fa-external-link-alt text-xs"></i>
+                    Visualizza sito
+                </a>
+            </div>
+        </aside>
+
+        <!-- Mobile Overlay -->
+        <div v-if="sidebarOpen" @click="sidebarOpen = false" class="fixed inset-0 bg-black/50 z-40 lg:hidden"></div>
+
+        <!-- Main Content -->
+        <div class="flex-1 lg:ml-64">
+            <!-- Top Bar -->
+            <header class="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200/80 px-4 sm:px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button @click="sidebarOpen = !sidebarOpen" class="lg:hidden w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors">
+                            <i class="fas fa-bars text-slate-600"></i>
+                        </button>
+                        <div>
+                            <h2 class="text-xl font-bold text-slate-800">{{ currentTabLabel }}</h2>
+                            <p class="text-xs text-slate-400 mt-0.5">{{ currentTabDescription }}</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button @click="fetchData" class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center hover:bg-slate-200 transition-colors" title="Aggiorna dati">
+                            <i class="fas fa-sync-alt text-sm text-slate-500" :class="loading ? 'animate-spin' : ''"></i>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Page Content -->
+            <main class="p-4 sm:p-8">
+                <!-- Loading -->
+                <div v-if="loading" class="flex flex-col items-center justify-center py-32">
+                    <div class="w-12 h-12 rounded-full border-4 border-slate-200 border-t-brand animate-spin"></div>
+                    <p class="mt-4 text-slate-400 font-medium">Caricamento in corso...</p>
+                </div>
+
+                <!-- ===== DASHBOARD ===== -->
+                <div v-if="!loading && currentTab === 'dashboard'" class="fade-in">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+                        <div v-for="stat in dashboardStats" :key="stat.label"
+                             class="bg-white rounded-2xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                            <div class="flex items-center gap-4">
+                                <div :class="stat.color" class="w-12 h-12 rounded-xl flex items-center justify-center">
+                                    <i :class="stat.icon" class="text-lg text-white"></i>
+                                </div>
+                                <div>
+                                    <p class="text-2xl font-bold text-slate-800">{{ stat.value }}</p>
+                                    <p class="text-xs text-slate-400 font-medium">{{ stat.label }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+                        <h3 class="font-bold text-slate-700 mb-4"><i class="fas fa-bolt text-amber-500 mr-2"></i>Azioni Rapide</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <button @click="currentTab = 'projects'; addProject()" 
+                                class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-brand hover:bg-brand/5 transition-all text-slate-500 hover:text-brand">
+                                <i class="fas fa-plus-circle text-2xl"></i>
+                                <span class="text-xs font-semibold">Nuovo Progetto</span>
+                            </button>
+                            <button @click="currentTab = 'services'; addService()" 
+                                class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-brand hover:bg-brand/5 transition-all text-slate-500 hover:text-brand">
+                                <i class="fas fa-wrench text-2xl"></i>
+                                <span class="text-xs font-semibold">Nuovo Servizio</span>
+                            </button>
+                            <button @click="currentTab = 'beforeAfter'; addBeforeAfter()" 
+                                class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-brand hover:bg-brand/5 transition-all text-slate-500 hover:text-brand">
+                                <i class="fas fa-exchange-alt text-2xl"></i>
+                                <span class="text-xs font-semibold">Nuovo Prima/Dopo</span>
+                            </button>
+                            <button @click="currentTab = 'messages'" 
+                                class="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-dashed border-slate-200 hover:border-brand hover:bg-brand/5 transition-all text-slate-500 hover:text-brand">
+                                <i class="fas fa-envelope text-2xl"></i>
+                                <span class="text-xs font-semibold">Vedi Messaggi</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== CONFIGURAZIONE ===== -->
+                <div v-if="!loading && currentTab === 'config'" class="fade-in space-y-5">
+                    <div v-for="item in siteConfig" :key="item.id"
+                         class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                        <div class="p-5 sm:p-6">
+                            <div class="flex items-center gap-3 mb-4">
+                                <div class="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center">
+                                    <i :class="getConfigIcon(item.key)" class="text-sm text-brand"></i>
+                                </div>
+                                <label class="font-bold text-slate-700 text-sm">{{ formatConfigLabel(item.key) }}</label>
+                            </div>
+                            
+                            <!-- Video Config -->
+                            <div v-if="item.key === 'hero_video'" class="space-y-3">
+                                <video v-if="item.value" :src="item.value" class="w-full h-44 object-cover rounded-xl bg-black" controls></video>
+                                <div v-else class="w-full h-44 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
+                                    <div class="text-center">
+                                        <i class="fas fa-video text-3xl mb-2"></i>
+                                        <p class="text-xs font-medium">Nessun video caricato</p>
+                                    </div>
+                                </div>
+                                <input type="file" accept="video/*" @change="uploadConfigVideo($event, item)" class="w-full">
+                                <input v-model="item.value" type="text" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm" placeholder="URL Video">
+                            </div>
+                            
+                            <!-- Text Config -->
+                            <textarea v-else v-model="item.value" rows="3" 
+                                class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm resize-none"></textarea>
+                            
+                            <button @click="updateConfig(item)" 
+                                class="mt-3 bg-gradient-to-r from-brand to-brand-dark text-white px-5 py-2 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-brand/20 transition-all">
+                                <i class="fas fa-save mr-1.5"></i>Salva
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== CHI SIAMO ===== -->
+                <div v-if="!loading && currentTab === 'about'" class="fade-in">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
+                        <div v-for="(image, index) in aboutImages" :key="image.id"
+                             class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            <div class="relative">
+                                <img v-if="image.image_url" :src="image.image_url" class="w-full h-52 object-cover" onerror="this.src='https://via.placeholder.com/400x300?text=Errore+Immagine'">
+                                <div v-else class="w-full h-52 bg-slate-100 flex items-center justify-center text-slate-400">
+                                    <i class="fas fa-image text-4xl"></i>
+                                </div>
+                                <div class="absolute top-3 left-3 bg-black/60 text-white text-xs font-bold px-3 py-1 rounded-lg backdrop-blur-sm">
+                                    #{{ index + 1 }}
+                                </div>
+                            </div>
+                            <div class="p-5 space-y-3">
+                                <input type="file" accept="image/*" @change="uploadAboutImage($event, image)" class="w-full">
+                                <input v-model="image.image_url" type="text" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm" placeholder="URL dell'immagine">
+                                <input v-model="image.alt_text" type="text" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm" placeholder="Testo alternativo (alt)">
+                                <input v-model="image.caption" type="text" class="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm" placeholder="Didascalia (opzionale)">
+                                <button @click="updateAboutImage(image)" 
+                                    class="w-full bg-gradient-to-r from-brand to-brand-dark text-white py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-brand/20 transition-all">
+                                    <i class="fas fa-save mr-1.5"></i>Salva
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <button @click="addAboutImage" class="flex items-center gap-2 px-5 py-3 rounded-xl border-2 border-dashed border-slate-300 text-slate-500 hover:border-brand hover:text-brand hover:bg-brand/5 transition-all font-semibold text-sm">
+                        <i class="fas fa-plus"></i> Aggiungi Immagine
+                    </button>
+                </div>
+
+                <!-- ===== SERVIZI ===== -->
+                <div v-if="!loading && currentTab === 'services'" class="fade-in">
+                    <div class="flex justify-end mb-5">
+                        <button @click="addService" class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-emerald-500/20 transition-all">
+                            <i class="fas fa-plus"></i> Nuovo Servizio
+                        </button>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div v-for="(service, index) in services" :key="service.id"
+                             class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            <div class="p-5 sm:p-6">
+                                <div class="flex items-start justify-between mb-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center">
+                                            <i :class="service.icon" class="text-brand"></i>
+                                        </div>
+                                        <span class="font-bold text-slate-700">Servizio #{{ index + 1 }}</span>
+                                    </div>
+                                    <button @click="deleteService(service.id, index)" class="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors">
+                                        <i class="fas fa-trash-alt text-sm"></i>
+                                    </button>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Titolo</label>
+                                        <input v-model="service.title" type="text" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Icona (FontAwesome)</label>
+                                        <input v-model="service.icon" type="text" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm font-mono">
+                                    </div>
+                                    <div class="md:col-span-2">
+                                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Descrizione</label>
+                                        <textarea v-model="service.description" rows="2" class="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm resize-none"></textarea>
+                                    </div>
+                                </div>
+                                <button @click="updateService(service)" 
+                                    class="mt-4 bg-gradient-to-r from-brand to-brand-dark text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-brand/20 transition-all">
+                                    <i class="fas fa-save mr-1.5"></i>Salva Servizio
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="services.length === 0" class="text-center py-16 text-slate-400">
+                        <i class="fas fa-wrench text-4xl mb-3"></i>
+                        <p class="font-medium">Nessun servizio presente</p>
+                    </div>
+                </div>
+
+                <!-- ===== PROGETTI ===== -->
+                <div v-if="!loading && currentTab === 'projects'" class="fade-in">
+                    <div class="flex flex-wrap gap-3 justify-end mb-5">
+                        <label :class="{'opacity-50 cursor-not-allowed': isUploadingMultiple}" 
+                            class="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm cursor-pointer hover:shadow-lg hover:shadow-blue-500/20 transition-all">
+                            <i class="fas fa-spinner fa-spin" v-if="isUploadingMultiple"></i>
+                            <i class="fas fa-cloud-upload-alt" v-else></i>
+                            {{ isUploadingMultiple ? 'Caricamento...' : 'Upload Multiplo' }}
+                            <input type="file" multiple accept="image/*,video/*" @change="uploadMultipleImages" class="hidden" :disabled="isUploadingMultiple">
+                        </label>
+                        <button @click="addProject" class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-emerald-500/20 transition-all">
+                            <i class="fas fa-plus"></i> Aggiungi Vuoto
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <div v-for="(project, index) in projects" :key="project.id"
+                             class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden group">
+                            <!-- Media Preview -->
+                            <div class="relative">
+                                <video v-if="isVideoUrl(project.image_url)" :src="project.image_url" class="w-full h-44 object-cover bg-black" controls playsinline preload="metadata"></video>
+                                <img v-else :src="project.image_url" class="w-full h-44 object-cover bg-slate-100" onerror="this.src='https://via.placeholder.com/400x300?text=Errore'">
+                                <button @click="deleteProject(project.id, index)" 
+                                    class="absolute top-3 right-3 w-8 h-8 rounded-lg bg-red-500/90 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600">
+                                    <i class="fas fa-trash-alt text-xs"></i>
+                                </button>
+                                <span v-if="isVideoUrl(project.image_url)" class="absolute top-3 left-3 bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-md">VIDEO</span>
+                                <span v-else class="absolute top-3 left-3 bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md">FOTO</span>
+                            </div>
+                            <div class="p-4 space-y-3">
+                                <input type="file" accept="image/*,video/*" @change="uploadImage($event, project)" class="w-full">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase tracking-wide">Titolo</label>
+                                    <input v-model="project.title" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-400 mb-1 uppercase tracking-wide">Categoria</label>
+                                    <input v-model="project.category" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm">
+                                </div>
+                                <button @click="updateProject(project)" 
+                                    class="w-full bg-gradient-to-r from-brand to-brand-dark text-white py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-brand/20 transition-all">
+                                    <i class="fas fa-save mr-1.5"></i>Salva
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div v-if="projects.length === 0" class="text-center py-16 text-slate-400">
+                        <i class="fas fa-photo-video text-4xl mb-3"></i>
+                        <p class="font-medium">Nessun progetto presente</p>
+                    </div>
+                </div>
+
+                <!-- ===== PRIMA & DOPO ===== -->
+                <div v-if="!loading && currentTab === 'beforeAfter'" class="fade-in">
+                    <div class="flex justify-end mb-5">
+                        <button @click="addBeforeAfter" class="flex items-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white px-5 py-2.5 rounded-xl font-semibold text-sm hover:shadow-lg hover:shadow-emerald-500/20 transition-all">
+                            <i class="fas fa-plus"></i> Aggiungi
+                        </button>
+                    </div>
+
+                    <div v-if="beforeAfter.length === 0" class="text-center py-16 text-slate-400">
+                        <i class="fas fa-exchange-alt text-4xl mb-3"></i>
+                        <p class="font-medium">Nessun elemento presente</p>
+                        <p class="text-sm mt-1">Clicca "Aggiungi" per creare il primo prima/dopo</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                        <div v-for="(item, index) in beforeAfter" :key="item.id"
+                             class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            <div class="p-5 sm:p-6">
+                                <div class="flex items-center justify-between mb-4">
+                                    <span class="font-bold text-slate-700 text-sm"><i class="fas fa-exchange-alt text-brand mr-2"></i>{{ item.title || 'Prima & Dopo' }}</span>
+                                    <button @click="deleteBeforeAfter(item.id, index)" class="w-9 h-9 rounded-xl bg-red-50 flex items-center justify-center text-red-400 hover:bg-red-100 hover:text-red-600 transition-colors">
+                                        <i class="fas fa-trash-alt text-sm"></i>
+                                    </button>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-3 mb-4">
+                                    <div>
+                                        <div class="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                            <i class="fas fa-circle text-[6px]"></i> Prima
+                                        </div>
+                                        <img :src="item.before_url" class="w-full h-32 object-cover rounded-xl bg-slate-100" onerror="this.src='https://via.placeholder.com/600x400?text=Prima'">
+                                        <input type="file" accept="image/*" @change="uploadBefore($event, item)" class="w-full mt-2">
+                                        <input v-model="item.before_url" type="text" class="mt-1 w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-xs" placeholder="URL Prima">
+                                    </div>
+                                    <div>
+                                        <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                                            <i class="fas fa-circle text-[6px]"></i> Dopo
+                                        </div>
+                                        <img :src="item.after_url" class="w-full h-32 object-cover rounded-xl bg-slate-100" onerror="this.src='https://via.placeholder.com/600x400?text=Dopo'">
+                                        <input type="file" accept="image/*" @change="uploadAfter($event, item)" class="w-full mt-2">
+                                        <input v-model="item.after_url" type="text" class="mt-1 w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-xs" placeholder="URL Dopo">
+                                    </div>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-3 mb-4">
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Titolo</label>
+                                        <input v-model="item.title" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-semibold text-slate-500 mb-1.5">Categoria</label>
+                                        <input v-model="item.category" type="text" class="w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm">
+                                    </div>
+                                </div>
+                                
+                                <button @click="updateBeforeAfter(item)" 
+                                    class="w-full bg-gradient-to-r from-brand to-brand-dark text-white py-2.5 rounded-xl text-sm font-semibold hover:shadow-lg hover:shadow-brand/20 transition-all">
+                                    <i class="fas fa-save mr-1.5"></i>Salva
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ===== MESSAGGI ===== -->
+                <div v-if="!loading && currentTab === 'messages'" class="fade-in">
+                    <div v-if="messages.length === 0" class="text-center py-16 text-slate-400">
+                        <i class="fas fa-inbox text-5xl mb-3"></i>
+                        <p class="font-medium text-lg">Nessun messaggio</p>
+                        <p class="text-sm mt-1">I messaggi ricevuti appariranno qui</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div v-for="msg in messages" :key="msg.id"
+                             class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            <div class="p-5 sm:p-6">
+                                <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white font-bold uppercase text-sm">
+                                            {{ msg.name ? msg.name.charAt(0) : '?' }}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800">{{ msg.name }}</h3>
+                                            <a :href="'mailto:'+msg.email" class="text-brand text-sm hover:underline">{{ msg.email }}</a>
+                                        </div>
+                                    </div>
+                                    <span class="text-[11px] text-slate-400 bg-slate-100 px-3 py-1 rounded-lg font-medium">
+                                        <i class="fas fa-clock mr-1"></i>{{ new Date(msg.created_at).toLocaleString('it-IT') }}
+                                    </span>
+                                </div>
+                                <div class="bg-slate-50 rounded-xl p-4 text-slate-600 text-sm whitespace-pre-wrap leading-relaxed">{{ msg.message }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Toast Notifications -->
+        <div class="fixed top-4 right-4 z-[100] space-y-3 w-80">
+            <div v-for="(toast, index) in toasts" :key="toast.id"
+                 :class="[toast.leaving ? 'toast-exit' : 'toast-enter', toast.type === 'success' ? 'border-emerald-400' : 'border-red-400']"
+                 class="bg-white rounded-xl shadow-xl border-l-4 p-4 flex items-start gap-3">
+                <div :class="toast.type === 'success' ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'"
+                     class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0">
+                    <i :class="toast.type === 'success' ? 'fas fa-check' : 'fas fa-exclamation-triangle'" class="text-sm"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="font-semibold text-slate-800 text-sm">{{ toast.type === 'success' ? 'Successo' : 'Errore' }}</p>
+                    <p class="text-xs text-slate-500 mt-0.5">{{ toast.message }}</p>
+                </div>
+                <button @click="removeToast(index)" class="text-slate-400 hover:text-slate-600">
+                    <i class="fas fa-times text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const supabaseUrl = 'https://msqdvvetjyrnnvaqmqwr.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zcWR2dmV0anlybm52YXFtcXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5OTQ0MjgsImV4cCI6MjA5MDU3MDQyOH0.Qy8A6OkwS_f6LPXIH76kJ12A4l-NNys_cSz_qXaOL4s'
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+        const { createApp } = Vue
+
+        createApp({
+            data() {
+                return {
+                    currentTab: 'dashboard',
+                    loading: true,
+                    sidebarOpen: false,
+                    siteConfig: [],
+                    aboutImages: [],
+                    services: [],
+                    projects: [],
+                    beforeAfter: [],
+                    messages: [],
+                    isUploadingMultiple: false,
+                    toasts: [],
+                    toastId: 0,
+                    tabs: [
+                        { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-th-large' },
+                        { id: 'config', label: 'Configurazione', icon: 'fas fa-cog' },
+                        { id: 'about', label: 'Chi Siamo', icon: 'fas fa-users' },
+                        { id: 'services', label: 'Servizi', icon: 'fas fa-wrench' },
+                        { id: 'projects', label: 'Galleria', icon: 'fas fa-images' },
+                        { id: 'beforeAfter', label: 'Prima & Dopo', icon: 'fas fa-exchange-alt' },
+                        { id: 'messages', label: 'Messaggi', icon: 'fas fa-envelope' },
+                    ]
+                }
+            },
+            computed: {
+                currentTabLabel() {
+                    const tab = this.tabs.find(t => t.id === this.currentTab)
+                    return tab ? tab.label : ''
+                },
+                currentTabDescription() {
+                    const descriptions = {
+                        dashboard: 'Panoramica generale del sito',
+                        config: 'Gestisci testi, media e impostazioni',
+                        about: 'Gestisci le immagini della sezione Chi Siamo',
+                        services: 'Aggiungi, modifica o rimuovi i servizi',
+                        projects: 'Gestisci foto e video della galleria',
+                        beforeAfter: 'Gestisci le trasformazioni prima e dopo',
+                        messages: 'Messaggi ricevuti dal modulo di contatto'
+                    }
+                    return descriptions[this.currentTab] || ''
+                },
+                dashboardStats() {
+                    return [
+                        { label: 'Progetti', value: this.projects.length, icon: 'fas fa-images', color: 'bg-gradient-to-br from-blue-500 to-blue-600' },
+                        { label: 'Servizi', value: this.services.length, icon: 'fas fa-wrench', color: 'bg-gradient-to-br from-brand to-brand-dark' },
+                        { label: 'Prima & Dopo', value: this.beforeAfter.length, icon: 'fas fa-exchange-alt', color: 'bg-gradient-to-br from-amber-500 to-orange-500' },
+                        { label: 'Messaggi', value: this.messages.length, icon: 'fas fa-envelope', color: 'bg-gradient-to-br from-red-500 to-pink-500' },
+                    ]
+                }
+            },
+            mounted() {
+                this.fetchData()
+            },
+            methods: {
+                showToast(message, type = 'success') {
+                    const id = ++this.toastId
+                    this.toasts.push({ id, message, type, leaving: false })
+                    setTimeout(() => {
+                        const idx = this.toasts.findIndex(t => t.id === id)
+                        if (idx !== -1) {
+                            this.toasts[idx].leaving = true
+                            setTimeout(() => {
+                                const i = this.toasts.findIndex(t => t.id === id)
+                                if (i !== -1) this.toasts.splice(i, 1)
+                            }, 300)
+                        }
+                    }, 3000)
+                },
+                removeToast(index) {
+                    this.toasts[index].leaving = true
+                    setTimeout(() => this.toasts.splice(index, 1), 300)
+                },
+                getConfigIcon(key) {
+                    const icons = {
+                        hero_video: 'fas fa-video',
+                        hero_title: 'fas fa-heading',
+                        hero_subtitle: 'fas fa-align-left',
+                        about_text1: 'fas fa-file-alt',
+                        about_text2: 'fas fa-file-alt',
+                        contact_address: 'fas fa-map-marker-alt',
+                        contact_phone: 'fas fa-phone',
+                        contact_email: 'fas fa-envelope',
+                        contact_pec: 'fas fa-envelope-open',
+                        contact_piva: 'fas fa-id-card'
+                    }
+                    return icons[key] || 'fas fa-sliders-h'
+                },
+                formatConfigLabel(key) {
+                    const labels = {
+                        hero_video: 'Video Hero',
+                        hero_title: 'Titolo Hero',
+                        hero_subtitle: 'Sottotitolo Hero',
+                        about_text1: 'Chi Siamo — Paragrafo 1',
+                        about_text2: 'Chi Siamo — Paragrafo 2',
+                        contact_address: 'Indirizzo',
+                        contact_phone: 'Telefono',
+                        contact_email: 'Email',
+                        contact_pec: 'PEC',
+                        contact_piva: 'Partita IVA'
+                    }
+                    return labels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
+                },
+
+                async fetchData() {
+                    this.loading = true
+                    try {
+                        const [confRes, aboutRes, servRes, projRes, baRes, msgRes] = await Promise.all([
+                            supabaseClient.from('site_config').select('*').order('id'),
+                            supabaseClient.from('about_images').select('*').order('id'),
+                            supabaseClient.from('services').select('*').order('id'),
+                            supabaseClient.from('projects').select('*').order('id'),
+                            supabaseClient.from('before_after').select('*').order('created_at', { ascending: false }),
+                            supabaseClient.from('contact_messages').select('*').order('created_at', { ascending: false })
+                        ])
+                        
+                        this.siteConfig = confRes.data || []
+                        
+                        if (!this.siteConfig.some(item => item.key === 'hero_video')) {
+                            const { data } = await supabaseClient.from('site_config').insert([{ key: 'hero_video', value: '' }]).select()
+                            if (data && data[0]) this.siteConfig.push(data[0])
+                        }
+                        
+                        this.aboutImages = aboutRes.data || []
+                        this.services = servRes.data || []
+                        this.projects = projRes.data || []
+                        this.beforeAfter = baRes.data || []
+                        this.messages = msgRes.data || []
+                    } catch (error) {
+                        console.error('Error fetching data:', error)
+                        this.showToast('Errore nel caricamento dei dati', 'error')
+                    }
+                    this.loading = false
+                },
+                async updateConfig(item) {
+                    const { error } = await supabaseClient.from('site_config').update({ value: item.value }).eq('id', item.id)
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else this.showToast('Configurazione salvata!')
+                },
+                async uploadConfigVideo(event, item) {
+                    const file = event.target.files[0]
+                    if (!file) return
+                    try {
+                        const formData = new FormData()
+                        formData.append('file', file)
+                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
+                        if (!response.ok) throw new Error('Errore di comunicazione col server')
+                        const data = await response.json()
+                        item.value = data.url
+                        await this.updateConfig(item)
+                        event.target.value = ''
+                    } catch (error) {
+                        this.showToast("Errore upload video: " + error.message, 'error')
+                    }
+                },
+                async addService() {
+                    const newService = { title: 'Nuovo Servizio', icon: 'fas fa-star', description: 'Descrizione...' }
+                    const { data, error } = await supabaseClient.from('services').insert([newService]).select()
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else { this.services.push(data[0]); this.showToast('Servizio aggiunto!') }
+                },
+                async updateService(service) {
+                    const { error } = await supabaseClient.from('services').update({ 
+                        title: service.title, icon: service.icon, description: service.description 
+                    }).eq('id', service.id)
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else this.showToast('Servizio salvato!')
+                },
+                async deleteService(id, index) {
+                    if(!confirm('Sei sicuro di voler eliminare questo servizio?')) return
+                    const { error } = await supabaseClient.from('services').delete().eq('id', id)
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else { this.services.splice(index, 1); this.showToast('Servizio eliminato!') }
+                },
+                async uploadImage(event, project) {
+                    const file = event.target.files[0]
+                    if (!file) return
+                    try {
+                        const formData = new FormData()
+                        formData.append('file', file)
+                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
+                        if (!response.ok) throw new Error('Errore di comunicazione col server')
+                        const data = await response.json()
+                        project.image_url = data.url
+                        await this.updateProject(project)
+                        event.target.value = ''
+                    } catch (error) {
+                        this.showToast("Errore upload: " + error.message, 'error')
+                    }
+                },
+                async addProject() {
+                    const newProj = { title: 'Nuovo Progetto', category: 'Galleria', image_url: 'https://picsum.photos/id/1015/600/500' }
+                    const { data, error } = await supabaseClient.from('projects').insert([newProj]).select()
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else { this.projects.push(data[0]); this.showToast('Progetto aggiunto!') }
+                },
+                async uploadMultipleImages(event) {
+                    const files = event.target.files
+                    if (!files || files.length === 0) return
+                    this.isUploadingMultiple = true
+                    try {
+                        const formData = new FormData()
+                        for (let i = 0; i < files.length; i++) formData.append('files', files[i])
+                        const response = await fetch('/api/upload-multiple', { method: 'POST', body: formData })
+                        if (!response.ok) throw new Error('Errore server durante il caricamento')
+                        const data = await response.json()
+                        const urls = data.urls
+                        const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
+                        const newProjects = urls.map(url => ({
+                            title: 'Nuovo Progetto',
+                            category: isVideoUrl(url) ? 'Video' : 'Galleria',
+                            image_url: url
+                        }))
+                        const { data: insertedData, error } = await supabaseClient.from('projects').insert(newProjects).select()
+                        if (error) throw error
+                        this.projects.push(...insertedData)
+                        this.showToast(`${urls.length} file caricati con successo!`)
+                    } catch (error) {
+                        this.showToast("Errore upload multiplo: " + error.message, 'error')
+                    } finally {
+                        this.isUploadingMultiple = false
+                        event.target.value = ''
+                    }
+                },
+                isVideoUrl(url) {
+                    return /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
+                },
+                async updateProject(project) {
+                    const { error } = await supabaseClient.from('projects').update({ 
+                        title: project.title, category: project.category, image_url: project.image_url 
+                    }).eq('id', project.id)
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else this.showToast('Progetto salvato!')
+                },
+                async deleteProject(id, index) {
+                    if(!confirm('Sei sicuro di voler eliminare questo progetto?')) return
+                    const { error } = await supabaseClient.from('projects').delete().eq('id', id)
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else { this.projects.splice(index, 1); this.showToast('Progetto eliminato!') }
+                },
+                async addBeforeAfter() {
+                    const newItem = {
+                        title: 'Prima & Dopo',
+                        category: 'Prima/Dopo',
+                        before_url: 'https://picsum.photos/id/1060/900/600',
+                        after_url: 'https://picsum.photos/id/1069/900/600'
+                    }
+                    const { data, error } = await supabaseClient.from('before_after').insert([newItem]).select()
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else { this.beforeAfter.unshift(data[0]); this.showToast('Elemento aggiunto!') }
+                },
+                async updateBeforeAfter(item, showToast = true) {
+                    const { error } = await supabaseClient.from('before_after').update({
+                        title: item.title, category: item.category,
+                        before_url: item.before_url, after_url: item.after_url
+                    }).eq('id', item.id)
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else if (showToast) this.showToast('Salvato con successo!')
+                },
+                async deleteBeforeAfter(id, index) {
+                    if(!confirm('Sei sicuro di voler eliminare questo elemento?')) return
+                    const { error } = await supabaseClient.from('before_after').delete().eq('id', id)
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else { this.beforeAfter.splice(index, 1); this.showToast('Elemento eliminato!') }
+                },
+                async uploadBefore(event, item) {
+                    const file = event.target.files[0]
+                    if (!file) return
+                    try {
+                        const formData = new FormData()
+                        formData.append('file', file)
+                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
+                        if (!response.ok) throw new Error('Errore di comunicazione col server')
+                        const data = await response.json()
+                        item.before_url = data.url
+                        await this.updateBeforeAfter(item, false)
+                        event.target.value = ''
+                        this.showToast('Immagine "Prima" caricata!')
+                    } catch (error) {
+                        this.showToast("Errore upload: " + error.message, 'error')
+                    }
+                },
+                async uploadAfter(event, item) {
+                    const file = event.target.files[0]
+                    if (!file) return
+                    try {
+                        const formData = new FormData()
+                        formData.append('file', file)
+                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
+                        if (!response.ok) throw new Error('Errore di comunicazione col server')
+                        const data = await response.json()
+                        item.after_url = data.url
+                        await this.updateBeforeAfter(item, false)
+                        event.target.value = ''
+                        this.showToast('Immagine "Dopo" caricata!')
+                    } catch (error) {
+                        this.showToast("Errore upload: " + error.message, 'error')
+                    }
+                },
+                async uploadAboutImage(event, image) {
+                    const file = event.target.files[0]
+                    if (!file) return
+                    try {
+                        const formData = new FormData()
+                        formData.append('file', file)
+                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
+                        if (!response.ok) throw new Error('Errore di comunicazione col server')
+                        const data = await response.json()
+                        image.image_url = data.url
+                        await this.updateAboutImage(image, false)
+                        event.target.value = ''
+                        this.showToast('Immagine caricata!')
+                    } catch (error) {
+                        this.showToast("Errore upload: " + error.message, 'error')
+                    }
+                },
+                async updateAboutImage(image, showToast = true) {
+                    const { error } = await supabaseClient.from('about_images').update({
+                        image_url: image.image_url, alt_text: image.alt_text, caption: image.caption
+                    }).eq('id', image.id)
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else if (showToast) this.showToast('Immagine salvata!')
+                },
+                async addAboutImage() {
+                    const newImage = {
+                        image_url: 'https://picsum.photos/id/1075/500/600',
+                        alt_text: 'Immagine Chi Siamo',
+                        caption: ''
+                    }
+                    const { data, error } = await supabaseClient.from('about_images').insert([newImage]).select()
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else { this.aboutImages.push(data[0]); this.showToast('Immagine aggiunta!') }
+                }
+            }
+        }).mount('#app')
+    </script>
+</body>
+</html>

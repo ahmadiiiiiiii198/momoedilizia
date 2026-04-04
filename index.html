@@ -1,0 +1,854 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gruppo Momo Edilizia</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            DEFAULT: '#2ba8b4', // Approximate logo background color
+                            dark: '#1e7f88',
+                            light: '#4ec1cb'
+                        },
+                        dark: '#1a1a1a'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- AOS Animation Library -->
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <style>
+        :root {
+            --brand: #2ba8b4;
+            --brand-dark: #1e7f88;
+            --brand-light: #4ec1cb;
+        }
+
+        .hero-pattern {
+            background-image: linear-gradient(rgba(30, 127, 136, 0.85), rgba(43, 168, 180, 0.85)), url('https://picsum.photos/id/1021/1920/1080');
+            background-size: cover;
+            background-position: center;
+        }
+
+        #hero_video_player {
+            filter: brightness(0.78) contrast(1.12) saturate(1.12);
+            transform: scale(1.03);
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        
+        .animate-scroll {
+            animation: scroll 80s linear infinite;
+        }
+
+        .animate-scroll-videos {
+            animation: scroll 80s linear infinite;
+        }
+        
+        .animate-scroll:hover,
+        .animate-scroll-videos:hover {
+            animation-play-state: paused;
+        }
+
+        /* Pulse animation for floating buttons */
+        @keyframes pulse-custom {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(43, 168, 180, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(43, 168, 180, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(43, 168, 180, 0); }
+        }
+        
+        .pulse-btn {
+            animation: pulse-custom 2s infinite;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(14px);
+        }
+
+        .ba-range {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 10px;
+            border-radius: 9999px;
+            background: rgba(17, 24, 39, 0.14);
+            outline: none;
+        }
+
+        .ba-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(43, 168, 180, 0.95);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+            cursor: pointer;
+        }
+
+        .ba-range::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid rgba(43, 168, 180, 0.95);
+            box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="font-sans text-gray-800 antialiased selection:bg-brand selection:text-white bg-gradient-to-b from-white via-white to-gray-50">
+
+    <!-- Navbar -->
+    <nav id="navbar" class="sticky top-0 z-50 bg-white/70 border-b border-gray-200/60 backdrop-blur-xl transition-shadow duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <img class="h-14 w-auto object-contain" src="icon.png" alt="Gruppo Momo Edilizia Icon" onerror="this.outerHTML='<i class=\'fas fa-city text-4xl text-brand\'></i>'">
+                    <div class="font-display font-bold flex flex-col leading-none">
+                        <span class="text-dark text-2xl tracking-widest">GRUPPO</span>
+                        <span class="text-brand uppercase text-lg tracking-wide">Momo Edilizia</span>
+                    </div>
+                </div>
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Home</a>
+                    <a href="#servizi" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Servizi</a>
+                    <a href="#chi-siamo" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Chi Siamo</a>
+                    <a href="#galleria" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Galleria</a>
+                    <a href="#prima-dopo" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Prima & Dopo</a>
+                    <a href="#sedi" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Sedi</a>
+                    <a href="#contatti" class="bg-gradient-to-r from-brand to-brand-dark text-white px-6 py-2.5 rounded-full font-semibold shadow-lg hover:shadow-xl hover:brightness-105 transition-all duration-200">Contattaci</a>
+                </div>
+                <button id="mobileMenuBtn" class="md:hidden w-11 h-11 rounded-xl glass flex items-center justify-center text-gray-800 shadow-sm">
+                    <i id="mobileMenuIcon" class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div id="mobileMenu" class="md:hidden hidden pb-5">
+                <div class="glass rounded-2xl px-4 py-4 flex flex-col gap-2 shadow-lg">
+                    <a href="#home" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Home</a>
+                    <a href="#servizi" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Servizi</a>
+                    <a href="#chi-siamo" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Chi Siamo</a>
+                    <a href="#galleria" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Galleria</a>
+                    <a href="#prima-dopo" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Prima & Dopo</a>
+                    <a href="#sedi" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Sedi</a>
+                    <a href="#contatti" class="mt-1 bg-gradient-to-r from-brand to-brand-dark text-white px-4 py-3 rounded-xl font-semibold shadow-md">Contattaci</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="h-[80vh] min-h-[600px] flex items-center relative overflow-hidden bg-gray-900">
+        <!-- Video Background -->
+        <video id="hero_video_player" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0">
+            <source id="hero_video_src" src="" type="video/mp4">
+        </video>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+            <div class="max-w-3xl" data-aos="fade-up" data-aos-duration="1200">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-gray-900 shadow-md mb-6">
+                    <span class="w-2 h-2 rounded-full bg-brand"></span>
+                    <span class="text-sm font-semibold tracking-wide">Impresa Edile</span>
+                    <span class="text-sm text-gray-600">•</span>
+                    <span class="text-sm font-semibold tracking-wide">Qualità & Sicurezza</span>
+                </div>
+                <h1 id="hero_title" class="font-display text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
+                    Costruiamo il Tuo <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">Futuro</span>
+                </h1>
+                <p id="hero_subtitle" class="text-xl text-gray-100/90 mb-10 max-w-2xl font-light leading-relaxed" data-aos="fade-up" data-aos-delay="200">
+                    Eccellenza, passione e professionalità nel settore edile. Dalla progettazione alla realizzazione, diamo forma alle tue idee con materiali di altissima qualità.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4" data-aos="fade-up" data-aos-delay="400">
+                    <a href="#servizi" class="bg-gradient-to-r from-brand to-brand-dark text-white px-8 py-4 rounded-full font-bold text-lg text-center shadow-2xl hover:shadow-[0_30px_80px_rgba(43,168,180,0.35)] hover:-translate-y-0.5 transition-all duration-200">Scopri i Servizi</a>
+                    <a href="#contatti" class="glass text-gray-900 px-8 py-4 rounded-full font-bold text-lg text-center hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-200">Richiedi Preventivo</a>
+                </div>
+            </div>
+        </div>
+        <!-- Decorative Shape Divider -->
+        <div class="absolute bottom-0 w-full overflow-hidden leading-none">
+            <svg class="relative block w-full h-[70px] md:h-[90px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,72 C160,112 340,16 600,56 C860,96 1040,32 1200,64 L1200,120 L0,120 Z" class="fill-gray-50"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="servizi" class="py-24 bg-gray-50 relative overflow-hidden">
+        <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand/10 blur-3xl"></div>
+        <div class="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-brand/10 blur-3xl"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2">Cosa Facciamo</h2>
+                <h3 class="font-display text-4xl font-bold text-gray-900">I Nostri Servizi</h3>
+                <div class="w-24 h-1 bg-brand mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <div id="services-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Service 1 -->
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i class="fas fa-hammer text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Ristrutturazioni</h4>
+                    <p class="text-gray-600 leading-relaxed">Rinnoviamo i tuoi spazi residenziali e commerciali con soluzioni innovative, rispettando i tempi concordati e il tuo budget.</p>
+                </div>
+                <!-- Service 2 -->
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i class="fas fa-building text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Nuove Costruzioni</h4>
+                    <p class="text-gray-600 leading-relaxed">Realizziamo edifici moderni, sicuri e ad alta efficienza energetica, curando ogni dettaglio dalle fondamenta al tetto.</p>
+                </div>
+                <!-- Service 3 -->
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1">
+                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i class="fas fa-tools text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Manutenzione</h4>
+                    <p class="text-gray-600 leading-relaxed">Offriamo servizi di manutenzione ordinaria e straordinaria per preservare il valore e la sicurezza dei tuoi immobili nel tempo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="chi-siamo" class="py-24 bg-white relative overflow-hidden">
+        <!-- Decorative Background Element -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-brand/5 blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-brand/5 blur-3xl"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center gap-16">
+                <!-- Image Grid Side -->
+                <div class="lg:w-1/2 w-full relative" data-aos="fade-right">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-4 mt-8">
+                            <img src="https://picsum.photos/id/1075/500/600" alt="Cantiere in corso" class="rounded-2xl shadow-xl w-full object-cover h-64 transform transition hover:-translate-y-2 duration-300">
+                            <img src="https://picsum.photos/id/1040/500/400" alt="Materiali edili" class="rounded-2xl shadow-xl w-full object-cover h-48 transform transition hover:-translate-y-2 duration-300">
+                        </div>
+                        <div class="space-y-4">
+                            <img src="https://picsum.photos/id/1010/500/400" alt="Progetto architettonico" class="rounded-2xl shadow-xl w-full object-cover h-48 transform transition hover:-translate-y-2 duration-300">
+                            <img src="https://picsum.photos/id/1033/500/600" alt="Team al lavoro" class="rounded-2xl shadow-xl w-full object-cover h-64 transform transition hover:-translate-y-2 duration-300">
+                        </div>
+                    </div>
+                    <!-- Floating Badge -->
+                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-2xl shadow-2xl border-4 border-white text-center w-48">
+                        <h4 class="text-4xl font-display font-bold text-brand mb-1">10+</h4>
+                        <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Anni di Esperienza</p>
+                    </div>
+                </div>
+
+                <!-- Text Content Side -->
+                <div class="lg:w-1/2 w-full" data-aos="fade-left">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="h-px w-12 bg-brand"></div>
+                        <h2 class="text-brand font-semibold tracking-wider uppercase text-sm">Chi Siamo</h2>
+                    </div>
+                    <h3 class="font-display text-4xl lg:text-5xl font-bold text-gray-900 mb-8 leading-tight">
+                        Costruiamo basi solide per i <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-dark to-brand-light">tuoi progetti</span>
+                    </h3>
+                    
+                    <p id="about_text1" class="text-gray-600 mb-6 text-lg leading-relaxed">
+                        Siamo un'impresa edile dinamica, nata con l'obiettivo di portare innovazione e qualità superiore in ogni cantiere. Il nostro team è composto da professionisti altamente qualificati con una profonda conoscenza del settore.
+                    </p>
+                    <p id="about_text2" class="text-gray-600 mb-10 text-lg leading-relaxed">
+                        Crediamo fortemente che ogni progetto sia unico. Per questo lavoriamo a stretto contatto con i nostri clienti, garantendo totale trasparenza, rigoroso rispetto delle normative di sicurezza e l'utilizzo di materiali certificati e all'avanguardia.
+                    </p>
+
+                    <!-- Core Values List -->
+                    <div class="space-y-4 mb-10">
+                        <div class="flex items-start" data-aos="fade-up" data-aos-delay="100">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
+                                <i class="fas fa-check text-brand text-sm"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h5 class="text-gray-900 font-bold text-lg">Qualità Garantita</h5>
+                                <p class="text-gray-600 mt-1">Utilizziamo solo i migliori materiali per risultati duraturi nel tempo.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start" data-aos="fade-up" data-aos-delay="200">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
+                                <i class="fas fa-clock text-brand text-sm"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h5 class="text-gray-900 font-bold text-lg">Rispetto dei Tempi</h5>
+                                <p class="text-gray-600 mt-1">Pianificazione accurata per consegnare il progetto nei tempi stabiliti.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start" data-aos="fade-up" data-aos-delay="300">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
+                                <i class="fas fa-hard-hat text-brand text-sm"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h5 class="text-gray-900 font-bold text-lg">Sicurezza al Primo Posto</h5>
+                                <p class="text-gray-600 mt-1">Rigidi protocolli per garantire cantieri sicuri e a norma di legge.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="galleria" class="py-24 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2">I Nostri Lavori</h2>
+                <h3 class="font-display text-4xl font-bold text-gray-900">Galleria Progetti</h3>
+                <div class="w-24 h-1 bg-brand mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <!-- Horizontal Scrolling Gallery -->
+            <div class="relative w-full overflow-hidden mt-10 pb-10">
+                <!-- Fade edges for smooth effect -->
+                <div class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none"></div>
+                
+                <!-- Scrolling Track -->
+                <div id="projects-track" class="flex w-max animate-scroll">
+                    <!-- Set 1 -->
+                    <div id="projects-set-1" class="flex gap-6 px-3">
+                    </div>
+                    <!-- Set 2 -->
+                    <div id="projects-set-2" class="flex gap-6 px-3">
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center max-w-3xl mx-auto mt-8 mb-10">
+                <h3 class="font-display text-3xl font-bold text-gray-900">Galleria Video</h3>
+                <div class="w-16 h-1 bg-brand mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div id="videos-gallery-wrapper" class="relative w-full overflow-hidden mt-8 pb-10">
+                <div class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none"></div>
+                <div class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none"></div>
+
+                <div id="videos-track" class="flex w-max animate-scroll-videos">
+                    <div id="videos-set-1" class="flex gap-6 px-3">
+                    </div>
+                    <div id="videos-set-2" class="flex gap-6 px-3">
+                    </div>
+                </div>
+            </div>
+
+            <div id="videos-empty" class="hidden text-center text-gray-500 font-medium mt-4">
+                Nessun video disponibile al momento.
+            </div>
+        </div>
+    </section>
+
+    <section id="prima-dopo" class="py-24 bg-white relative overflow-hidden">
+        <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-brand/10 blur-3xl"></div>
+        <div class="absolute -bottom-28 -right-28 w-96 h-96 rounded-full bg-brand/10 blur-3xl"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-3xl mx-auto mb-14">
+                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2">Prima & Dopo</h2>
+                <h3 class="font-display text-4xl font-bold text-gray-900">Trasformazioni Reali</h3>
+                <p class="text-gray-600 mt-4 text-lg">Confronta il risultato: sposta lo slider per vedere il prima e il dopo.</p>
+                <div class="w-24 h-1 bg-brand mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <div id="before-after-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            </div>
+
+            <div id="before-after-empty" class="hidden text-center text-gray-500 font-medium mt-6">
+                Sezione in aggiornamento: presto aggiungeremo nuove trasformazioni.
+            </div>
+        </div>
+    </section>
+
+    <!-- Locations Section -->
+    <section id="sedi" class="py-24 bg-gray-50 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2">Dove Siamo</h2>
+                <h3 class="font-display text-4xl font-bold text-gray-900">Le Nostre Sedi</h3>
+                <div class="w-24 h-1 bg-brand mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Sede 1 -->
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1" data-aos="fade-up" data-aos-delay="0">
+                    <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Moncalieri</h4>
+                    <p class="text-gray-600 leading-relaxed font-medium">Corso Roma 87<br>Moncalieri (TO)</p>
+                </div>
+                <!-- Sede 2 -->
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1" data-aos="fade-up" data-aos-delay="100">
+                    <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Collegno</h4>
+                    <p class="text-gray-600 leading-relaxed font-medium">Via Alessandro Manzoni 7<br>Collegno (TO)</p>
+                </div>
+                <!-- Sede 3 -->
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1" data-aos="fade-up" data-aos-delay="200">
+                    <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Torino</h4>
+                    <p class="text-gray-600 leading-relaxed font-medium">Via Baretti 2<br>Torino (TO)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contatti" class="py-24 bg-dark text-white relative">
+        <div class="absolute top-0 w-full overflow-hidden leading-none rotate-180">
+            <svg class="relative block w-full h-[70px] md:h-[90px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,72 C160,112 340,16 600,56 C860,96 1040,32 1200,64 L1200,120 L0,120 Z" class="fill-white"></path>
+            </svg>
+        </div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <!-- Contact Info -->
+                <div data-aos="fade-right">
+                    <h2 class="font-display text-4xl font-bold mb-6">Pronti a iniziare il tuo progetto?</h2>
+                    <p class="text-gray-400 mb-10 text-lg">Contattaci per un sopralluogo gratuito o per richiedere un preventivo senza impegno. Il nostro team ti risponderà nel minor tempo possibile.</p>
+                    
+                    <div class="space-y-8">
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-map-marker-alt text-brand text-xl"></i>
+                            </div>
+                            <div class="ml-6">
+                                <h4 class="text-lg font-bold">Sede Operativa</h4>
+                                <p id="contact_address" class="text-gray-400 mt-1">Via Roma 123, 00100 Città (Provincia)</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-phone-alt text-brand text-xl"></i>
+                            </div>
+                            <div class="ml-6">
+                                <h4 class="text-lg font-bold">Telefono</h4>
+                                <p id="contact_phone" class="text-gray-400 mt-1">+39 012 345 6789</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-envelope text-brand text-xl"></i>
+                            </div>
+                            <div class="ml-6">
+                                <h4 class="text-lg font-bold">Email</h4>
+                                <p id="contact_email" class="text-gray-400 mt-1">info@gruppomomoedilizia.it</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-envelope-open-text text-brand text-xl"></i>
+                            </div>
+                            <div class="ml-6">
+                                <h4 class="text-lg font-bold">PEC</h4>
+                                <p id="contact_pec" class="text-gray-400 mt-1">elsaifyservizi@pec.it</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="bg-white rounded-3xl p-8 sm:p-10 shadow-2xl" data-aos="fade-left">
+                    <form id="contact-form" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>
+                            <input id="contact-name" type="text" class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900" placeholder="Mario Rossi" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Indirizzo Email</label>
+                            <input id="contact-email-input" type="email" class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900" placeholder="mario.rossi@email.it" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Messaggio</label>
+                            <textarea id="contact-message" rows="4" class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900 resize-none" placeholder="Descrivi brevemente il tuo progetto..." required></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 rounded-xl transition-colors duration-300 shadow-lg">
+                            Invia Richiesta
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WhatsApp & Request Floating Buttons -->
+    <div class="fixed bottom-6 right-6 flex flex-col gap-4 z-[100]">
+        <!-- WhatsApp Button -->
+        <a id="whatsapp_link" href="https://wa.me/393246082115" target="_blank" class="bg-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300 group relative pulse-btn">
+            <i class="fab fa-whatsapp text-3xl"></i>
+            <span class="absolute right-full mr-3 bg-white text-gray-800 px-3 py-1 rounded-lg text-sm font-bold shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Chatta con noi</span>
+        </a>
+        <!-- Quick Request Button -->
+        <a href="#contatti" class="bg-brand text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300 group relative pulse-btn" style="animation-delay: 1s;">
+            <i class="fas fa-paper-plane text-xl"></i>
+            <span class="absolute right-full mr-3 bg-white text-gray-800 px-3 py-1 rounded-lg text-sm font-bold shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Invia Richiesta</span>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#111] text-gray-500 py-8 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-center md:text-left">
+                <p>&copy; 2024 Gruppo Momo Edilizia. Tutti i diritti riservati.</p>
+                <p class="text-xs mt-1">
+                    P.IVA: <span id="contact_piva">13040800016</span> | 
+                    PEC: <span id="contact_pec_footer">elsaifyservizi@pec.it</span>
+                </p>
+            </div>
+            <div class="flex space-x-6">
+                <a href="#" class="text-gray-500 hover:text-white transition-colors"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" class="text-gray-500 hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-gray-500 hover:text-white transition-colors"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const supabaseUrl = 'https://msqdvvetjyrnnvaqmqwr.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zcWR2dmV0anlybm52YXFtcXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5OTQ0MjgsImV4cCI6MjA5MDU3MDQyOH0.Qy8A6OkwS_f6LPXIH76kJ12A4l-NNys_cSz_qXaOL4s'
+        const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+        async function loadData() {
+            try {
+                const [confRes, aboutRes, servRes, projRes, baRes] = await Promise.all([
+                    supabaseClient.from('site_config').select('*'),
+                    supabaseClient.from('about_images').select('*').order('id'),
+                    supabaseClient.from('services').select('*').order('id'),
+                    supabaseClient.from('projects').select('*').order('id'),
+                    supabaseClient.from('before_after').select('*').order('created_at', { ascending: false })
+                ])
+
+                // Load Config
+                if (confRes.data) {
+                    confRes.data.forEach(item => {
+                        if (item.key === 'hero_video') {
+                            const videoSrc = document.getElementById('hero_video_src')
+                            const videoPlayer = document.getElementById('hero_video_player')
+                            if (videoSrc && videoPlayer && item.value) {
+                                videoSrc.src = item.value
+                                videoPlayer.load()
+                            }
+                        } else {
+                            const elements = document.querySelectorAll(`[id="${item.key}"]`)
+                            elements.forEach(el => {
+                                el.innerHTML = item.value
+                            })
+                            // Special case for PEC in footer
+                            if (item.key === 'contact_pec') {
+                                const footerPec = document.getElementById('contact_pec_footer')
+                                if (footerPec) footerPec.innerHTML = item.value
+                            }
+                            // Special case for P.IVA in footer
+                            if (item.key === 'contact_piva') {
+                                const footerPiva = document.getElementById('contact_piva')
+                                if (footerPiva) footerPiva.innerHTML = item.value
+                            }
+                            // Special case for WhatsApp link
+                            if (item.key === 'contact_phone') {
+                                const whatsappLink = document.getElementById('whatsapp_link')
+                                if (whatsappLink) {
+                                    const mainPhone = item.value.split('/')[0].trim().replace(/\./g, '').replace(/\s/g, '')
+                                    whatsappLink.href = `https://wa.me/39${mainPhone}`
+                                }
+                            }
+                        }
+                    })
+                }
+
+                // Load About Us Images
+                if (aboutRes.data && aboutRes.data.length > 0) {
+                    const aboutImageElements = document.querySelectorAll('#chi-siamo img');
+                    aboutRes.data.forEach((image, index) => {
+                        if (aboutImageElements[index] && image.image_url) {
+                            aboutImageElements[index].src = image.image_url;
+                            if (image.alt_text) {
+                                aboutImageElements[index].alt = image.alt_text;
+                            }
+                        }
+                    });
+                }
+
+                // Load Services
+                if (servRes.data && servRes.data.length > 0) {
+                    const servicesContainer = document.getElementById('services-container')
+                    servicesContainer.innerHTML = ''
+                    servRes.data.forEach((service, index) => {
+                        servicesContainer.innerHTML += `
+                            <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1" 
+                                 data-aos="fade-up" data-aos-delay="${index * 100}">
+                                <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                                    <i class="${service.icon} text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                                </div>
+                                <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">${service.title}</h4>
+                                <p class="text-gray-600 leading-relaxed">${service.description}</p>
+                            </div>
+                        `
+                    })
+                }
+
+                // Load Projects
+                if (projRes.data && projRes.data.length > 0) {
+                    const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
+
+                    const imageProjects = projRes.data.filter(p => !isVideoUrl(p.image_url))
+                    const videoProjects = projRes.data.filter(p => isVideoUrl(p.image_url))
+
+                    let imageHtml = ''
+                    imageProjects.forEach(project => {
+                        imageHtml += `
+                            <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer w-72 md:w-96 h-64 md:h-80 flex-shrink-0" data-aos="zoom-in">
+                                <img src="${project.image_url}" alt="${project.title}" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out" onerror="this.src='https://via.placeholder.com/600x500?text=Image+Error'">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                                    <div class="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                                        <span class="inline-block px-3 py-1 bg-brand text-white text-xs font-bold rounded-full mb-2 shadow-md">${project.category}</span>
+                                        <h4 class="text-white text-xl font-bold font-display">${project.title}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        `
+                    })
+                    document.getElementById('projects-set-1').innerHTML = imageHtml
+                    document.getElementById('projects-set-2').innerHTML = imageHtml
+
+                    const videosWrapper = document.getElementById('videos-gallery-wrapper')
+                    const videosEmpty = document.getElementById('videos-empty')
+
+                    if (videoProjects.length > 0) {
+                        let videoHtml = ''
+                        videoProjects.forEach(project => {
+                            videoHtml += `
+                                <div class="group relative overflow-hidden rounded-2xl shadow-lg w-72 md:w-96 h-64 md:h-80 flex-shrink-0 bg-black" data-aos="zoom-in">
+                                    <video src="${project.image_url}" class="w-full h-full object-cover" playsinline preload="metadata" controls></video>
+                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 pointer-events-none">
+                                        <div class="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                                            <span class="inline-block px-3 py-1 bg-brand text-white text-xs font-bold rounded-full mb-2 shadow-md">${project.category}</span>
+                                            <h4 class="text-white text-xl font-bold font-display">${project.title}</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            `
+                        })
+                        document.getElementById('videos-set-1').innerHTML = videoHtml
+                        document.getElementById('videos-set-2').innerHTML = videoHtml
+                        if (videosWrapper) videosWrapper.classList.remove('hidden')
+                        if (videosEmpty) videosEmpty.classList.add('hidden')
+
+                        setTimeout(() => {
+                            const pTrack = document.getElementById('projects-track');
+                            const vTrack = document.getElementById('videos-track');
+                            if (pTrack && vTrack && pTrack.scrollWidth > 0) {
+                                const pWidth = pTrack.scrollWidth;
+                                const vWidth = vTrack.scrollWidth;
+                                const vDuration = (80 * vWidth) / pWidth;
+                                vTrack.style.animationDuration = vDuration + 's';
+                            }
+                        }, 100);
+                    } else {
+                        document.getElementById('videos-set-1').innerHTML = ''
+                        document.getElementById('videos-set-2').innerHTML = ''
+                        if (videosWrapper) videosWrapper.classList.add('hidden')
+                        if (videosEmpty) videosEmpty.classList.remove('hidden')
+                    }
+                }
+
+                const initBeforeAfter = () => {
+                    document.querySelectorAll('[data-ba-wrapper]').forEach(wrapper => {
+                        const card = wrapper.querySelector('[data-ba-card]')
+                        const range = wrapper.querySelector('[data-ba-range]')
+                        const afterImg = wrapper.querySelector('[data-ba-after]')
+                        const line = wrapper.querySelector('[data-ba-line]')
+                        const knob = wrapper.querySelector('[data-ba-knob]')
+                        if (!card || !range || !afterImg || !line || !knob) return
+
+                        const update = (val) => {
+                            const v = Math.max(0, Math.min(100, Number(val)))
+                            afterImg.style.clipPath = `inset(0 0 0 ${v}%)`
+                            line.style.left = `${v}%`
+                            knob.style.left = `${v}%`
+                        }
+
+                        update(range.value)
+                        range.addEventListener('input', (e) => update(e.target.value))
+
+                        const setFromClientX = (clientX) => {
+                            const rect = card.getBoundingClientRect()
+                            const v = ((clientX - rect.left) / rect.width) * 100
+                            range.value = String(Math.max(0, Math.min(100, v)))
+                            update(range.value)
+                        }
+
+                        card.addEventListener('pointerdown', (e) => {
+                            setFromClientX(e.clientX)
+                            const move = (ev) => setFromClientX(ev.clientX)
+                            const up = () => {
+                                card.removeEventListener('pointermove', move)
+                                card.removeEventListener('pointerup', up)
+                                card.removeEventListener('pointercancel', up)
+                            }
+                            card.addEventListener('pointermove', move)
+                            card.addEventListener('pointerup', up)
+                            card.addEventListener('pointercancel', up)
+                        })
+                    })
+                }
+
+                const grid = document.getElementById('before-after-grid')
+                const empty = document.getElementById('before-after-empty')
+
+                if (grid) {
+                    if (baRes.data && baRes.data.length > 0) {
+                        let html = ''
+                        baRes.data.forEach((item, index) => {
+                            html += `
+                                <div class="glass rounded-3xl p-5 shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60" data-aos="fade-up" data-aos-delay="${index * 80}">
+                                    <div class="flex items-start justify-between gap-4 mb-4">
+                                        <div>
+                                            <h4 class="font-display text-2xl font-bold text-gray-900">${item.title || 'Prima & Dopo'}</h4>
+                                            <p class="text-gray-600 text-sm mt-1">${item.category || 'Prima/Dopo'}</p>
+                                        </div>
+                                    </div>
+                                    <div data-ba-wrapper>
+                                        <div data-ba-card class="relative overflow-hidden rounded-2xl aspect-[16/10] bg-gray-200 cursor-ew-resize select-none touch-none">
+                                            <img src="${item.before_url}" alt="Prima" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/900x600?text=Before'">
+                                            <img data-ba-after src="${item.after_url}" alt="Dopo" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);" onerror="this.src='https://via.placeholder.com/900x600?text=After'">
+                                            <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Prima</div>
+                                            <div class="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Dopo</div>
+                                            <div data-ba-line class="absolute inset-y-0 left-1/2 w-[2px] bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.12)] pointer-events-none"></div>
+                                            <div data-ba-knob class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 border border-white shadow-xl flex items-center justify-center text-gray-900 pointer-events-none">
+                                                <i class="fas fa-arrows-left-right"></i>
+                                            </div>
+                                        </div>
+                                        <div class="mt-4">
+                                            <input data-ba-range type="range" min="0" max="100" value="50" class="ba-range w-full">
+                                            <div class="flex justify-between text-xs text-gray-500 mt-2">
+                                                <span>Prima</span>
+                                                <span>Dopo</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `
+                        })
+                        grid.innerHTML = html
+                        if (empty) empty.classList.add('hidden')
+                        initBeforeAfter()
+                    } else {
+                        grid.innerHTML = ''
+                        if (empty) empty.classList.remove('hidden')
+                    }
+                }
+
+                // Initialize AOS
+                AOS.init({
+                    duration: 800,
+                    once: true,
+                    offset: 100
+                })
+
+            } catch (error) {
+                console.error('Error loading data from Supabase:', error)
+            }
+        }
+
+        // Contact Form Submission
+        document.getElementById('contact-form').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const name = document.getElementById('contact-name').value
+            const email = document.getElementById('contact-email-input').value
+            const message = document.getElementById('contact-message').value
+
+            const submitBtn = e.target.querySelector('button[type="submit"]')
+            const originalText = submitBtn.innerText
+            submitBtn.innerText = 'Invio in corso...'
+            submitBtn.disabled = true
+
+            try {
+                const { error } = await supabaseClient.from('contact_messages').insert([
+                    { name, email, message }
+                ])
+                if (error) throw error
+                
+                alert('Messaggio inviato con successo! Ti contatteremo al più presto.')
+                e.target.reset()
+            } catch (error) {
+                alert('Si è verificato un errore. Riprova più tardi.')
+                console.error(error)
+            } finally {
+                submitBtn.innerText = originalText
+                submitBtn.disabled = false
+            }
+        })
+
+        // Initialize
+        const setupNav = () => {
+            const nav = document.getElementById('navbar')
+            const btn = document.getElementById('mobileMenuBtn')
+            const menu = document.getElementById('mobileMenu')
+            const icon = document.getElementById('mobileMenuIcon')
+            if (!nav || !btn || !menu || !icon) return
+
+            const closeMenu = () => {
+                menu.classList.add('hidden')
+                icon.classList.remove('fa-xmark')
+                icon.classList.add('fa-bars')
+                btn.setAttribute('aria-expanded', 'false')
+            }
+
+            btn.addEventListener('click', () => {
+                const willOpen = menu.classList.contains('hidden')
+                if (willOpen) {
+                    menu.classList.remove('hidden')
+                    icon.classList.remove('fa-bars')
+                    icon.classList.add('fa-xmark')
+                    btn.setAttribute('aria-expanded', 'true')
+                } else {
+                    closeMenu()
+                }
+            })
+
+            menu.querySelectorAll('a[href^="#"]').forEach(a => {
+                a.addEventListener('click', () => closeMenu())
+            })
+
+            window.addEventListener('scroll', () => {
+                if (window.scrollY > 8) nav.classList.add('shadow-xl')
+                else nav.classList.remove('shadow-xl')
+            }, { passive: true })
+        }
+
+        setupNav()
+        loadData()
+    </script>
+</body>
+</html>
