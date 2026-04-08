@@ -48,10 +48,6 @@
             background-position: center;
         }
 
-        #hero_video_player {
-            filter: brightness(0.78) contrast(1.12) saturate(1.12);
-            transform: scale(1.03);
-        }
         
         @keyframes scroll {
             0% { transform: translateX(0); }
@@ -164,10 +160,21 @@
 
     <!-- Hero Section -->
     <section id="home" class="h-[80vh] min-h-[600px] flex items-center relative overflow-hidden bg-gray-900">
-        <!-- Video Background -->
-        <video id="hero_video_player" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover z-0">
-            <source id="hero_video_src" src="" type="video/mp4">
-        </video>
+        <!-- 4 Video Containers Background -->
+        <div class="absolute inset-0 z-0 grid grid-cols-2 md:grid-cols-4 w-full h-full">
+            <div class="w-full h-full relative overflow-hidden bg-black border-r border-b md:border-b-0 border-gray-800">
+                <video id="hero_video_1" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
+            </div>
+            <div class="w-full h-full relative overflow-hidden bg-black border-r border-b md:border-b-0 border-gray-800">
+                <video id="hero_video_2" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
+            </div>
+            <div class="w-full h-full relative overflow-hidden bg-black border-r border-b md:border-b-0 border-gray-800">
+                <video id="hero_video_3" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
+            </div>
+            <div class="w-full h-full relative overflow-hidden bg-black border-b md:border-b-0 border-gray-800">
+                <video id="hero_video_4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
+            </div>
+        </div>
         
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
             <div class="max-w-3xl" data-aos="fade-up" data-aos-duration="1200">
@@ -552,12 +559,15 @@
                 // Load Config
                 if (confRes.data) {
                     confRes.data.forEach(item => {
-                        if (item.key === 'hero_video') {
-                            const videoSrc = document.getElementById('hero_video_src')
-                            const videoPlayer = document.getElementById('hero_video_player')
-                            if (videoSrc && videoPlayer && item.value) {
-                                videoSrc.src = item.value
-                                videoPlayer.load()
+                        if (item.key.startsWith('hero_video_')) {
+                            const videoPlayer = document.getElementById(item.key)
+                            if (videoPlayer && item.value) {
+                                videoPlayer.src = item.value
+                            }
+                        } else if (item.key === 'hero_video') {
+                            for(let i=1; i<=4; i++){
+                                const p = document.getElementById('hero_video_'+i);
+                                if(p && !p.src) p.src = item.value;
                             }
                         } else {
                             const elements = document.querySelectorAll(`[id="${item.key}"]`)
@@ -728,8 +738,17 @@
 
                 if (grid) {
                     if (baRes.data && baRes.data.length > 0) {
+                        const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
                         let html = ''
                         baRes.data.forEach((item, index) => {
+                            const beforeMedia = isVideoUrl(item.before_url) ?
+                                `<video src="${item.before_url}" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover" onerror="this.outerHTML='<div class=\\'absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center\\'>Error</div>'"></video>` :
+                                `<img src="${item.before_url}" alt="Prima" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/900x600?text=Before'">`;
+                            
+                            const afterMedia = isVideoUrl(item.after_url) ?
+                                `<video data-ba-after src="${item.after_url}" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);" onerror="this.outerHTML='<div class=\\'absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center\\'>Error</div>'"></video>` :
+                                `<img data-ba-after src="${item.after_url}" alt="Dopo" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);" onerror="this.src='https://via.placeholder.com/900x600?text=After'">`;
+
                             html += `
                                 <div class="glass rounded-3xl p-5 shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60" data-aos="fade-up" data-aos-delay="${index * 80}">
                                     <div class="flex items-start justify-between gap-4 mb-4">
@@ -740,8 +759,8 @@
                                     </div>
                                     <div data-ba-wrapper>
                                         <div data-ba-card class="relative overflow-hidden rounded-2xl aspect-[16/10] bg-gray-200 cursor-ew-resize select-none touch-none">
-                                            <img src="${item.before_url}" alt="Prima" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/900x600?text=Before'">
-                                            <img data-ba-after src="${item.after_url}" alt="Dopo" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);" onerror="this.src='https://via.placeholder.com/900x600?text=After'">
+                                            ${beforeMedia}
+                                            ${afterMedia}
                                             <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Prima</div>
                                             <div class="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Dopo</div>
                                             <div data-ba-line class="absolute inset-y-0 left-1/2 w-[2px] bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.12)] pointer-events-none"></div>

@@ -214,7 +214,7 @@
                             </div>
                             
                             <!-- Video Config -->
-                            <div v-if="item.key === 'hero_video'" class="space-y-3">
+                            <div v-if="item.key.startsWith('hero_video')" class="space-y-3">
                                 <video v-if="item.value" :src="item.value" class="w-full h-44 object-cover rounded-xl bg-black" controls></video>
                                 <div v-else class="w-full h-44 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400">
                                     <div class="text-center">
@@ -401,16 +401,18 @@
                                         <div class="text-[10px] font-bold text-amber-600 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                                             <i class="fas fa-circle text-[6px]"></i> Prima
                                         </div>
-                                        <img :src="item.before_url" class="w-full h-32 object-cover rounded-xl bg-slate-100" onerror="this.src='https://via.placeholder.com/600x400?text=Prima'">
-                                        <input type="file" accept="image/*" @change="uploadBefore($event, item)" class="w-full mt-2">
+                                        <video v-if="isVideoUrl(item.before_url)" :src="item.before_url" class="w-full h-32 object-cover rounded-xl bg-slate-100" controls playsinline></video>
+                                        <img v-else :src="item.before_url" class="w-full h-32 object-cover rounded-xl bg-slate-100" onerror="this.src='https://via.placeholder.com/600x400?text=Prima'">
+                                        <input type="file" accept="image/*,video/*" @change="uploadBefore($event, item)" class="w-full mt-2">
                                         <input v-model="item.before_url" type="text" class="mt-1 w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-xs" placeholder="URL Prima">
                                     </div>
                                     <div>
                                         <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider mb-1.5 flex items-center gap-1">
                                             <i class="fas fa-circle text-[6px]"></i> Dopo
                                         </div>
-                                        <img :src="item.after_url" class="w-full h-32 object-cover rounded-xl bg-slate-100" onerror="this.src='https://via.placeholder.com/600x400?text=Dopo'">
-                                        <input type="file" accept="image/*" @change="uploadAfter($event, item)" class="w-full mt-2">
+                                        <video v-if="isVideoUrl(item.after_url)" :src="item.after_url" class="w-full h-32 object-cover rounded-xl bg-slate-100" controls playsinline></video>
+                                        <img v-else :src="item.after_url" class="w-full h-32 object-cover rounded-xl bg-slate-100" onerror="this.src='https://via.placeholder.com/600x400?text=Dopo'">
+                                        <input type="file" accept="image/*,video/*" @change="uploadAfter($event, item)" class="w-full mt-2">
                                         <input v-model="item.after_url" type="text" class="mt-1 w-full px-3 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-xs" placeholder="URL Dopo">
                                     </div>
                                 </div>
@@ -572,7 +574,11 @@
                 },
                 getConfigIcon(key) {
                     const icons = {
-                        hero_video: 'fas fa-video',
+                        hero_video_1: 'fas fa-video',
+                        hero_video_2: 'fas fa-video',
+                        hero_video_3: 'fas fa-video',
+                        hero_video_4: 'fas fa-video',
+                        hero_video: 'fas fa-video-slash',
                         hero_title: 'fas fa-heading',
                         hero_subtitle: 'fas fa-align-left',
                         about_text1: 'fas fa-file-alt',
@@ -587,7 +593,11 @@
                 },
                 formatConfigLabel(key) {
                     const labels = {
-                        hero_video: 'Video Hero',
+                        hero_video_1: 'Video Hero 1 (Sinistra)',
+                        hero_video_2: 'Video Hero 2 (Centro-Sinistra)',
+                        hero_video_3: 'Video Hero 3 (Centro-Destra)',
+                        hero_video_4: 'Video Hero 4 (Destra)',
+                        hero_video: 'Video Hero (Vecchio, ignorare)',
                         hero_title: 'Titolo Hero',
                         hero_subtitle: 'Sottotitolo Hero',
                         about_text1: 'Chi Siamo — Paragrafo 1',
@@ -615,10 +625,14 @@
                         
                         this.siteConfig = confRes.data || []
                         
-                        if (!this.siteConfig.some(item => item.key === 'hero_video')) {
-                            const { data } = await supabaseClient.from('site_config').insert([{ key: 'hero_video', value: '' }]).select()
-                            if (data && data[0]) this.siteConfig.push(data[0])
+                        const heroKeys = ['hero_video_1', 'hero_video_2', 'hero_video_3', 'hero_video_4'];
+                        for (const key of heroKeys) {
+                            if (!this.siteConfig.some(item => item.key === key)) {
+                                const { data } = await supabaseClient.from('site_config').insert([{ key, value: '' }]).select();
+                                if (data && data[0]) this.siteConfig.push(data[0]);
+                            }
                         }
+                        this.siteConfig.sort((a,b) => a.id - b.id);
                         
                         this.aboutImages = aboutRes.data || []
                         this.services = servRes.data || []
