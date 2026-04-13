@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="it" class="scroll-smooth">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -29,7 +30,9 @@
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@700;800&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@700;800&display=swap"
+        rel="stylesheet">
     <!-- Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <!-- AOS Animation Library -->
@@ -40,6 +43,8 @@
             --brand: #2ba8b4;
             --brand-dark: #1e7f88;
             --brand-light: #4ec1cb;
+            --gallery-images-speed: 80s;
+            --gallery-videos-speed: 80s;
         }
 
         .hero-pattern {
@@ -48,20 +53,25 @@
             background-position: center;
         }
 
-        
+
         @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
         }
-        
+
         .animate-scroll {
-            animation: scroll 80s linear infinite;
+            animation: scroll var(--gallery-images-speed) linear infinite;
         }
 
         .animate-scroll-videos {
-            animation: scroll 80s linear infinite;
+            animation: scroll var(--gallery-videos-speed) linear infinite;
         }
-        
+
         .animate-scroll:hover,
         .animate-scroll-videos:hover {
             animation-play-state: paused;
@@ -69,11 +79,22 @@
 
         /* Pulse animation for floating buttons */
         @keyframes pulse-custom {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(43, 168, 180, 0.4); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(43, 168, 180, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(43, 168, 180, 0); }
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(43, 168, 180, 0.4);
+            }
+
+            70% {
+                transform: scale(1.05);
+                box-shadow: 0 0 0 10px rgba(43, 168, 180, 0);
+            }
+
+            100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(43, 168, 180, 0);
+            }
         }
-        
+
         .pulse-btn {
             animation: pulse-custom 2s infinite;
         }
@@ -101,7 +122,7 @@
             border-radius: 9999px;
             background: rgba(255, 255, 255, 0.95);
             border: 2px solid rgba(43, 168, 180, 0.95);
-            box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
             cursor: pointer;
         }
 
@@ -111,20 +132,24 @@
             border-radius: 9999px;
             background: rgba(255, 255, 255, 0.95);
             border: 2px solid rgba(43, 168, 180, 0.95);
-            box-shadow: 0 18px 40px rgba(0,0,0,0.18);
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
             cursor: pointer;
         }
     </style>
 </head>
-<body class="font-sans text-gray-800 antialiased selection:bg-brand selection:text-white bg-gradient-to-b from-white via-white to-gray-50">
+
+<body
+    class="font-sans text-gray-800 antialiased selection:bg-brand selection:text-white bg-gradient-to-b from-white via-white to-gray-50">
 
     <!-- Navbar -->
-    <nav id="navbar" class="sticky top-0 z-50 bg-white/70 border-b border-gray-200/60 backdrop-blur-xl transition-shadow duration-300">
+    <nav id="navbar"
+        class="sticky top-0 z-50 bg-white/70 border-b border-gray-200/60 backdrop-blur-xl transition-shadow duration-300">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-20 items-center">
                 <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
-                    <img class="h-14 w-auto object-contain" src="icon.png" alt="Gruppo Momo Edilizia Icon" onerror="this.outerHTML='<i class=\'fas fa-city text-4xl text-brand\'></i>'">
+                    <img class="h-14 w-auto object-contain" src="icon.png" alt="Gruppo Momo Edilizia Icon"
+                        onerror="this.outerHTML='<i class=\'fas fa-city text-4xl text-brand\'></i>'">
                     <div class="font-display font-bold flex flex-col leading-none">
                         <span class="text-dark text-2xl tracking-widest">GRUPPO</span>
                         <span class="text-brand uppercase text-lg tracking-wide">Momo Edilizia</span>
@@ -132,27 +157,46 @@
                 </div>
                 <!-- Desktop Menu -->
                 <div class="hidden md:flex items-center space-x-8">
-                    <a href="#home" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Home</a>
-                    <a href="#servizi" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Servizi</a>
-                    <a href="#chi-siamo" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Chi Siamo</a>
-                    <a href="#galleria" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Galleria</a>
-                    <a href="#prima-dopo" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Prima & Dopo</a>
-                    <a href="#sedi" class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Sedi</a>
-                    <a href="#contatti" class="bg-gradient-to-r from-brand to-brand-dark text-white px-6 py-2.5 rounded-full font-semibold shadow-lg hover:shadow-xl hover:brightness-105 transition-all duration-200">Contattaci</a>
+                    <a href="#home"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Home</a>
+                    <a href="#servizi"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Servizi</a>
+                    <a href="#chi-siamo"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Chi
+                        Siamo</a>
+                    <a href="#galleria"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Galleria</a>
+                    <a href="#prima-dopo"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Prima &
+                        Dopo</a>
+                    <a href="#sedi"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Sedi</a>
+                    <a href="#contatti"
+                        class="bg-gradient-to-r from-brand to-brand-dark text-white px-6 py-2.5 rounded-full font-semibold shadow-lg hover:shadow-xl hover:brightness-105 transition-all duration-200">Contattaci</a>
                 </div>
-                <button id="mobileMenuBtn" class="md:hidden w-11 h-11 rounded-xl glass flex items-center justify-center text-gray-800 shadow-sm">
+                <button id="mobileMenuBtn"
+                    class="md:hidden w-11 h-11 rounded-xl glass flex items-center justify-center text-gray-800 shadow-sm">
                     <i id="mobileMenuIcon" class="fas fa-bars"></i>
                 </button>
             </div>
             <div id="mobileMenu" class="md:hidden hidden pb-5">
                 <div class="glass rounded-2xl px-4 py-4 flex flex-col gap-2 shadow-lg">
-                    <a href="#home" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Home</a>
-                    <a href="#servizi" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Servizi</a>
-                    <a href="#chi-siamo" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Chi Siamo</a>
-                    <a href="#galleria" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Galleria</a>
-                    <a href="#prima-dopo" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Prima & Dopo</a>
-                    <a href="#sedi" class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Sedi</a>
-                    <a href="#contatti" class="mt-1 bg-gradient-to-r from-brand to-brand-dark text-white px-4 py-3 rounded-xl font-semibold shadow-md">Contattaci</a>
+                    <a href="#home"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Home</a>
+                    <a href="#servizi"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Servizi</a>
+                    <a href="#chi-siamo"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Chi
+                        Siamo</a>
+                    <a href="#galleria"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Galleria</a>
+                    <a href="#prima-dopo"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Prima
+                        & Dopo</a>
+                    <a href="#sedi"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Sedi</a>
+                    <a href="#contatti"
+                        class="mt-1 bg-gradient-to-r from-brand to-brand-dark text-white px-4 py-3 rounded-xl font-semibold shadow-md">Contattaci</a>
                 </div>
             </div>
         </div>
@@ -162,20 +206,27 @@
     <section id="home" class="h-[80vh] min-h-[600px] flex items-center relative overflow-hidden bg-gray-900">
         <!-- 4 Video Containers Background -->
         <div class="absolute inset-0 z-0 grid grid-cols-2 md:grid-cols-4 w-full h-full">
-            <div class="w-full h-full relative overflow-hidden bg-black border-r border-b md:border-b-0 border-gray-800">
-                <video id="hero_video_1" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
+            <div
+                class="w-full h-full relative overflow-hidden bg-black border-r border-b md:border-b-0 border-gray-800">
+                <video id="hero_video_1" autoplay loop muted playsinline
+                    class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
             </div>
-            <div class="w-full h-full relative overflow-hidden bg-black border-r border-b md:border-b-0 border-gray-800">
-                <video id="hero_video_2" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
+            <div
+                class="w-full h-full relative overflow-hidden bg-black border-r border-b md:border-b-0 border-gray-800">
+                <video id="hero_video_2" autoplay loop muted playsinline
+                    class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
             </div>
-            <div class="w-full h-full relative overflow-hidden bg-black border-r border-b md:border-b-0 border-gray-800">
-                <video id="hero_video_3" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
+            <div
+                class="w-full h-full relative overflow-hidden bg-black border-r border-b md:border-b-0 border-gray-800">
+                <video id="hero_video_3" autoplay loop muted playsinline
+                    class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
             </div>
             <div class="w-full h-full relative overflow-hidden bg-black border-b md:border-b-0 border-gray-800">
-                <video id="hero_video_4" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
+                <video id="hero_video_4" autoplay loop muted playsinline
+                    class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
             </div>
         </div>
-        
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
             <div class="max-w-3xl" data-aos="fade-up" data-aos-duration="1200">
                 <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-gray-900 shadow-md mb-6">
@@ -184,22 +235,32 @@
                     <span class="text-sm text-gray-600">•</span>
                     <span class="text-sm font-semibold tracking-wide">Qualità & Sicurezza</span>
                 </div>
-                <h1 id="hero_title" class="font-display text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
-                    Costruiamo il Tuo <span class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">Futuro</span>
+                <h1 id="hero_title"
+                    class="font-display text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
+                    Costruiamo il Tuo <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">Futuro</span>
                 </h1>
-                <p id="hero_subtitle" class="text-xl text-gray-100/90 mb-10 max-w-2xl font-light leading-relaxed" data-aos="fade-up" data-aos-delay="200">
-                    Eccellenza, passione e professionalità nel settore edile. Dalla progettazione alla realizzazione, diamo forma alle tue idee con materiali di altissima qualità.
+                <p id="hero_subtitle" class="text-xl text-gray-100/90 mb-10 max-w-2xl font-light leading-relaxed"
+                    data-aos="fade-up" data-aos-delay="200">
+                    Eccellenza, passione e professionalità nel settore edile. Dalla progettazione alla realizzazione,
+                    diamo forma alle tue idee con materiali di altissima qualità.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4" data-aos="fade-up" data-aos-delay="400">
-                    <a href="#servizi" class="bg-gradient-to-r from-brand to-brand-dark text-white px-8 py-4 rounded-full font-bold text-lg text-center shadow-2xl hover:shadow-[0_30px_80px_rgba(43,168,180,0.35)] hover:-translate-y-0.5 transition-all duration-200">Scopri i Servizi</a>
-                    <a href="#contatti" class="glass text-gray-900 px-8 py-4 rounded-full font-bold text-lg text-center hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-200">Richiedi Preventivo</a>
+                    <a href="#servizi"
+                        class="bg-gradient-to-r from-brand to-brand-dark text-white px-8 py-4 rounded-full font-bold text-lg text-center shadow-2xl hover:shadow-[0_30px_80px_rgba(43,168,180,0.35)] hover:-translate-y-0.5 transition-all duration-200">Scopri
+                        i Servizi</a>
+                    <a href="#contatti"
+                        class="glass text-gray-900 px-8 py-4 rounded-full font-bold text-lg text-center hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-200">Richiedi
+                        Preventivo</a>
                 </div>
             </div>
         </div>
         <!-- Decorative Shape Divider -->
         <div class="absolute bottom-0 w-full overflow-hidden leading-none">
-            <svg class="relative block w-full h-[70px] md:h-[90px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M0,72 C160,112 340,16 600,56 C860,96 1040,32 1200,64 L1200,120 L0,120 Z" class="fill-gray-50"></path>
+            <svg class="relative block w-full h-[70px] md:h-[90px]" data-name="Layer 1"
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,72 C160,112 340,16 600,56 C860,96 1040,32 1200,64 L1200,120 L0,120 Z" class="fill-gray-50">
+                </path>
             </svg>
         </div>
     </section>
@@ -207,13 +268,26 @@
     <!-- Trusted Partners Section -->
     <section class="py-10 bg-white border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <p class="text-center text-sm font-semibold text-gray-500 uppercase tracking-widest mb-8" data-aos="fade-up">I Nostri Partner e Materiali Certificati</p>
-            <div class="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-70 grayscale hover:grayscale-0 transition-all duration-500" data-aos="fade-up" data-aos-delay="100">
+            <p class="text-center text-sm font-semibold text-gray-500 uppercase tracking-widest mb-8"
+                data-aos="fade-up">I Nostri Partner e Materiali Certificati</p>
+            <div class="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-70 grayscale hover:grayscale-0 transition-all duration-500"
+                data-aos="fade-up" data-aos-delay="100">
                 <div class="text-2xl font-display font-bold text-gray-800 tracking-tighter">MAPEI</div>
                 <div class="text-2xl font-display font-bold text-gray-800 tracking-widest">KERAKOLL</div>
-                <div class="text-xl font-display font-bold text-gray-800 uppercase border-b-2 border-brand pb-1">Fassa Bortolo</div>
+                <div class="text-xl font-display font-bold text-gray-800 uppercase border-b-2 border-brand pb-1">Fassa
+                    Bortolo</div>
                 <div class="text-2xl font-display font-black text-gray-800 italic">Saint-Gobain</div>
                 <div class="text-2xl font-display font-bold text-gray-800">weber</div>
+                <div class="text-2xl font-display font-bold text-gray-800 tracking-wide">KNAUF</div>
+                <div class="text-2xl font-display font-bold text-gray-800 italic tracking-tight">Litokol</div>
+                <div class="text-2xl font-display font-black text-gray-800 uppercase">Sika</div>
+                <div class="text-xl font-display font-bold text-gray-800 tracking-widest">FISCHER</div>
+                <div class="text-2xl font-display font-bold text-gray-800">Hilti</div>
+                <div class="text-xl font-display font-bold text-gray-800 uppercase tracking-wider">Würth</div>
+                <div class="text-2xl font-display font-black text-gray-800 italic tracking-tight">Bisazza</div>
+                <div class="text-2xl font-display font-bold text-gray-800 tracking-tighter">MARAZZI</div>
+                <div class="text-xl font-display font-bold text-gray-800 uppercase">Atlas Concorde</div>
+                <div class="text-2xl font-display font-bold text-gray-800 tracking-wide">GROHE</div>
             </div>
         </div>
     </section>
@@ -224,45 +298,69 @@
         <div class="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-brand/10 blur-3xl"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-4xl mx-auto mb-16">
-                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2" data-aos="fade-down">Cosa Facciamo</h2>
-                <h3 class="font-display text-4xl font-bold text-gray-900" data-aos="fade-down" data-aos-delay="100">I Nostri Servizi</h3>
-                <div class="w-24 h-1 bg-brand mx-auto mt-6 mb-10 rounded-full" data-aos="fade-down" data-aos-delay="200"></div>
-                
-                <div class="glass p-8 md:p-10 rounded-3xl shadow-xl border border-white/80 relative overflow-hidden text-center transform transition duration-500 hover:shadow-2xl hover:-translate-y-1" data-aos="fade-up" data-aos-delay="300">
+                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2" data-aos="fade-down">Cosa
+                    Facciamo</h2>
+                <h3 class="font-display text-4xl font-bold text-gray-900" data-aos="fade-down" data-aos-delay="100">I
+                    Nostri Servizi</h3>
+                <h4 class="font-display text-2xl font-medium text-gray-600 mt-3" data-aos="fade-down"
+                    data-aos-delay="150">Edilizia Generale</h4>
+                <div class="w-24 h-1 bg-brand mx-auto mt-6 mb-10 rounded-full" data-aos="fade-down"
+                    data-aos-delay="200"></div>
+
+                <div class="glass p-8 md:p-10 rounded-3xl shadow-xl border border-white/80 relative overflow-hidden text-center transform transition duration-500 hover:shadow-2xl hover:-translate-y-1"
+                    data-aos="fade-up" data-aos-delay="300">
                     <!-- Decorative Elements -->
                     <div class="absolute -top-16 -left-16 w-32 h-32 rounded-full bg-brand/10 blur-2xl"></div>
                     <div class="absolute -bottom-16 -right-16 w-32 h-32 rounded-full bg-brand-light/10 blur-2xl"></div>
-                    
+
                     <p class="text-gray-700 text-lg md:text-xl leading-relaxed font-medium relative z-10 lg:px-6">
-                        Forniamo servizi di alta qualità a prezzi competitivi e costruiamo il tuo futuro con massima qualità e professionalità. Grazie alla nostra specializzazione artigianale, siamo competenti nella posa di piastrelle e marmi, nell'applicazione di cappotti e tinteggiature, nella rasatura e stesura di massetti e intonaci. Inoltre, offriamo servizi di riparazione e manutenzione dei tetti, rimozione e reinstallazione di parquet, installazione di ponteggi e guaine, e posa di mapelastic, intonachino, mattoni, tetti e autobloccanti, oltre a installazioni idrauliche ed elettriche; Carpenteria.
+                        Forniamo servizi di alta qualità a prezzi competitivi e costruiamo il tuo futuro con massima
+                        qualità e professionalità. Grazie alla nostra specializzazione artigianale, siamo competenti
+                        nella posa di piastrelle e marmi, nell'applicazione di cappotti e tinteggiature, nella rasatura
+                        e stesura di massetti e intonaci. Inoltre, offriamo servizi di riparazione e manutenzione dei
+                        tetti, rimozione e reinstallazione di parquet, installazione di ponteggi e guaine, e posa di
+                        mapelastic, intonachino, mattoni, tetti e autobloccanti, oltre a installazioni idrauliche ed
+                        elettriche; Carpenteria.
                     </p>
                 </div>
             </div>
 
             <div id="services-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- Service 1 -->
-                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1">
-                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
-                        <i class="fas fa-hammer text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                <div
+                    class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1">
+                    <div
+                        class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-hammer text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
                     </div>
                     <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Ristrutturazioni</h4>
-                    <p class="text-gray-600 leading-relaxed">Rinnoviamo i tuoi spazi residenziali e commerciali con soluzioni innovative, rispettando i tempi concordati e il tuo budget.</p>
+                    <p class="text-gray-600 leading-relaxed">Rinnoviamo i tuoi spazi residenziali e commerciali con
+                        soluzioni innovative, rispettando i tempi concordati e il tuo budget.</p>
                 </div>
                 <!-- Service 2 -->
-                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1">
-                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
-                        <i class="fas fa-building text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                <div
+                    class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1">
+                    <div
+                        class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-building text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
                     </div>
                     <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Nuove Costruzioni</h4>
-                    <p class="text-gray-600 leading-relaxed">Realizziamo edifici moderni, sicuri e ad alta efficienza energetica, curando ogni dettaglio dalle fondamenta al tetto.</p>
+                    <p class="text-gray-600 leading-relaxed">Realizziamo edifici moderni, sicuri e ad alta efficienza
+                        energetica, curando ogni dettaglio dalle fondamenta al tetto.</p>
                 </div>
                 <!-- Service 3 -->
-                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1">
-                    <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
-                        <i class="fas fa-tools text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                <div
+                    class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1">
+                    <div
+                        class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-tools text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
                     </div>
                     <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Manutenzione</h4>
-                    <p class="text-gray-600 leading-relaxed">Offriamo servizi di manutenzione ordinaria e straordinaria per preservare il valore e la sicurezza dei tuoi immobili nel tempo.</p>
+                    <p class="text-gray-600 leading-relaxed">Offriamo servizi di manutenzione ordinaria e straordinaria
+                        per preservare il valore e la sicurezza dei tuoi immobili nel tempo.</p>
                 </div>
             </div>
         </div>
@@ -280,16 +378,21 @@
                 <div class="lg:w-1/2 w-full relative" data-aos="fade-right">
                     <div class="grid grid-cols-2 gap-4">
                         <div class="space-y-4 mt-8">
-                            <img src="https://picsum.photos/id/1075/500/600" alt="Cantiere in corso" class="rounded-2xl shadow-xl w-full object-cover h-64 transform transition hover:-translate-y-2 duration-300">
-                            <img src="https://picsum.photos/id/1040/500/400" alt="Materiali edili" class="rounded-2xl shadow-xl w-full object-cover h-48 transform transition hover:-translate-y-2 duration-300">
+                            <img src="https://picsum.photos/id/1075/500/600" alt="Cantiere in corso"
+                                class="rounded-2xl shadow-xl w-full object-cover h-64 transform transition hover:-translate-y-2 duration-300">
+                            <img src="https://picsum.photos/id/1040/500/400" alt="Materiali edili"
+                                class="rounded-2xl shadow-xl w-full object-cover h-48 transform transition hover:-translate-y-2 duration-300">
                         </div>
                         <div class="space-y-4">
-                            <img src="https://picsum.photos/id/1010/500/400" alt="Progetto architettonico" class="rounded-2xl shadow-xl w-full object-cover h-48 transform transition hover:-translate-y-2 duration-300">
-                            <img src="https://picsum.photos/id/1033/500/600" alt="Team al lavoro" class="rounded-2xl shadow-xl w-full object-cover h-64 transform transition hover:-translate-y-2 duration-300">
+                            <img src="https://picsum.photos/id/1010/500/400" alt="Progetto architettonico"
+                                class="rounded-2xl shadow-xl w-full object-cover h-48 transform transition hover:-translate-y-2 duration-300">
+                            <img src="https://picsum.photos/id/1033/500/600" alt="Team al lavoro"
+                                class="rounded-2xl shadow-xl w-full object-cover h-64 transform transition hover:-translate-y-2 duration-300">
                         </div>
                     </div>
                     <!-- Floating Badge -->
-                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-2xl shadow-2xl border-4 border-white text-center w-48">
+                    <div
+                        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-2xl shadow-2xl border-4 border-white text-center w-48">
                         <h4 class="text-4xl font-display font-bold text-brand mb-1">10+</h4>
                         <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Anni di Esperienza</p>
                     </div>
@@ -302,43 +405,55 @@
                         <h2 class="text-brand font-semibold tracking-wider uppercase text-sm">Chi Siamo</h2>
                     </div>
                     <h3 class="font-display text-4xl lg:text-5xl font-bold text-gray-900 mb-8 leading-tight">
-                        Costruiamo basi solide per i <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-dark to-brand-light">tuoi progetti</span>
+                        Costruiamo basi solide per i <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-brand-dark to-brand-light">tuoi
+                            progetti</span>
                     </h3>
-                    
+
                     <p id="about_text1" class="text-gray-600 mb-6 text-lg leading-relaxed">
-                        Siamo un'impresa edile dinamica, nata con l'obiettivo di portare innovazione e qualità superiore in ogni cantiere. Il nostro team è composto da professionisti altamente qualificati con una profonda conoscenza del settore.
+                        Siamo un'impresa edile dinamica, nata con l'obiettivo di portare innovazione e qualità superiore
+                        in ogni cantiere. Il nostro team è composto da professionisti altamente qualificati con una
+                        profonda conoscenza del settore.
                     </p>
                     <p id="about_text2" class="text-gray-600 mb-10 text-lg leading-relaxed">
-                        Crediamo fortemente che ogni progetto sia unico. Per questo lavoriamo a stretto contatto con i nostri clienti, garantendo totale trasparenza, rigoroso rispetto delle normative di sicurezza e l'utilizzo di materiali certificati e all'avanguardia.
+                        Crediamo fortemente che ogni progetto sia unico. Per questo lavoriamo a stretto contatto con i
+                        nostri clienti, garantendo totale trasparenza, rigoroso rispetto delle normative di sicurezza e
+                        l'utilizzo di materiali certificati e all'avanguardia.
                     </p>
 
                     <!-- Core Values List -->
                     <div class="space-y-4 mb-10">
                         <div class="flex items-start" data-aos="fade-up" data-aos-delay="100">
-                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
+                            <div
+                                class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
                                 <i class="fas fa-check text-brand text-sm"></i>
                             </div>
                             <div class="ml-4">
                                 <h5 class="text-gray-900 font-bold text-lg">Qualità Garantita</h5>
-                                <p class="text-gray-600 mt-1">Utilizziamo solo i migliori materiali per risultati duraturi nel tempo.</p>
+                                <p class="text-gray-600 mt-1">Utilizziamo solo i migliori materiali per risultati
+                                    duraturi nel tempo.</p>
                             </div>
                         </div>
                         <div class="flex items-start" data-aos="fade-up" data-aos-delay="200">
-                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
+                            <div
+                                class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
                                 <i class="fas fa-clock text-brand text-sm"></i>
                             </div>
                             <div class="ml-4">
                                 <h5 class="text-gray-900 font-bold text-lg">Rispetto dei Tempi</h5>
-                                <p class="text-gray-600 mt-1">Pianificazione accurata per consegnare il progetto nei tempi stabiliti.</p>
+                                <p class="text-gray-600 mt-1">Pianificazione accurata per consegnare il progetto nei
+                                    tempi stabiliti.</p>
                             </div>
                         </div>
                         <div class="flex items-start" data-aos="fade-up" data-aos-delay="300">
-                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
+                            <div
+                                class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
                                 <i class="fas fa-hard-hat text-brand text-sm"></i>
                             </div>
                             <div class="ml-4">
                                 <h5 class="text-gray-900 font-bold text-lg">Sicurezza al Primo Posto</h5>
-                                <p class="text-gray-600 mt-1">Rigidi protocolli per garantire cantieri sicuri e a norma di legge.</p>
+                                <p class="text-gray-600 mt-1">Rigidi protocolli per garantire cantieri sicuri e a norma
+                                    di legge.</p>
                             </div>
                         </div>
                     </div>
@@ -349,49 +464,62 @@
 
     <!-- Process Section -->
     <section id="metodo" class="py-24 bg-gray-900 text-white relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-dark/20 via-gray-900 to-gray-900"></div>
+        <div
+            class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-dark/20 via-gray-900 to-gray-900">
+        </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center max-w-3xl mx-auto mb-20">
-                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2" data-aos="fade-up">Come Lavoriamo</h2>
-                <h3 class="font-display text-4xl font-bold text-white" data-aos="fade-up" data-aos-delay="100">Il Nostro Metodo in 4 Step</h3>
+                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2" data-aos="fade-up">Come
+                    Lavoriamo</h2>
+                <h3 class="font-display text-4xl font-bold text-white" data-aos="fade-up" data-aos-delay="100">Il Nostro
+                    Metodo in 4 Step</h3>
                 <div class="w-24 h-1 bg-brand mx-auto mt-6 rounded-full" data-aos="fade-up" data-aos-delay="200"></div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
                 <!-- Connecting line (desktop only) -->
-                <div class="hidden md:block absolute top-[2.5rem] left-[12.5%] right-[12.5%] h-0.5 bg-gray-800 z-0"></div>
-                
+                <div class="hidden md:block absolute top-[2.5rem] left-[12.5%] right-[12.5%] h-0.5 bg-gray-800 z-0">
+                </div>
+
                 <!-- Step 1 -->
                 <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="0">
-                    <div class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                    <div
+                        class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                         <span class="text-2xl font-display font-bold text-brand">1</span>
                     </div>
                     <h4 class="text-xl font-bold mb-3 font-display">Sopralluogo</h4>
-                    <p class="text-gray-400 text-sm leading-relaxed px-2">Analisi gratuita sul posto per capire le tue esigenze e le specifiche del cantiere.</p>
+                    <p class="text-gray-400 text-sm leading-relaxed px-2">Analisi gratuita sul posto per capire le tue
+                        esigenze e le specifiche del cantiere.</p>
                 </div>
                 <!-- Step 2 -->
                 <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="100">
-                    <div class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                    <div
+                        class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                         <span class="text-2xl font-display font-bold text-brand">2</span>
                     </div>
                     <h4 class="text-xl font-bold mb-3 font-display">Preventivo</h4>
-                    <p class="text-gray-400 text-sm leading-relaxed px-2">Proposta dettagliata e trasparente, senza costi nascosti e con tempistiche certe.</p>
+                    <p class="text-gray-400 text-sm leading-relaxed px-2">Proposta dettagliata e trasparente, senza
+                        costi nascosti e con tempistiche certe.</p>
                 </div>
                 <!-- Step 3 -->
                 <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="200">
-                    <div class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                    <div
+                        class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                         <span class="text-2xl font-display font-bold text-brand">3</span>
                     </div>
                     <h4 class="text-xl font-bold mb-3 font-display">Esecuzione</h4>
-                    <p class="text-gray-400 text-sm leading-relaxed px-2">Lavorazione a regola d'arte con personale qualificato e rispetto delle norme.</p>
+                    <p class="text-gray-400 text-sm leading-relaxed px-2">Lavorazione a regola d'arte con personale
+                        qualificato e rispetto delle norme.</p>
                 </div>
                 <!-- Step 4 -->
                 <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="300">
-                    <div class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                    <div
+                        class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
                         <span class="text-2xl font-display font-bold text-brand">4</span>
                     </div>
                     <h4 class="text-xl font-bold mb-3 font-display">Consegna</h4>
-                    <p class="text-gray-400 text-sm leading-relaxed px-2">Collaudo finale e consegna chiavi in mano con garanzia sui lavori eseguiti.</p>
+                    <p class="text-gray-400 text-sm leading-relaxed px-2">Collaudo finale e consegna chiavi in mano con
+                        garanzia sui lavori eseguiti.</p>
                 </div>
             </div>
         </div>
@@ -409,9 +537,13 @@
             <!-- Horizontal Scrolling Gallery -->
             <div class="relative w-full overflow-hidden mt-10 pb-10">
                 <!-- Fade edges for smooth effect -->
-                <div class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none"></div>
-                <div class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none"></div>
-                
+                <div
+                    class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none">
+                </div>
+                <div
+                    class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none">
+                </div>
+
                 <!-- Scrolling Track -->
                 <div id="projects-track" class="flex w-max animate-scroll">
                     <!-- Set 1 -->
@@ -429,8 +561,12 @@
             </div>
 
             <div id="videos-gallery-wrapper" class="relative w-full overflow-hidden mt-8 pb-10">
-                <div class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none"></div>
-                <div class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none"></div>
+                <div
+                    class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none">
+                </div>
+                <div
+                    class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none">
+                </div>
 
                 <div id="videos-track" class="flex w-max animate-scroll-videos">
                     <div id="videos-set-1" class="flex gap-6 px-3">
@@ -453,7 +589,8 @@
             <div class="text-center max-w-3xl mx-auto mb-14">
                 <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2">Prima & Dopo</h2>
                 <h3 class="font-display text-4xl font-bold text-gray-900">Trasformazioni Reali</h3>
-                <p class="text-gray-600 mt-4 text-lg">Confronta il risultato: sposta lo slider per vedere il prima e il dopo.</p>
+                <p class="text-gray-600 mt-4 text-lg">Confronta il risultato: sposta lo slider per vedere il prima e il
+                    dopo.</p>
                 <div class="w-24 h-1 bg-brand mx-auto mt-6 rounded-full"></div>
             </div>
 
@@ -468,24 +605,35 @@
 
     <!-- Testimonials Section -->
     <section class="py-24 bg-brand relative overflow-hidden">
-        <div class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+        <div
+            class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent">
+        </div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
             <div class="text-center max-w-3xl mx-auto mb-16">
-                <h2 class="text-white/80 font-semibold tracking-wider uppercase text-sm mb-2" data-aos="fade-up">Dicono di Noi</h2>
-                <h3 class="font-display text-4xl font-bold text-white" data-aos="fade-up" data-aos-delay="100">Cosa pensano i nostri clienti</h3>
-                <div class="w-24 h-1 bg-white/40 mx-auto mt-6 rounded-full" data-aos="fade-up" data-aos-delay="200"></div>
+                <h2 class="text-white/80 font-semibold tracking-wider uppercase text-sm mb-2" data-aos="fade-up">Dicono
+                    di Noi</h2>
+                <h3 class="font-display text-4xl font-bold text-white" data-aos="fade-up" data-aos-delay="100">Cosa
+                    pensano i nostri clienti</h3>
+                <div class="w-24 h-1 bg-white/40 mx-auto mt-6 rounded-full" data-aos="fade-up" data-aos-delay="200">
+                </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Review 1 -->
-                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative" data-aos="fade-up" data-aos-delay="0">
+                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative"
+                    data-aos="fade-up" data-aos-delay="0">
                     <i class="fas fa-quote-left absolute text-5xl text-brand/10 top-6 right-6"></i>
                     <div class="flex text-yellow-400 mb-5 text-sm">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Ci siamo affidati a Gruppo Momo per la ristrutturazione completa del nostro appartamento. Lavori eseguiti in modo impeccabile, pulizia in cantiere e rispetto dei tempi previsti. Personale molto qualificato."</p>
+                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Ci siamo affidati a Gruppo Momo per la
+                        ristrutturazione completa del nostro appartamento. Lavori eseguiti in modo impeccabile, pulizia
+                        in cantiere e rispetto dei tempi previsti. Personale molto qualificato."</p>
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">MR</div>
+                        <div
+                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
+                            MR</div>
                         <div class="flex flex-col">
                             <span class="font-bold text-gray-900">Marco R.</span>
                             <span class="text-xs text-gray-500 uppercase tracking-wide">Privato (Torino)</span>
@@ -493,14 +641,20 @@
                     </div>
                 </div>
                 <!-- Review 2 -->
-                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative" data-aos="fade-up" data-aos-delay="100">
+                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative"
+                    data-aos="fade-up" data-aos-delay="100">
                     <i class="fas fa-quote-left absolute text-5xl text-brand/10 top-6 right-6"></i>
                     <div class="flex text-yellow-400 mb-5 text-sm">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Azienda estremamente seria, un team affiatato e competente. Hanno rifatto il tetto e curato la messa in posa dei pavimenti. Il risultato finale ha superato ampiamente le nostre aspettative."</p>
+                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Azienda estremamente seria, un team affiatato
+                        e competente. Hanno rifatto il tetto e curato la messa in posa dei pavimenti. Il risultato
+                        finale ha superato ampiamente le nostre aspettative."</p>
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">CV</div>
+                        <div
+                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
+                            CV</div>
                         <div class="flex flex-col">
                             <span class="font-bold text-gray-900">Chiara V.</span>
                             <span class="text-xs text-gray-500 uppercase tracking-wide">Condominio (Moncalieri)</span>
@@ -508,14 +662,20 @@
                     </div>
                 </div>
                 <!-- Review 3 -->
-                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative" data-aos="fade-up" data-aos-delay="200">
+                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative"
+                    data-aos="fade-up" data-aos-delay="200">
                     <i class="fas fa-quote-left absolute text-5xl text-brand/10 top-6 right-6"></i>
                     <div class="flex text-yellow-400 mb-5 text-sm">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="fas fa-star"></i>
                     </div>
-                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Precisione, ordine e disponibilità a venire incontro a ogni esigenza. Ci hanno fornito un servizio chiavi in mano sgravandoci da ogni preoccupazione. Li consiglio caldamente."</p>
+                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Precisione, ordine e disponibilità a venire
+                        incontro a ogni esigenza. Ci hanno fornito un servizio chiavi in mano sgravandoci da ogni
+                        preoccupazione. Li consiglio caldamente."</p>
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">AT</div>
+                        <div
+                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
+                            AT</div>
                         <div class="flex flex-col">
                             <span class="font-bold text-gray-900">Alessandro T.</span>
                             <span class="text-xs text-gray-500 uppercase tracking-wide">Attività Commerciale</span>
@@ -537,25 +697,34 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- Sede 1 -->
-                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1" data-aos="fade-up" data-aos-delay="0">
-                    <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
-                        <i class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1"
+                    data-aos="fade-up" data-aos-delay="0">
+                    <div
+                        class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
                     </div>
                     <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Moncalieri</h4>
                     <p class="text-gray-600 leading-relaxed font-medium">Corso Roma 87<br>Moncalieri (TO)</p>
                 </div>
                 <!-- Sede 2 -->
-                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1" data-aos="fade-up" data-aos-delay="100">
-                    <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
-                        <i class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1"
+                    data-aos="fade-up" data-aos-delay="100">
+                    <div
+                        class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
                     </div>
                     <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Collegno</h4>
                     <p class="text-gray-600 leading-relaxed font-medium">Via Alessandro Manzoni 7<br>Collegno (TO)</p>
                 </div>
                 <!-- Sede 3 -->
-                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1" data-aos="fade-up" data-aos-delay="200">
-                    <div class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
-                        <i class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1"
+                    data-aos="fade-up" data-aos-delay="200">
+                    <div
+                        class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
                     </div>
                     <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Torino</h4>
                     <p class="text-gray-600 leading-relaxed font-medium">Via Baretti 2<br>Torino (TO)</p>
@@ -567,30 +736,39 @@
     <!-- Contact Section -->
     <section id="contatti" class="py-24 bg-dark text-white relative">
         <div class="absolute top-0 w-full overflow-hidden leading-none rotate-180">
-            <svg class="relative block w-full h-[70px] md:h-[90px]" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M0,72 C160,112 340,16 600,56 C860,96 1040,32 1200,64 L1200,120 L0,120 Z" class="fill-white"></path>
+            <svg class="relative block w-full h-[70px] md:h-[90px]" data-name="Layer 1"
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,72 C160,112 340,16 600,56 C860,96 1040,32 1200,64 L1200,120 L0,120 Z" class="fill-white">
+                </path>
             </svg>
         </div>
-        
+
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
                 <!-- Contact Info -->
                 <div data-aos="fade-right">
                     <h2 class="font-display text-4xl font-bold mb-6">Pronti a iniziare il tuo progetto?</h2>
-                    <p class="text-gray-400 mb-10 text-lg">Contattaci per un sopralluogo gratuito o per richiedere un preventivo senza impegno. Il nostro team ti risponderà nel minor tempo possibile.</p>
-                    
+                    <p class="text-gray-400 mb-10 text-lg">Contattaci per un sopralluogo gratuito o per richiedere un
+                        preventivo senza impegno. Il nostro team ti risponderà nel minor tempo possibile.</p>
+
                     <div class="space-y-8">
                         <div class="flex items-start">
-                            <div class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <div
+                                class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                                 <i class="fas fa-map-marker-alt text-brand text-xl"></i>
                             </div>
                             <div class="ml-6">
-                                <h4 class="text-lg font-bold">Sede Operativa</h4>
-                                <p id="contact_address" class="text-gray-400 mt-1">Via Roma 123, 00100 Città (Provincia)</p>
+                                <h4 class="text-lg font-bold">Le Nostre Sedi</h4>
+                                <div class="text-gray-400 mt-2 space-y-1 text-sm md:text-base">
+                                    <p><strong class="text-gray-200">Moncalieri:</strong> Corso Roma 87</p>
+                                    <p><strong class="text-gray-200">Collegno:</strong> Via Alessandro Manzoni 7</p>
+                                    <p><strong class="text-gray-200">Torino:</strong> Via Baretti 2</p>
+                                </div>
                             </div>
                         </div>
                         <div class="flex items-start">
-                            <div class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <div
+                                class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                                 <i class="fas fa-phone-alt text-brand text-xl"></i>
                             </div>
                             <div class="ml-6">
@@ -599,7 +777,8 @@
                             </div>
                         </div>
                         <div class="flex items-start">
-                            <div class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <div
+                                class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                                 <i class="fas fa-envelope text-brand text-xl"></i>
                             </div>
                             <div class="ml-6">
@@ -608,7 +787,8 @@
                             </div>
                         </div>
                         <div class="flex items-start">
-                            <div class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                            <div
+                                class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
                                 <i class="fas fa-envelope-open-text text-brand text-xl"></i>
                             </div>
                             <div class="ml-6">
@@ -624,17 +804,24 @@
                     <form id="contact-form" class="space-y-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>
-                            <input id="contact-name" type="text" class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900" placeholder="Mario Rossi" required>
+                            <input id="contact-name" type="text"
+                                class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900"
+                                placeholder="Mario Rossi" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Indirizzo Email</label>
-                            <input id="contact-email-input" type="email" class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900" placeholder="mario.rossi@email.it" required>
+                            <input id="contact-email-input" type="email"
+                                class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900"
+                                placeholder="mario.rossi@email.it" required>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-2">Messaggio</label>
-                            <textarea id="contact-message" rows="4" class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900 resize-none" placeholder="Descrivi brevemente il tuo progetto..." required></textarea>
+                            <textarea id="contact-message" rows="4"
+                                class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900 resize-none"
+                                placeholder="Descrivi brevemente il tuo progetto..." required></textarea>
                         </div>
-                        <button type="submit" class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 rounded-xl transition-colors duration-300 shadow-lg">
+                        <button type="submit"
+                            class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 rounded-xl transition-colors duration-300 shadow-lg">
                             Invia Richiesta
                         </button>
                     </form>
@@ -646,31 +833,41 @@
     <!-- WhatsApp & Request Floating Buttons -->
     <div class="fixed bottom-6 right-6 flex flex-col gap-4 z-[100]">
         <!-- WhatsApp Button -->
-        <a id="whatsapp_link" href="https://wa.me/393246082115" target="_blank" class="bg-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300 group relative pulse-btn">
+        <a id="whatsapp_link" href="https://wa.me/393246082115" target="_blank"
+            class="bg-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300 group relative pulse-btn">
             <i class="fab fa-whatsapp text-3xl"></i>
-            <span class="absolute right-full mr-3 bg-white text-gray-800 px-3 py-1 rounded-lg text-sm font-bold shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Chatta con noi</span>
+            <span
+                class="absolute right-full mr-3 bg-white text-gray-800 px-3 py-1 rounded-lg text-sm font-bold shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Chatta
+                con noi</span>
         </a>
         <!-- Quick Request Button -->
-        <a href="#contatti" class="bg-brand text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300 group relative pulse-btn" style="animation-delay: 1s;">
+        <a href="#contatti"
+            class="bg-brand text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300 group relative pulse-btn"
+            style="animation-delay: 1s;">
             <i class="fas fa-paper-plane text-xl"></i>
-            <span class="absolute right-full mr-3 bg-white text-gray-800 px-3 py-1 rounded-lg text-sm font-bold shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Invia Richiesta</span>
+            <span
+                class="absolute right-full mr-3 bg-white text-gray-800 px-3 py-1 rounded-lg text-sm font-bold shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Invia
+                Richiesta</span>
         </a>
     </div>
 
     <!-- Footer -->
     <footer class="bg-[#111] text-gray-500 py-8 border-t border-gray-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
             <div class="text-center md:text-left">
-                <p>&copy; 2024 Gruppo Momo Edilizia. Tutti i diritti riservati.</p>
+                <p>&copy; Gruppo Momo Edilizia. Tutti i diritti riservati.</p>
                 <p class="text-xs mt-1">
-                    P.IVA: <span id="contact_piva">13040800016</span> | 
                     PEC: <span id="contact_pec_footer">elsaifyservizi@pec.it</span>
                 </p>
             </div>
             <div class="flex space-x-6">
-                <a href="#" class="text-gray-500 hover:text-white transition-colors"><i class="fab fa-facebook-f"></i></a>
-                <a href="#" class="text-gray-500 hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
-                <a href="#" class="text-gray-500 hover:text-white transition-colors"><i class="fab fa-linkedin-in"></i></a>
+                <a id="social_facebook" href="#" target="_blank" class="text-gray-500 hover:text-white transition-colors hidden"><i
+                        class="fab fa-facebook-f"></i></a>
+                <a id="social_instagram" href="#" target="_blank" class="text-gray-500 hover:text-white transition-colors hidden"><i
+                        class="fab fa-instagram"></i></a>
+                <a id="social_linkedin" href="#" target="_blank" class="text-gray-500 hover:text-white transition-colors hidden"><i
+                        class="fab fa-linkedin-in"></i></a>
             </div>
         </div>
     </footer>
@@ -699,9 +896,9 @@
                                 videoPlayer.src = item.value
                             }
                         } else if (item.key === 'hero_video') {
-                            for(let i=1; i<=4; i++){
-                                const p = document.getElementById('hero_video_'+i);
-                                if(p && !p.src) p.src = item.value;
+                            for (let i = 1; i <= 4; i++) {
+                                const p = document.getElementById('hero_video_' + i);
+                                if (p && !p.src) p.src = item.value;
                             }
                         } else {
                             const elements = document.querySelectorAll(`[id="${item.key}"]`)
@@ -724,6 +921,25 @@
                                 if (whatsappLink) {
                                     const mainPhone = item.value.split('/')[0].trim().replace(/\./g, '').replace(/\s/g, '')
                                     whatsappLink.href = `https://wa.me/39${mainPhone}`
+                                }
+                            }
+                            // Gallery scroll speeds
+                            if (item.key === 'gallery_images_speed' && item.value) {
+                                document.documentElement.style.setProperty('--gallery-images-speed', item.value + 's')
+                            }
+                            if (item.key === 'gallery_videos_speed' && item.value) {
+                                document.documentElement.style.setProperty('--gallery-videos-speed', item.value + 's')
+                            }
+                            // Special case for Social Links
+                            if (item.key.startsWith('social_')) {
+                                const socialLink = document.getElementById(item.key)
+                                if (socialLink) {
+                                    if (item.value && item.value.trim() !== '') {
+                                        socialLink.href = item.value
+                                        socialLink.classList.remove('hidden')
+                                    } else {
+                                        socialLink.classList.add('hidden')
+                                    }
                                 }
                             }
                         }
@@ -812,9 +1028,10 @@
                             const pTrack = document.getElementById('projects-track');
                             const vTrack = document.getElementById('videos-track');
                             if (pTrack && vTrack && pTrack.scrollWidth > 0) {
+                                const configuredSpeed = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gallery-videos-speed')) || 80;
                                 const pWidth = pTrack.scrollWidth;
                                 const vWidth = vTrack.scrollWidth;
-                                const vDuration = (80 * vWidth) / pWidth;
+                                const vDuration = (configuredSpeed * vWidth) / pWidth;
                                 vTrack.style.animationDuration = vDuration + 's';
                             }
                         }, 100);
@@ -878,7 +1095,7 @@
                             const beforeMedia = isVideoUrl(item.before_url) ?
                                 `<video src="${item.before_url}" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover" onerror="this.outerHTML='<div class=\\'absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center\\'>Error</div>'"></video>` :
                                 `<img src="${item.before_url}" alt="Prima" class="absolute inset-0 w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/900x600?text=Before'">`;
-                            
+
                             const afterMedia = isVideoUrl(item.after_url) ?
                                 `<video data-ba-after src="${item.after_url}" autoplay loop muted playsinline class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);" onerror="this.outerHTML='<div class=\\'absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center\\'>Error</div>'"></video>` :
                                 `<img data-ba-after src="${item.after_url}" alt="Dopo" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);" onerror="this.src='https://via.placeholder.com/900x600?text=After'">`;
@@ -951,11 +1168,11 @@
                     { name, email, message }
                 ])
                 if (error) throw error
-                
-                alert('Messaggio inviato con successo! Ti contatteremo al più presto.')
+
+                alert('Messaggio inviato con successo! Ti contatteremo al piu presto.')
                 e.target.reset()
             } catch (error) {
-                alert('Si è verificato un errore. Riprova più tardi.')
+                alert('Si e verificato un errore. Riprova piu tardi.')
                 console.error(error)
             } finally {
                 submitBtn.innerText = originalText
@@ -1004,4 +1221,5 @@
         loadData()
     </script>
 </body>
+
 </html>
