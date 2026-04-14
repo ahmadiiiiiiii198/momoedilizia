@@ -280,9 +280,72 @@
                     </div>
                 </div>
 
+                <!-- ===== HERO ===== -->
+                <div v-if="!loading && currentTab === 'hero'" class="fade-in space-y-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div v-for="item in heroConfig" :key="item.id"
+                            class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+                            <div class="p-5 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-brand/10 flex items-center justify-center">
+                                        <i :class="getConfigIcon(item.key)" class="text-sm text-brand"></i>
+                                    </div>
+                                    <span class="font-bold text-slate-700 text-sm">{{ formatConfigLabel(item.key) }}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="p-6 flex-1 space-y-5">
+                                <!-- Preview Area -->
+                                <div class="relative w-full aspect-video rounded-xl bg-slate-900 overflow-hidden shadow-inner group">
+                                    <template v-if="item.value">
+                                        <video v-if="isVideoUrl(item.value)" :src="item.value" 
+                                            class="w-full h-full object-cover" controls playsinline preload="metadata"></video>
+                                        <img v-else :src="item.value" 
+                                            class="w-full h-full object-cover" 
+                                            onerror="this.src='https://via.placeholder.com/800x450?text=Errore+Caricamento'">
+                                    </template>
+                                    <div v-else class="w-full h-full flex flex-col items-center justify-center text-slate-500">
+                                        <i class="fas fa-photo-video text-4xl mb-3 opacity-20"></i>
+                                        <p class="text-xs font-medium">Nessun media caricato</p>
+                                    </div>
+                                    
+                                    <!-- Badge for Media Type -->
+                                    <div v-if="item.value" class="absolute top-3 right-3 z-10">
+                                        <span v-if="isVideoUrl(item.value)" class="bg-purple-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg">VIDEO</span>
+                                        <span v-else class="bg-blue-500 text-white text-[10px] font-bold px-2 py-1 rounded-md shadow-lg">FOTO</span>
+                                    </div>
+                                </div>
+
+                                <!-- Upload Actions -->
+                                <div class="space-y-4">
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Carica Nuovo File</label>
+                                        <div class="flex items-center gap-3 p-1.5 border-2 border-dashed border-slate-200 rounded-xl hover:border-brand transition-colors bg-slate-50/50">
+                                            <input type="file" accept="image/*,video/*" @change="uploadHeroMedia($event, item)"
+                                                class="flex-1 text-xs file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-brand file:text-white hover:file:bg-brand-dark transition-all">
+                                        </div>
+                                    </div>
+
+                                    <div class="flex flex-col gap-2">
+                                        <label class="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Oppure Incolla URL</label>
+                                        <input v-model="item.value" type="text"
+                                            class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand/30 focus:border-brand focus:outline-none text-sm transition-all"
+                                            placeholder="https://...">
+                                    </div>
+                                </div>
+
+                                <button @click="updateConfig(item)"
+                                    class="w-full bg-gradient-to-r from-brand to-brand-dark text-white py-3.5 rounded-xl font-bold text-sm shadow-lg shadow-brand/20 hover:shadow-brand/30 hover:-translate-y-0.5 transition-all active:scale-95">
+                                    <i class="fas fa-save mr-2"></i>Aggiorna Contenuto
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- ===== CONFIGURAZIONE ===== -->
                 <div v-if="!loading && currentTab === 'config'" class="fade-in space-y-5">
-                    <div v-for="item in siteConfig" :key="item.id"
+                    <div v-for="item in configWithoutHero" :key="item.id"
                         class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
                         <div class="p-5 sm:p-6">
                             <div class="flex items-center gap-3 mb-4">
@@ -692,6 +755,7 @@
                     toastId: 0,
                     tabs: [
                         { id: 'dashboard', label: 'Dashboard', icon: 'fas fa-th-large' },
+                        { id: 'hero', label: 'Hero', icon: 'fas fa-film' },
                         { id: 'config', label: 'Configurazione', icon: 'fas fa-cog' },
                         { id: 'about', label: 'Chi Siamo', icon: 'fas fa-users' },
                         { id: 'services', label: 'Servizi', icon: 'fas fa-wrench' },
@@ -706,9 +770,16 @@
                     const tab = this.tabs.find(t => t.id === this.currentTab)
                     return tab ? tab.label : ''
                 },
+                heroConfig() {
+                    return this.siteConfig.filter(item => item.key === 'hero_video_1' || item.key === 'hero_video_2')
+                },
+                configWithoutHero() {
+                    return this.siteConfig.filter(item => !item.key.startsWith('hero_video'))
+                },
                 currentTabDescription() {
                     const descriptions = {
                         dashboard: 'Panoramica generale del sito',
+                        hero: 'Gestisci immagini e video della sezione Hero',
                         config: 'Gestisci testi, media e impostazioni',
                         about: 'Gestisci le immagini della sezione Chi Siamo',
                         services: 'Aggiungi, modifica o rimuovi i servizi',
@@ -751,10 +822,8 @@
                 },
                 getConfigIcon(key) {
                     const icons = {
-                        hero_video_1: 'fas fa-video',
-                        hero_video_2: 'fas fa-video',
-                        hero_video_3: 'fas fa-video',
-                        hero_video_4: 'fas fa-video',
+                        hero_video_1: 'fas fa-image',
+                        hero_video_2: 'fas fa-image',
                         hero_video: 'fas fa-video-slash',
                         hero_title: 'fas fa-heading',
                         hero_subtitle: 'fas fa-align-left',
@@ -775,10 +844,8 @@
                 },
                 formatConfigLabel(key) {
                     const labels = {
-                        hero_video_1: 'Video Hero 1 (Sinistra)',
-                        hero_video_2: 'Video Hero 2 (Centro-Sinistra)',
-                        hero_video_3: 'Video Hero 3 (Centro-Destra)',
-                        hero_video_4: 'Video Hero 4 (Destra)',
+                        hero_video_1: 'Hero - Contenitore 1 (Sinistra)',
+                        hero_video_2: 'Hero - Contenitore 2 (Destra)',
                         hero_video: 'Video Hero (Vecchio, ignorare)',
                         hero_title: 'Titolo Hero',
                         hero_subtitle: 'Sottotitolo Hero',
@@ -812,7 +879,7 @@
 
                         this.siteConfig = confRes.data || []
 
-                        const heroKeys = ['hero_video_1', 'hero_video_2', 'hero_video_3', 'hero_video_4'];
+                        const heroKeys = ['hero_video_1', 'hero_video_2'];
                         const speedKeys = ['gallery_images_speed', 'gallery_videos_speed'];
                         const socialKeys = ['social_facebook', 'social_instagram', 'social_linkedin'];
                         const allAutoKeys = [...heroKeys, ...speedKeys, ...socialKeys];
@@ -928,6 +995,25 @@
                 },
                 isVideoUrl(url) {
                     return /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
+                },
+                isImageUrl(url) {
+                    return /\.(jpg|jpeg|png|gif|webp|svg|bmp|avif)(\?|#|$)/i.test(String(url || ''))
+                },
+                async uploadHeroMedia(event, item) {
+                    const file = event.target.files[0]
+                    if (!file) return
+                    try {
+                        const formData = new FormData()
+                        formData.append('file', file)
+                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
+                        if (!response.ok) throw new Error('Errore di comunicazione col server')
+                        const data = await response.json()
+                        item.value = data.url
+                        await this.updateConfig(item)
+                        event.target.value = ''
+                    } catch (error) {
+                        this.showToast('Errore upload: ' + error.message, 'error')
+                    }
                 },
                 async updateProject(project) {
                     const { error } = await supabaseClient.from('projects').update({

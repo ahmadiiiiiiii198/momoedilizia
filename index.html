@@ -204,15 +204,13 @@
 
     <!-- Hero Section -->
     <section id="home" class="h-[80vh] min-h-[600px] flex items-center relative overflow-hidden bg-gray-900">
-        <!-- 2 Video Containers Background -->
+        <!-- 2 Media Containers Background -->
         <div class="absolute inset-0 z-0 grid grid-cols-2 w-full h-full">
-            <div class="w-full h-full relative overflow-hidden bg-black border-r border-gray-800">
-                <video id="hero_video_1" autoplay loop muted playsinline preload="auto"
-                    class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
+            <div id="hero_media_1" class="w-full h-full relative overflow-hidden bg-black border-r border-gray-800">
+                <!-- Dynamic Content -->
             </div>
-            <div class="w-full h-full relative overflow-hidden bg-black">
-                <video id="hero_video_2" autoplay loop muted playsinline preload="auto"
-                    class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"></video>
+            <div id="hero_media_2" class="w-full h-full relative overflow-hidden bg-black">
+                <!-- Dynamic Content -->
             </div>
         </div>
 
@@ -876,18 +874,38 @@
                     supabaseClient.from('before_after').select('*').order('created_at', { ascending: false })
                 ])
 
+                const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
+
                 // Load Config
                 if (confRes.data) {
                     confRes.data.forEach(item => {
                         if (item.key.startsWith('hero_video_')) {
-                            const videoPlayer = document.getElementById(item.key)
-                            if (videoPlayer && item.value) {
-                                videoPlayer.src = item.value
+                            const mediaNum = item.key.split('_')[2] // '1' or '2'
+                            const container = document.getElementById('hero_media_' + mediaNum)
+                            if (container && item.value) {
+                                if (isVideoUrl(item.value)) {
+                                    container.innerHTML = `
+                                        <video autoplay loop muted playsinline preload="auto"
+                                            class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000">
+                                            <source src="${item.value}" type="video/mp4">
+                                        </video>`
+                                } else {
+                                    container.innerHTML = `
+                                        <img src="${item.value}" 
+                                            class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"
+                                            onerror="this.src='https://via.placeholder.com/1920x1080?text=Immagine+Hero'">`
+                                }
                             }
                         } else if (item.key === 'hero_video') {
                             for (let i = 1; i <= 2; i++) {
-                                const p = document.getElementById('hero_video_' + i);
-                                if (p && !p.src) p.src = item.value;
+                                const container = document.getElementById('hero_media_' + i);
+                                if (container && !container.innerHTML.trim()) {
+                                    if (isVideoUrl(item.value)) {
+                                        container.innerHTML = `<video autoplay loop muted playsinline preload="auto" class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"><source src="${item.value}" type="video/mp4"></video>`
+                                    } else {
+                                        container.innerHTML = `<img src="${item.value}" class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000">`
+                                    }
+                                }
                             }
                         } else {
                             const elements = document.querySelectorAll(`[id="${item.key}"]`)
