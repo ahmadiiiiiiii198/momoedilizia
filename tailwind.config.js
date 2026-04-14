@@ -12,7 +12,10 @@ module.exports = {
           dark: '#1e7f88',
           light: '#4ec1cb'
         },
-        dark: '#1a1a1a'
+        dark: '#1a1a1a',
+        sidebar: '#0f172a',
+        card: '#ffffff',
+        page: '#f1f5f9'
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
