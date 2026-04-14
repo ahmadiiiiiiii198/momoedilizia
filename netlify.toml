@@ -7,6 +7,11 @@
   node_bundler = "esbuild"
 
 [[redirects]]
+  from = "/api/get-upload-url"
+  to = "/.netlify/functions/get-upload-url"
+  status = 200
+
+[[redirects]]
   from = "/api/upload"
   to = "/.netlify/functions/upload"
   status = 200

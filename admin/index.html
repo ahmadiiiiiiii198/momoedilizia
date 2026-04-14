@@ -891,16 +891,40 @@
                     if (error) this.showToast('Errore: ' + error.message, 'error')
                     else this.showToast('Configurazione salvata!')
                 },
+                async _uploadFile(file) {
+                    const res = await fetch('/api/get-upload-url', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ filename: file.name, contentType: file.type })
+                    })
+                    if (!res.ok) throw new Error('Errore generazione URL di upload')
+                    const { uploadUrl, publicUrl } = await res.json()
+                    const putRes = await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': file.type } })
+                    if (!putRes.ok) throw new Error('Errore upload diretto al server')
+                    return publicUrl
+                },
+                async _uploadFiles(files) {
+                    const fileList = Array.from(files).map(f => ({ filename: f.name, contentType: f.type }))
+                    const res = await fetch('/api/get-upload-url', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ files: fileList })
+                    })
+                    if (!res.ok) throw new Error('Errore generazione URL di upload')
+                    const { results } = await res.json()
+                    const urls = []
+                    for (let i = 0; i < results.length; i++) {
+                        const putRes = await fetch(results[i].uploadUrl, { method: 'PUT', body: files[i], headers: { 'Content-Type': files[i].type } })
+                        if (!putRes.ok) throw new Error('Errore upload file ' + (i + 1))
+                        urls.push(results[i].publicUrl)
+                    }
+                    return urls
+                },
                 async uploadConfigVideo(event, item) {
                     const file = event.target.files[0]
                     if (!file) return
                     try {
-                        const formData = new FormData()
-                        formData.append('file', file)
-                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
-                        if (!response.ok) throw new Error('Errore di comunicazione col server')
-                        const data = await response.json()
-                        item.value = data.url
+                        item.value = await this._uploadFile(file)
                         await this.updateConfig(item)
                         event.target.value = ''
                     } catch (error) {
@@ -930,12 +954,7 @@
                     const file = event.target.files[0]
                     if (!file) return
                     try {
-                        const formData = new FormData()
-                        formData.append('file', file)
-                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
-                        if (!response.ok) throw new Error('Errore di comunicazione col server')
-                        const data = await response.json()
-                        project.image_url = data.url
+                        project.image_url = await this._uploadFile(file)
                         await this.updateProject(project)
                         event.target.value = ''
                     } catch (error) {
@@ -953,12 +972,7 @@
                     if (!files || files.length === 0) return
                     this.isUploadingMultiple = true
                     try {
-                        const formData = new FormData()
-                        for (let i = 0; i < files.length; i++) formData.append('files', files[i])
-                        const response = await fetch('/api/upload-multiple', { method: 'POST', body: formData })
-                        if (!response.ok) throw new Error('Errore server durante il caricamento')
-                        const data = await response.json()
-                        const urls = data.urls
+                        const urls = await this._uploadFiles(files)
                         const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
                         const newProjects = urls.map(url => ({
                             title: 'Nuovo Progetto',
@@ -986,12 +1000,7 @@
                     const file = event.target.files[0]
                     if (!file) return
                     try {
-                        const formData = new FormData()
-                        formData.append('file', file)
-                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
-                        if (!response.ok) throw new Error('Errore di comunicazione col server')
-                        const data = await response.json()
-                        item.value = data.url
+                        item.value = await this._uploadFile(file)
                         await this.updateConfig(item)
                         event.target.value = ''
                     } catch (error) {
@@ -1040,12 +1049,7 @@
                     const file = event.target.files[0]
                     if (!file) return
                     try {
-                        const formData = new FormData()
-                        formData.append('file', file)
-                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
-                        if (!response.ok) throw new Error('Errore di comunicazione col server')
-                        const data = await response.json()
-                        item.before_url = data.url
+                        item.before_url = await this._uploadFile(file)
                         await this.updateBeforeAfter(item, false)
                         event.target.value = ''
                         this.showToast('Immagine "Prima" caricata!')
@@ -1057,12 +1061,7 @@
                     const file = event.target.files[0]
                     if (!file) return
                     try {
-                        const formData = new FormData()
-                        formData.append('file', file)
-                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
-                        if (!response.ok) throw new Error('Errore di comunicazione col server')
-                        const data = await response.json()
-                        item.after_url = data.url
+                        item.after_url = await this._uploadFile(file)
                         await this.updateBeforeAfter(item, false)
                         event.target.value = ''
                         this.showToast('Immagine "Dopo" caricata!')
@@ -1074,12 +1073,7 @@
                     const file = event.target.files[0]
                     if (!file) return
                     try {
-                        const formData = new FormData()
-                        formData.append('file', file)
-                        const response = await fetch('/api/upload', { method: 'POST', body: formData })
-                        if (!response.ok) throw new Error('Errore di comunicazione col server')
-                        const data = await response.json()
-                        image.image_url = data.url
+                        image.image_url = await this._uploadFile(file)
                         await this.updateAboutImage(image, false)
                         event.target.value = ''
                         this.showToast('Immagine caricata!')
