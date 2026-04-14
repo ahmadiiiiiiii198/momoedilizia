@@ -265,6 +265,16 @@
 
                 <!-- ===== HERO ===== -->
                 <div v-if="!loading && currentTab === 'hero'" class="fade-in space-y-6">
+                    <div class="flex items-center justify-between bg-brand/5 p-4 rounded-2xl border border-brand/10">
+                        <div>
+                            <p class="text-sm font-bold text-brand">Configurazione Hero (v1.1 - 4 slot)</p>
+                            <p class="text-[11px] text-slate-500">Se vedi meno di 4 slot, clicca il tasto a destra per inizializzare il database.</p>
+                        </div>
+                        <button @click="fixHeroConfig" 
+                            class="px-4 py-2 bg-brand text-white text-xs font-bold rounded-xl shadow-md hover:bg-brand-dark transition-all">
+                            <i class="fas fa-magic mr-1.5"></i>Inizializza Slot Mancanti
+                        </button>
+                    </div>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         <div v-for="item in heroConfig" :key="item.id"
                             class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
@@ -1106,6 +1116,25 @@
                     const { data, error } = await supabaseClient.from('about_images').insert([newImage]).select()
                     if (error) this.showToast('Errore: ' + error.message, 'error')
                     else { this.aboutImages.push(data[0]); this.showToast('Immagine aggiunta!') }
+                },
+                async fixHeroConfig() {
+                    this.loading = true;
+                    try {
+                        const heroKeys = ['hero_video_1', 'hero_video_2', 'hero_video_3', 'hero_video_4'];
+                        for (const key of heroKeys) {
+                            if (!this.siteConfig.some(item => item.key === key)) {
+                                const { data, error } = await supabaseClient.from('site_config').insert([{ key, value: '' }]).select();
+                                if (error) throw error;
+                                if (data && data[0]) this.siteConfig.push(data[0]);
+                            }
+                        }
+                        this.siteConfig.sort((a, b) => a.id - b.id);
+                        this.showToast('Database sincronizzato con successo!');
+                    } catch (error) {
+                        console.error('Fix error:', error);
+                        this.showToast('Errore sincronizzazione: ' + error.message, 'error');
+                    }
+                    this.loading = false;
                 }
             }
         }).mount('#app')
