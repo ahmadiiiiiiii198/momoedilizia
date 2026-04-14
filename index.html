@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it" class="scroll-smooth">
+<html lang="it">
 
 <head>
     <meta charset="UTF-8">
@@ -47,16 +47,19 @@
             --gallery-videos-speed: 80s;
         }
 
-        html {
-            overflow-x: hidden;
+        html, body {
+            margin: 0;
+            padding: 0;
             width: 100%;
+            overflow-x: hidden;
+        }
+
+        html {
+            scroll-behavior: smooth;
         }
 
         body {
-            overflow-x: hidden;
-            width: 100%;
             position: relative;
-            min-height: 100vh;
         }
 
         .hero-pattern {
