@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it" class="scroll-smooth">
+<html lang="it" class="scroll-smooth overflow-x-hidden">
 
 <head>
     <meta charset="UTF-8">
@@ -45,6 +45,12 @@
             --brand-light: #4ec1cb;
             --gallery-images-speed: 80s;
             --gallery-videos-speed: 80s;
+        }
+
+        html, body {
+            overflow-x: hidden;
+            width: 100%;
+            position: relative;
         }
 
         .hero-pattern {
@@ -139,7 +145,7 @@
 </head>
 
 <body
-    class="font-sans text-gray-800 antialiased selection:bg-brand selection:text-white bg-gradient-to-b from-white via-white to-gray-50">
+    class="font-sans text-gray-800 antialiased selection:bg-brand selection:text-white bg-gradient-to-b from-white via-white to-gray-50 overflow-x-hidden">
 
     <!-- Navbar -->
     <nav id="navbar"
@@ -223,7 +229,7 @@
                     <span class="text-sm font-semibold tracking-wide">Qualità & Sicurezza</span>
                 </div>
                 <h1 id="hero_title"
-                    class="font-display text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
+                    class="font-display text-3xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
                     Costruiamo il Tuo <span
                         class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">Futuro</span>
                 </h1>
@@ -280,7 +286,7 @@
     </section>
 
     <!-- Services Section -->
-    <section id="servizi" class="py-24 bg-gray-50 relative overflow-hidden">
+    <section id="servizi" class="py-24 bg-gray-50 relative overflow-x-hidden">
         <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand/10 blur-3xl"></div>
         <div class="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-brand/10 blur-3xl"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -354,7 +360,7 @@
     </section>
 
     <!-- About Section -->
-    <section id="chi-siamo" class="py-24 bg-white relative overflow-hidden">
+    <section id="chi-siamo" class="py-24 bg-white relative overflow-x-hidden">
         <!-- Decorative Background Element -->
         <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-brand/5 blur-3xl"></div>
         <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-brand/5 blur-3xl"></div>
