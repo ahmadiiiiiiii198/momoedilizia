@@ -47,18 +47,18 @@
             --gallery-videos-speed: 80s;
         }
 
-        html, body {
+        html {
             margin: 0;
             padding: 0;
-            width: 100%;
-            overflow-x: hidden;
-        }
-
-        html {
+            overflow-x: clip;
             scroll-behavior: smooth;
         }
 
         body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            overflow-x: hidden;
             position: relative;
         }
 
@@ -331,7 +331,7 @@
     </section>
 
     <!-- Services Section -->
-    <section id="servizi" class="py-24 bg-gray-50 relative overflow-x-hidden">
+    <section id="servizi" class="py-24 bg-gray-50 relative overflow-x-clip">
         <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand/10 blur-3xl"></div>
         <div class="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-brand/10 blur-3xl"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -405,7 +405,7 @@
     </section>
 
     <!-- About Section -->
-    <section id="chi-siamo" class="py-24 bg-white relative overflow-x-hidden">
+    <section id="chi-siamo" class="py-24 bg-white relative overflow-x-clip">
         <!-- Decorative Background Element -->
         <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-brand/5 blur-3xl"></div>
         <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-brand/5 blur-3xl"></div>
@@ -1040,7 +1040,6 @@
                 // Load Projects
                 if (projRes.data && projRes.data.length > 0) {
                     const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
-
                     const imageProjects = projRes.data.filter(p => !isVideoUrl(p.image_url))
                     const videoProjects = projRes.data.filter(p => isVideoUrl(p.image_url))
 
@@ -1209,6 +1208,7 @@
                     duration: 600, // Faster animations
                     once: true,
                     offset: 50, // Trigger sooner
+
                     disable: disableScrollAnimations
                 })
 
