@@ -643,10 +643,20 @@
     <!-- Gallery Section -->
     <section id="galleria" class="py-24 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center max-w-3xl mx-auto mb-16">
+            <div class="text-center max-w-3xl mx-auto mb-6">
                 <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2">I Nostri Lavori</h2>
                 <h3 class="font-display text-4xl font-bold text-gray-900">Galleria Progetti</h3>
                 <div class="w-24 h-1 bg-brand mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <!-- Image Gallery Controls -->
+            <div class="flex justify-center gap-4 mb-8">
+                <button id="btn-play-projects" class="gallery-control-btn active" title="Continua scorrimento">
+                    <i class="fas fa-play text-sm"></i>
+                </button>
+                <button id="btn-pause-projects" class="gallery-control-btn" title="Ferma scorrimento">
+                    <i class="fas fa-pause text-sm"></i>
+                </button>
             </div>
 
             <!-- Horizontal Scrolling Gallery -->
@@ -1187,19 +1197,36 @@
                                 vTrack.style.animationDuration = vDuration + 's';
 
                                 // Manual Gallery Controls
-                                const btnPlay = document.getElementById('btn-play-videos');
-                                const btnPause = document.getElementById('btn-pause-videos');
+                                const btnPlayVideos = document.getElementById('btn-play-videos');
+                                const btnPauseVideos = document.getElementById('btn-pause-videos');
 
-                                if (vTrack && btnPlay && btnPause) {
-                                    btnPlay.addEventListener('click', () => {
+                                if (vTrack && btnPlayVideos && btnPauseVideos) {
+                                    btnPlayVideos.addEventListener('click', () => {
                                         vTrack.classList.remove('paused');
-                                        btnPlay.classList.add('active');
-                                        btnPause.classList.remove('active');
+                                        btnPlayVideos.classList.add('active');
+                                        btnPauseVideos.classList.remove('active');
                                     });
-                                    btnPause.addEventListener('click', () => {
+                                    btnPauseVideos.addEventListener('click', () => {
                                         vTrack.classList.add('paused');
-                                        btnPause.classList.add('active');
-                                        btnPlay.classList.remove('active');
+                                        btnPauseVideos.classList.add('active');
+                                        btnPlayVideos.classList.remove('active');
+                                    });
+                                }
+
+                                // Manual Gallery Controls (Projects)
+                                const btnPlayProjects = document.getElementById('btn-play-projects');
+                                const btnPauseProjects = document.getElementById('btn-pause-projects');
+
+                                if (pTrack && btnPlayProjects && btnPauseProjects) {
+                                    btnPlayProjects.addEventListener('click', () => {
+                                        pTrack.classList.remove('paused');
+                                        btnPlayProjects.classList.add('active');
+                                        btnPauseProjects.classList.remove('active');
+                                    });
+                                    btnPauseProjects.addEventListener('click', () => {
+                                        pTrack.classList.add('paused');
+                                        btnPauseProjects.classList.add('active');
+                                        btnPlayProjects.classList.remove('active');
                                     });
                                 }
                             }
