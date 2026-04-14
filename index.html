@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="it" class="scroll-smooth overflow-x-hidden">
+<html lang="it" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
@@ -47,10 +47,16 @@
             --gallery-videos-speed: 80s;
         }
 
-        html, body {
+        html {
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        body {
             overflow-x: hidden;
             width: 100%;
             position: relative;
+            min-height: 100vh;
         }
 
         .hero-pattern {
@@ -58,7 +64,6 @@
             background-size: cover;
             background-position: center;
         }
-
 
         @keyframes scroll {
             0% {
@@ -151,11 +156,38 @@
             box-shadow: 0 18px 40px rgba(0, 0, 0, 0.18);
             cursor: pointer;
         }
+
+        @media (max-width: 767px) {
+            html {
+                scroll-behavior: auto;
+            }
+
+            #navbar {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: rgba(255, 255, 255, 0.96) !important;
+            }
+
+            .pulse-btn {
+                animation: none;
+            }
+
+            .blur-3xl,
+            .blur-2xl {
+                display: none !important;
+            }
+
+            [data-aos] {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+            }
+        }
     </style>
 </head>
 
 <body
-    class="font-sans text-gray-800 antialiased selection:bg-brand selection:text-white bg-gradient-to-b from-white via-white to-gray-50 overflow-x-hidden">
+    class="font-sans text-gray-800 antialiased selection:bg-brand selection:text-white bg-gradient-to-b from-white via-white to-gray-50">
 
     <!-- Navbar -->
     <nav id="navbar"
@@ -296,7 +328,7 @@
     </section>
 
     <!-- Services Section -->
-    <section id="servizi" class="py-24 bg-gray-50 relative overflow-x-hidden" style="content-visibility: auto; contain-intrinsic-size: 500px;">
+    <section id="servizi" class="py-24 bg-gray-50 relative overflow-x-hidden">
         <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand/10 blur-3xl"></div>
         <div class="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-brand/10 blur-3xl"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -370,7 +402,7 @@
     </section>
 
     <!-- About Section -->
-    <section id="chi-siamo" class="py-24 bg-white relative overflow-x-hidden" style="content-visibility: auto; contain-intrinsic-size: 500px;">
+    <section id="chi-siamo" class="py-24 bg-white relative overflow-x-hidden">
         <!-- Decorative Background Element -->
         <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-brand/5 blur-3xl"></div>
         <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-brand/5 blur-3xl"></div>
@@ -585,7 +617,7 @@
         </div>
     </section>
 
-    <section id="prima-dopo" class="py-24 bg-white relative overflow-hidden" style="content-visibility: auto; contain-intrinsic-size: 600px;">
+    <section id="prima-dopo" class="py-24 bg-white relative overflow-hidden">
         <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-brand/10 blur-3xl"></div>
         <div class="absolute -bottom-28 -right-28 w-96 h-96 rounded-full bg-brand/10 blur-3xl"></div>
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -690,7 +722,7 @@
     </section>
 
     <!-- Locations Section -->
-    <section id="sedi" class="py-24 bg-gray-50 relative overflow-hidden" style="content-visibility: auto; contain-intrinsic-size: 800px;">
+    <section id="sedi" class="py-24 bg-gray-50 relative overflow-hidden">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center max-w-3xl mx-auto mb-16">
                 <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2">Dove Siamo</h2>
@@ -703,7 +735,7 @@
                 <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1"
                     data-aos="fade-up" data-aos-delay="0">
                     <div
-                        class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        class="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
                         <i
                             class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
                     </div>
@@ -714,7 +746,7 @@
                 <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1"
                     data-aos="fade-up" data-aos-delay="100">
                     <div
-                        class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        class="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
                         <i
                             class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
                     </div>
@@ -725,7 +757,7 @@
                 <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1"
                     data-aos="fade-up" data-aos-delay="200">
                     <div
-                        class="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        class="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
                         <i
                             class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
                     </div>
@@ -1168,11 +1200,13 @@
                 }
 
                 // Initialize AOS with mobile optimizations
+                const disableScrollAnimations = window.innerWidth < 768 || window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
                 AOS.init({
                     duration: 600, // Faster animations
                     once: true,
                     offset: 50, // Trigger sooner
-                    disable: window.matchMedia('(prefers-reduced-motion: reduce)').matches
+                    disable: disableScrollAnimations
                 })
 
             } catch (error) {
