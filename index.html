@@ -243,6 +243,62 @@
 
         .gallery-control-btn:hover {
             transform: scale(1.1);
+            background: var(--brand);
+            color: white;
+            border-color: var(--brand);
+        }
+
+        .gallery-control-btn.active {
+            background: var(--brand);
+            color: white;
+            border-color: var(--brand);
+        }
+
+        #lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 99999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            backdrop-filter: blur(8px);
+        }
+
+        #lightbox.active {
+            display: flex;
+        }
+
+        #lightbox-content {
+            max-width: 90%;
+            max-height: 80vh;
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            object-fit: contain;
+        }
+
+        #lightbox-close {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        #lightbox-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
         }
 
         #lightbox-caption {
@@ -266,7 +322,754 @@
 <body
     class="font-sans text-gray-800 antialiased selection:bg-brand selection:text-white bg-gradient-to-b from-white via-white to-gray-50 is-loading">
 
-    <!-- ... -->
+    <!-- Loading Screen -->
+    <div id="page-loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">GRUPPO MOMO</div>
+        <div class="loader-sub">Caricamento in corso...</div>
+    </div>
+
+    <!-- Navbar -->
+    <nav id="navbar"
+        class="sticky top-0 z-50 bg-white/70 border-b border-gray-200/60 backdrop-blur-xl transition-shadow duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <img class="h-14 w-auto object-contain" src="icon.png" alt="Gruppo Momo Edilizia Icon"
+                        onerror="this.outerHTML='<i class=\'fas fa-city text-4xl text-brand\'></i>'">
+                    <div class="font-display font-bold flex flex-col leading-none">
+                        <span class="text-dark text-2xl tracking-widest">GRUPPO</span>
+                        <span class="text-brand uppercase text-lg tracking-wide">Momo Edilizia</span>
+                    </div>
+                </div>
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#home"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Home</a>
+                    <a href="#servizi"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Servizi</a>
+                    <a href="#chi-siamo"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Chi
+                        Siamo</a>
+                    <a href="#galleria"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Galleria</a>
+                    <a href="#prima-dopo"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Prima &
+                        Dopo</a>
+                    <a href="#sedi"
+                        class="text-gray-700 hover:text-gray-900 font-medium transition-colors duration-200">Sedi</a>
+                    <a href="#contatti"
+                        class="bg-gradient-to-r from-brand to-brand-dark text-white px-6 py-2.5 rounded-full font-semibold shadow-lg hover:shadow-xl hover:brightness-105 transition-all duration-200">Contattaci</a>
+                </div>
+                <button id="mobileMenuBtn"
+                    class="md:hidden w-11 h-11 rounded-xl glass flex items-center justify-center text-gray-800 shadow-sm">
+                    <i id="mobileMenuIcon" class="fas fa-bars"></i>
+                </button>
+            </div>
+            <div id="mobileMenu" class="md:hidden hidden pb-5">
+                <div class="glass rounded-2xl px-4 py-4 flex flex-col gap-2 shadow-lg">
+                    <a href="#home"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Home</a>
+                    <a href="#servizi"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Servizi</a>
+                    <a href="#chi-siamo"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Chi
+                        Siamo</a>
+                    <a href="#galleria"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Galleria</a>
+                    <a href="#prima-dopo"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Prima
+                        & Dopo</a>
+                    <a href="#sedi"
+                        class="px-3 py-2 rounded-xl text-gray-800 font-medium hover:bg-gray-900/5 transition-colors">Sedi</a>
+                    <a href="#contatti"
+                        class="mt-1 bg-gradient-to-r from-brand to-brand-dark text-white px-4 py-3 rounded-xl font-semibold shadow-md">Contattaci</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="h-[80vh] min-h-[600px] flex items-center relative overflow-hidden bg-gray-900">
+        <!-- 2 Media Containers Background -->
+        <div class="absolute inset-0 z-0 grid grid-cols-2 w-full h-full">
+            <div id="hero_media_1" class="w-full h-full relative overflow-hidden bg-black border-r border-gray-800">
+                <!-- Dynamic Content -->
+            </div>
+            <div id="hero_media_2" class="w-full h-full relative overflow-hidden bg-black">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full">
+            <div class="max-w-3xl" data-aos="fade-up" data-aos-duration="1200">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full glass text-gray-900 shadow-md mb-6">
+                    <span class="w-2 h-2 rounded-full bg-brand"></span>
+                    <span class="text-sm font-semibold tracking-wide">Impresa Edile</span>
+                    <span class="text-sm text-gray-600">Ã¢â‚¬Â¢</span>
+                    <span class="text-sm font-semibold tracking-wide">QualitÃƒÂ  & Sicurezza</span>
+                </div>
+                <h1 id="hero_title"
+                    class="font-display text-3xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
+                    Costruiamo il Tuo <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">Futuro</span>
+                </h1>
+                <p id="hero_subtitle" class="text-xl text-gray-100/90 mb-10 max-w-2xl font-light leading-relaxed"
+                    data-aos="fade-up" data-aos-delay="200">
+                    Eccellenza, passione e professionalitÃƒÂ  nel settore edile. Dalla progettazione alla realizzazione,
+                    diamo forma alle tue idee con materiali di altissima qualitÃƒÂ .
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4" data-aos="fade-up" data-aos-delay="400">
+                    <a href="#servizi"
+                        class="bg-gradient-to-r from-brand to-brand-dark text-white px-8 py-4 rounded-full font-bold text-lg text-center shadow-2xl hover:shadow-[0_30px_80px_rgba(43,168,180,0.35)] hover:-translate-y-0.5 transition-all duration-200">Scopri
+                        i Servizi</a>
+                    <a href="#contatti"
+                        class="glass text-gray-900 px-8 py-4 rounded-full font-bold text-lg text-center hover:bg-white/80 hover:-translate-y-0.5 transition-all duration-200">Richiedi
+                        Preventivo</a>
+                </div>
+            </div>
+        </div>
+        <!-- Decorative Shape Divider -->
+        <div class="absolute bottom-0 w-full overflow-hidden leading-none">
+            <svg class="relative block w-full h-[70px] md:h-[90px]" data-name="Layer 1"
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,72 C160,112 340,16 600,56 C860,96 1040,32 1200,64 L1200,120 L0,120 Z" class="fill-gray-50">
+                </path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Trusted Partners Section -->
+    <section class="py-10 bg-white border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <p class="text-center text-sm font-semibold text-gray-500 uppercase tracking-widest mb-8"
+                data-aos="fade-up" data-aos-duration="300">I Nostri Partner e Materiali Certificati</p>
+            <div class="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-70 grayscale hover:grayscale-0 transition-all duration-500"
+                data-aos="fade-up" data-aos-duration="300" data-aos-delay="50">
+                <div class="text-2xl font-display font-bold text-gray-800 tracking-tighter">MAPEI</div>
+                <div class="text-2xl font-display font-bold text-gray-800 tracking-widest">KERAKOLL</div>
+                <div class="text-xl font-display font-bold text-gray-800 uppercase border-b-2 border-brand pb-1">Fassa
+                    Bortolo</div>
+                <div class="text-2xl font-display font-black text-gray-800 italic">Saint-Gobain</div>
+                <div class="text-2xl font-display font-bold text-gray-800">weber</div>
+                <div class="text-2xl font-display font-bold text-gray-800 tracking-wide">KNAUF</div>
+                <div class="text-2xl font-display font-bold text-gray-800 italic tracking-tight">Litokol</div>
+                <div class="text-2xl font-display font-black text-gray-800 uppercase">Sika</div>
+                <div class="text-xl font-display font-bold text-gray-800 tracking-widest">FISCHER</div>
+                <div class="text-2xl font-display font-bold text-gray-800">Hilti</div>
+                <div class="text-xl font-display font-bold text-gray-800 uppercase tracking-wider">WÃƒÂ¼rth</div>
+                <div class="text-2xl font-display font-black text-gray-800 italic tracking-tight">Bisazza</div>
+                <div class="text-2xl font-display font-bold text-gray-800 tracking-tighter">MARAZZI</div>
+                <div class="text-xl font-display font-bold text-gray-800 uppercase">Atlas Concorde</div>
+                <div class="text-2xl font-display font-bold text-gray-800 tracking-wide">GROHE</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="servizi" class="py-24 bg-gray-50 relative overflow-x-clip">
+        <div class="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand/10 blur-3xl"></div>
+        <div class="absolute -bottom-32 -left-24 w-96 h-96 rounded-full bg-brand/10 blur-3xl"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-4xl mx-auto mb-16">
+                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2" data-aos="fade-down" data-aos-duration="300">Cosa
+                    Facciamo</h2>
+                <h3 class="font-display text-4xl font-bold text-gray-900" data-aos="fade-down" data-aos-duration="300" data-aos-delay="50">I
+                    Nostri Servizi</h3>
+                <h4 class="font-display text-2xl font-medium text-gray-600 mt-3" data-aos="fade-down"
+                    data-aos-duration="300" data-aos-delay="80">Edilizia Generale</h4>
+                <div class="w-24 h-1 bg-brand mx-auto mt-6 mb-10 rounded-full" data-aos="fade-down"
+                    data-aos-duration="300" data-aos-delay="100"></div>
+
+                <div class="glass p-8 md:p-10 rounded-3xl shadow-xl border border-white/80 relative overflow-hidden text-center transform transition duration-500 hover:shadow-2xl hover:-translate-y-1"
+                    data-aos="fade-up" data-aos-duration="400" data-aos-delay="120">
+                    <!-- Decorative Elements -->
+                    <div class="absolute -top-16 -left-16 w-32 h-32 rounded-full bg-brand/10 blur-2xl"></div>
+                    <div class="absolute -bottom-16 -right-16 w-32 h-32 rounded-full bg-brand-light/10 blur-2xl"></div>
+
+                    <p class="text-gray-700 text-lg md:text-xl leading-relaxed font-medium relative z-10 lg:px-6">
+                        Forniamo servizi di alta qualitÃƒÂ  a prezzi competitivi e costruiamo il tuo futuro con massima
+                        qualitÃƒÂ  e professionalitÃƒÂ . Grazie alla nostra specializzazione artigianale, siamo competenti
+                        nella posa di piastrelle e marmi, nell'applicazione di cappotti e tinteggiature, nella rasatura
+                        e stesura di massetti e intonaci. Inoltre, offriamo servizi di riparazione e manutenzione dei
+                        tetti, rimozione e reinstallazione di parquet, installazione di ponteggi e guaine, e posa di
+                        mapelastic, intonachino, mattoni, tetti e autobloccanti, oltre a installazioni idrauliche ed
+                        elettriche; Carpenteria.
+                    </p>
+                </div>
+            </div>
+
+            <div id="services-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Service 1 -->
+                <div
+                    class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1"
+                    data-aos="fade-up" data-aos-duration="300" data-aos-delay="0">
+                    <div
+                        class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-hammer text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Ristrutturazioni</h4>
+                    <p class="text-gray-600 leading-relaxed">Rinnoviamo i tuoi spazi residenziali e commerciali con
+                        soluzioni innovative, rispettando i tempi concordati e il tuo budget.</p>
+                </div>
+                <!-- Service 2 -->
+                <div
+                    class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1"
+                    data-aos="fade-up" data-aos-duration="300" data-aos-delay="50">
+                    <div
+                        class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-building text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Nuove Costruzioni</h4>
+                    <p class="text-gray-600 leading-relaxed">Realizziamo edifici moderni, sicuri e ad alta efficienza
+                        energetica, curando ogni dettaglio dalle fondamenta al tetto.</p>
+                </div>
+                <!-- Service 3 -->
+                <div
+                    class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1"
+                    data-aos="fade-up" data-aos-duration="300" data-aos-delay="100">
+                    <div
+                        class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-tools text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Manutenzione</h4>
+                    <p class="text-gray-600 leading-relaxed">Offriamo servizi di manutenzione ordinaria e straordinaria
+                        per preservare il valore e la sicurezza dei tuoi immobili nel tempo.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="chi-siamo" class="py-24 bg-white relative overflow-x-clip">
+        <!-- Decorative Background Element -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 rounded-full bg-brand/5 blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-brand/5 blur-3xl"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center gap-16">
+                <!-- Image Grid Side -->
+                <div class="lg:w-1/2 w-full relative" data-aos="fade-right">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="space-y-4 mt-8">
+                            <img src="https://picsum.photos/id/1075/500/600" alt="Cantiere in corso"
+                                class="rounded-2xl shadow-xl w-full object-cover h-64 transform transition hover:-translate-y-2 duration-300">
+                            <img src="https://picsum.photos/id/1040/500/400" alt="Materiali edili"
+                                class="rounded-2xl shadow-xl w-full object-cover h-48 transform transition hover:-translate-y-2 duration-300">
+                        </div>
+                        <div class="space-y-4">
+                            <img src="https://picsum.photos/id/1010/500/400" alt="Progetto architettonico"
+                                class="rounded-2xl shadow-xl w-full object-cover h-48 transform transition hover:-translate-y-2 duration-300">
+                            <img src="https://picsum.photos/id/1033/500/600" alt="Team al lavoro"
+                                class="rounded-2xl shadow-xl w-full object-cover h-64 transform transition hover:-translate-y-2 duration-300">
+                        </div>
+                    </div>
+                    <!-- Floating Badge -->
+                    <div
+                        class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-6 rounded-2xl shadow-2xl border-4 border-white text-center w-48">
+                        <h4 class="text-4xl font-display font-bold text-brand mb-1">10+</h4>
+                        <p class="text-sm text-gray-600 font-medium uppercase tracking-wide">Anni di Esperienza</p>
+                    </div>
+                </div>
+
+                <!-- Text Content Side -->
+                <div class="lg:w-1/2 w-full" data-aos="fade-left">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="h-px w-12 bg-brand"></div>
+                        <h2 class="text-brand font-semibold tracking-wider uppercase text-sm">Chi Siamo</h2>
+                    </div>
+                    <h3 class="font-display text-4xl lg:text-5xl font-bold text-gray-900 mb-8 leading-tight">
+                        Costruiamo basi solide per i <span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-brand-dark to-brand-light">tuoi
+                            progetti</span>
+                    </h3>
+
+                    <p id="about_text1" class="text-gray-600 mb-6 text-lg leading-relaxed">
+                        Siamo un'impresa edile dinamica, nata con l'obiettivo di portare innovazione e qualitÃƒÂ  superiore
+                        in ogni cantiere. Il nostro team ÃƒÂ¨ composto da professionisti altamente qualificati con una
+                        profonda conoscenza del settore.
+                    </p>
+                    <p id="about_text2" class="text-gray-600 mb-10 text-lg leading-relaxed">
+                        Crediamo fortemente che ogni progetto sia unico. Per questo lavoriamo a stretto contatto con i
+                        nostri clienti, garantendo totale trasparenza, rigoroso rispetto delle normative di sicurezza e
+                        l'utilizzo di materiali certificati e all'avanguardia.
+                    </p>
+
+                    <!-- Core Values List -->
+                    <div class="space-y-4 mb-10">
+                        <div class="flex items-start" data-aos="fade-up" data-aos-delay="100">
+                            <div
+                                class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
+                                <i class="fas fa-check text-brand text-sm"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h5 class="text-gray-900 font-bold text-lg">QualitÃƒÂ  Garantita</h5>
+                                <p class="text-gray-600 mt-1">Utilizziamo solo i migliori materiali per risultati
+                                    duraturi nel tempo.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start" data-aos="fade-up" data-aos-delay="200">
+                            <div
+                                class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
+                                <i class="fas fa-clock text-brand text-sm"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h5 class="text-gray-900 font-bold text-lg">Rispetto dei Tempi</h5>
+                                <p class="text-gray-600 mt-1">Pianificazione accurata per consegnare il progetto nei
+                                    tempi stabiliti.</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start" data-aos="fade-up" data-aos-delay="300">
+                            <div
+                                class="flex-shrink-0 w-8 h-8 rounded-full bg-brand/10 flex items-center justify-center mt-1">
+                                <i class="fas fa-hard-hat text-brand text-sm"></i>
+                            </div>
+                            <div class="ml-4">
+                                <h5 class="text-gray-900 font-bold text-lg">Sicurezza al Primo Posto</h5>
+                                <p class="text-gray-600 mt-1">Rigidi protocolli per garantire cantieri sicuri e a norma
+                                    di legge.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Process Section -->
+    <section id="metodo" class="py-24 bg-gray-900 text-white relative overflow-hidden">
+        <div
+            class="absolute top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-brand-dark/20 via-gray-900 to-gray-900">
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-3xl mx-auto mb-20">
+                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2" data-aos="fade-up">Come
+                    Lavoriamo</h2>
+                <h3 class="font-display text-4xl font-bold text-white" data-aos="fade-up" data-aos-delay="100">Il Nostro
+                    Metodo in 4 Step</h3>
+                <div class="w-24 h-1 bg-brand mx-auto mt-6 rounded-full" data-aos="fade-up" data-aos-delay="200"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 relative">
+                <!-- Connecting line (desktop only) -->
+                <div class="hidden md:block absolute top-[2.5rem] left-[12.5%] right-[12.5%] h-0.5 bg-gray-800 z-0">
+                </div>
+
+                <!-- Step 1 -->
+                <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="0">
+                    <div
+                        class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                        <span class="text-2xl font-display font-bold text-brand">1</span>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3 font-display">Sopralluogo</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed px-2">Analisi gratuita sul posto per capire le tue
+                        esigenze e le specifiche del cantiere.</p>
+                </div>
+                <!-- Step 2 -->
+                <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="100">
+                    <div
+                        class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                        <span class="text-2xl font-display font-bold text-brand">2</span>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3 font-display">Preventivo</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed px-2">Proposta dettagliata e trasparente, senza
+                        costi nascosti e con tempistiche certe.</p>
+                </div>
+                <!-- Step 3 -->
+                <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="200">
+                    <div
+                        class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                        <span class="text-2xl font-display font-bold text-brand">3</span>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3 font-display">Esecuzione</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed px-2">Lavorazione a regola d'arte con personale
+                        qualificato e rispetto delle norme.</p>
+                </div>
+                <!-- Step 4 -->
+                <div class="relative z-10 text-center group" data-aos="fade-up" data-aos-delay="300">
+                    <div
+                        class="w-20 h-20 mx-auto bg-gray-900 border-4 border-gray-800 rounded-full flex items-center justify-center mb-6 group-hover:border-brand transition-colors duration-300 shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+                        <span class="text-2xl font-display font-bold text-brand">4</span>
+                    </div>
+                    <h4 class="text-xl font-bold mb-3 font-display">Consegna</h4>
+                    <p class="text-gray-400 text-sm leading-relaxed px-2">Collaudo finale e consegna chiavi in mano con
+                        garanzia sui lavori eseguiti.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section id="galleria" class="py-24 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-6">
+                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2">I Nostri Lavori</h2>
+                <h3 class="font-display text-4xl font-bold text-gray-900">Galleria Progetti</h3>
+                <div class="w-24 h-1 bg-brand mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <!-- Image Gallery Controls -->
+            <div class="flex justify-center gap-4 mb-8">
+                <button id="btn-play-projects" class="gallery-control-btn active" title="Continua scorrimento">
+                    <i class="fas fa-play text-sm"></i>
+                </button>
+                <button id="btn-pause-projects" class="gallery-control-btn" title="Ferma scorrimento">
+                    <i class="fas fa-pause text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Horizontal Scrolling Gallery -->
+            <div class="relative w-full overflow-hidden mt-10 pb-10">
+                <!-- Fade edges for smooth effect -->
+                <div
+                    class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none">
+                </div>
+                <div
+                    class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none">
+                </div>
+
+                <!-- Scrolling Track -->
+                <div id="projects-track" class="flex w-max animate-scroll">
+                    <!-- Set 1 -->
+                    <div id="projects-set-1" class="flex gap-6 px-3">
+                    </div>
+                    <!-- Set 2 -->
+                    <div id="projects-set-2" class="flex gap-6 px-3">
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-center max-w-3xl mx-auto mt-8 mb-4">
+                <h3 class="font-display text-3xl font-bold text-gray-900">Galleria Video</h3>
+                <div class="w-16 h-1 bg-brand mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <!-- Gallery Controls -->
+            <div class="flex justify-center gap-4 mb-6">
+                <button id="btn-play-videos" class="gallery-control-btn active" title="Continua scorrimento">
+                    <i class="fas fa-play text-sm"></i>
+                </button>
+                <button id="btn-pause-videos" class="gallery-control-btn" title="Ferma scorrimento">
+                    <i class="fas fa-pause text-sm"></i>
+                </button>
+            </div>
+
+            <div id="videos-gallery-wrapper" class="relative w-full overflow-hidden mt-8 pb-10">
+                <div
+                    class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none">
+                </div>
+                <div
+                    class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none">
+                </div>
+
+                <div id="videos-track" class="flex w-max animate-scroll-videos">
+                    <div id="videos-set-1" class="flex gap-6 px-3">
+                    </div>
+                    <div id="videos-set-2" class="flex gap-6 px-3">
+                    </div>
+                </div>
+            </div>
+
+            <div id="videos-empty" class="hidden text-center text-gray-500 font-medium mt-4">
+                Nessun video disponibile al momento.
+            </div>
+        </div>
+    </section>
+
+    <section id="prima-dopo" class="py-24 bg-white relative overflow-hidden">
+        <div class="absolute -top-24 -left-24 w-80 h-80 rounded-full bg-brand/10 blur-3xl"></div>
+        <div class="absolute -bottom-28 -right-28 w-96 h-96 rounded-full bg-brand/10 blur-3xl"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-3xl mx-auto mb-14">
+                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2">Prima & Dopo</h2>
+                <h3 class="font-display text-4xl font-bold text-gray-900">Trasformazioni Reali</h3>
+                <p class="text-gray-600 mt-4 text-lg">Confronta il risultato: sposta lo slider per vedere il prima e il
+                    dopo.</p>
+                <div class="w-24 h-1 bg-brand mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <div id="before-after-grid" class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            </div>
+
+            <div id="before-after-empty" class="hidden text-center text-gray-500 font-medium mt-6">
+                Sezione in aggiornamento: presto aggiungeremo nuove trasformazioni.
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="py-24 bg-brand relative overflow-hidden">
+        <div
+            class="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent">
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-white/80 font-semibold tracking-wider uppercase text-sm mb-2" data-aos="fade-up">Dicono
+                    di Noi</h2>
+                <h3 class="font-display text-4xl font-bold text-white" data-aos="fade-up" data-aos-delay="100">Cosa
+                    pensano i nostri clienti</h3>
+                <div class="w-24 h-1 bg-white/40 mx-auto mt-6 rounded-full" data-aos="fade-up" data-aos-delay="200">
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Review 1 -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative"
+                    data-aos="fade-up" data-aos-delay="0">
+                    <i class="fas fa-quote-left absolute text-5xl text-brand/10 top-6 right-6"></i>
+                    <div class="flex text-yellow-400 mb-5 text-sm">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Ci siamo affidati a Gruppo Momo per la
+                        ristrutturazione completa del nostro appartamento. Lavori eseguiti in modo impeccabile, pulizia
+                        in cantiere e rispetto dei tempi previsti. Personale molto qualificato."</p>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
+                            MR</div>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-gray-900">Marco R.</span>
+                            <span class="text-xs text-gray-500 uppercase tracking-wide">Privato (Torino)</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Review 2 -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative"
+                    data-aos="fade-up" data-aos-delay="100">
+                    <i class="fas fa-quote-left absolute text-5xl text-brand/10 top-6 right-6"></i>
+                    <div class="flex text-yellow-400 mb-5 text-sm">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Azienda estremamente seria, un team affiatato
+                        e competente. Hanno rifatto il tetto e curato la messa in posa dei pavimenti. Il risultato
+                        finale ha superato ampiamente le nostre aspettative."</p>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
+                            CV</div>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-gray-900">Chiara V.</span>
+                            <span class="text-xs text-gray-500 uppercase tracking-wide">Condominio (Moncalieri)</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- Review 3 -->
+                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative"
+                    data-aos="fade-up" data-aos-delay="200">
+                    <i class="fas fa-quote-left absolute text-5xl text-brand/10 top-6 right-6"></i>
+                    <div class="flex text-yellow-400 mb-5 text-sm">
+                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
+                            class="fas fa-star"></i><i class="fas fa-star"></i>
+                    </div>
+                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Precisione, ordine e disponibilitÃƒÂ  a venire
+                        incontro a ogni esigenza. Ci hanno fornito un servizio chiavi in mano sgravandoci da ogni
+                        preoccupazione. Li consiglio caldamente."</p>
+                    <div class="flex items-center gap-4">
+                        <div
+                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
+                            AT</div>
+                        <div class="flex flex-col">
+                            <span class="font-bold text-gray-900">Alessandro T.</span>
+                            <span class="text-xs text-gray-500 uppercase tracking-wide">AttivitÃƒÂ  Commerciale</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Locations Section -->
+    <section id="sedi" class="py-24 bg-gray-50 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <h2 class="text-brand font-semibold tracking-wider uppercase text-sm mb-2">Dove Siamo</h2>
+                <h3 class="font-display text-4xl font-bold text-gray-900">Le Nostre Sedi</h3>
+                <div class="w-24 h-1 bg-brand mx-auto mt-6 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Sede 1 -->
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1"
+                    data-aos="fade-up" data-aos-delay="0">
+                    <div
+                        class="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Moncalieri</h4>
+                    <p class="text-gray-600 leading-relaxed font-medium">Corso Roma 87<br>Moncalieri (TO)</p>
+                </div>
+                <!-- Sede 2 -->
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1"
+                    data-aos="fade-up" data-aos-delay="100">
+                    <div
+                        class="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Collegno</h4>
+                    <p class="text-gray-600 leading-relaxed font-medium">Via Alessandro Manzoni 7<br>Collegno (TO)</p>
+                </div>
+                <!-- Sede 3 -->
+                <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 text-center group hover:-translate-y-1"
+                    data-aos="fade-up" data-aos-delay="200">
+                    <div
+                        class="w-16 h-16 rounded-full flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                        <i
+                            class="fas fa-map-marker-alt text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">Torino</h4>
+                    <p class="text-gray-600 leading-relaxed font-medium">Via Baretti 2<br>Torino (TO)</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contatti" class="py-24 bg-dark text-white relative">
+        <div class="absolute top-0 w-full overflow-hidden leading-none rotate-180">
+            <svg class="relative block w-full h-[70px] md:h-[90px]" data-name="Layer 1"
+                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
+                <path d="M0,72 C160,112 340,16 600,56 C860,96 1040,32 1200,64 L1200,120 L0,120 Z" class="fill-white">
+                </path>
+            </svg>
+        </div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-12">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <!-- Contact Info -->
+                <div data-aos="fade-right">
+                    <h2 class="font-display text-4xl font-bold mb-6">Pronti a iniziare il tuo progetto?</h2>
+                    <p class="text-gray-400 mb-10 text-lg">Contattaci per un sopralluogo gratuito o per richiedere un
+                        preventivo senza impegno. Il nostro team ti risponderÃƒÂ  nel minor tempo possibile.</p>
+
+                    <div class="space-y-8">
+                        <div class="flex items-start">
+                            <div
+                                class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-map-marker-alt text-brand text-xl"></i>
+                            </div>
+                            <div class="ml-6">
+                                <h4 class="text-lg font-bold">Le Nostre Sedi</h4>
+                                <div class="text-gray-400 mt-2 space-y-1 text-sm md:text-base">
+                                    <p><strong class="text-gray-200">Moncalieri:</strong> Corso Roma 87</p>
+                                    <p><strong class="text-gray-200">Collegno:</strong> Via Alessandro Manzoni 7</p>
+                                    <p><strong class="text-gray-200">Torino:</strong> Via Baretti 2</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div
+                                class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-phone-alt text-brand text-xl"></i>
+                            </div>
+                            <div class="ml-6">
+                                <h4 class="text-lg font-bold">Telefono</h4>
+                                <p id="contact_phone" class="text-gray-400 mt-1">+39 012 345 6789</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div
+                                class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-envelope text-brand text-xl"></i>
+                            </div>
+                            <div class="ml-6">
+                                <h4 class="text-lg font-bold">Email</h4>
+                                <p id="contact_email" class="text-gray-400 mt-1">info@gruppomomoedilizia.it</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div
+                                class="w-12 h-12 bg-brand/20 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                                <i class="fas fa-envelope-open-text text-brand text-xl"></i>
+                            </div>
+                            <div class="ml-6">
+                                <h4 class="text-lg font-bold">PEC</h4>
+                                <p id="contact_pec" class="text-gray-400 mt-1">elsaifyservizi@pec.it</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="bg-white rounded-3xl p-8 sm:p-10 shadow-2xl" data-aos="fade-left">
+                    <form id="contact-form" class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Nome Completo</label>
+                            <input id="contact-name" type="text"
+                                class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900"
+                                placeholder="Mario Rossi" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Indirizzo Email</label>
+                            <input id="contact-email-input" type="email"
+                                class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900"
+                                placeholder="mario.rossi@email.it" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Messaggio</label>
+                            <textarea id="contact-message" rows="4"
+                                class="w-full px-5 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all text-gray-900 resize-none"
+                                placeholder="Descrivi brevemente il tuo progetto..." required></textarea>
+                        </div>
+                        <button type="submit"
+                            class="w-full bg-brand hover:bg-brand-dark text-white font-bold py-4 rounded-xl transition-colors duration-300 shadow-lg">
+                            Invia Richiesta
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- WhatsApp & Request Floating Buttons -->
+    <div class="fixed bottom-6 right-6 flex flex-col gap-4 z-[100]">
+        <!-- WhatsApp Button -->
+        <a id="whatsapp_link" href="https://wa.me/393246082115" target="_blank"
+            class="bg-[#25D366] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300 group relative pulse-btn">
+            <i class="fab fa-whatsapp text-3xl"></i>
+            <span
+                class="absolute right-full mr-3 bg-white text-gray-800 px-3 py-1 rounded-lg text-sm font-bold shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Chatta
+                con noi</span>
+        </a>
+        <!-- Quick Request Button -->
+        <a href="#contatti"
+            class="bg-brand text-white w-14 h-14 rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform duration-300 group relative pulse-btn"
+            style="animation-delay: 1s;">
+            <i class="fas fa-paper-plane text-xl"></i>
+            <span
+                class="absolute right-full mr-3 bg-white text-gray-800 px-3 py-1 rounded-lg text-sm font-bold shadow-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Invia
+                Richiesta</span>
+        </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-[#111] text-gray-500 py-8 border-t border-gray-800">
+        <div
+            class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="text-center md:text-left">
+                <p>&copy; Gruppo Momo Edilizia. Tutti i diritti riservati.</p>
+                <p class="text-xs mt-1">
+                    PEC: <span id="contact_pec_footer">elsaifyservizi@pec.it</span>
+                </p>
+            </div>
+            <div class="flex space-x-6">
+                <a id="social_facebook" href="#" target="_blank" class="text-gray-500 hover:text-white transition-colors hidden"><i
+                        class="fab fa-facebook-f"></i></a>
+                <a id="social_instagram" href="#" target="_blank" class="text-gray-500 hover:text-white transition-colors hidden"><i
+                        class="fab fa-instagram"></i></a>
+                <a id="social_linkedin" href="#" target="_blank" class="text-gray-500 hover:text-white transition-colors hidden"><i
+                        class="fab fa-linkedin-in"></i></a>
+            </div>
+        </div>
+    </footer>
+
 
     <!-- Lightbox for Gallery Images -->
     <div id="lightbox">
@@ -275,8 +1078,6 @@
         <div id="lightbox-caption"></div>
         <div id="lightbox-category"></div>
     </div>
-
-    <!-- ... -->
 
     <script>
         const supabaseUrl = 'https://msqdvvetjyrnnvaqmqwr.supabase.co'
@@ -414,7 +1215,7 @@
                     let imageHtml = ''
                     imageProjects.forEach(project => {
                         imageHtml += `
-                            <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer w-72 md:w-96 h-64 md:h-80 flex-shrink-0" data-aos="zoom-in" 
+                            <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer w-72 md:w-96 h-64 md:h-80 flex-shrink-0" data-aos="zoom-in"
                                  onclick="openLightbox('${project.image_url}', '${project.title.replace(/'/g, "\\'")}', '${project.category.replace(/'/g, "\\'")}')">
                                 <img src="${project.image_url}" alt="${project.title}" loading="lazy" decoding="async" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out" onerror="this.src='https://via.placeholder.com/600x500?text=Image+Error'">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
@@ -702,18 +1503,22 @@
             lightboxCaption.innerText = title;
             lightboxCategory.innerText = category;
             lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden'; // Prevent scrolling
+            document.body.style.overflow = 'hidden';
         };
 
         const closeLightbox = () => {
             lightbox.classList.remove('active');
-            document.body.style.overflow = ''; // Restore scrolling
+            document.body.style.overflow = '';
         };
 
-        lightboxClose.addEventListener('click', closeLightbox);
-        lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) closeLightbox();
-        });
+        if (lightboxClose) {
+            lightboxClose.addEventListener('click', closeLightbox);
+        }
+        if (lightbox) {
+            lightbox.addEventListener('click', (e) => {
+                if (e.target === lightbox) closeLightbox();
+            });
+        }
 
         loadData().then(() => {
             const revealSite = () => {
