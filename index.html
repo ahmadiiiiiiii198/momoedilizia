@@ -105,7 +105,8 @@
             }
         }
 
-        .animate-scroll, .animate-scroll-videos {
+        .animate-scroll,
+        .animate-scroll-videos {
             will-change: transform;
         }
 
@@ -196,7 +197,9 @@
         }
 
         @keyframes loader-spin {
-            to { transform: rotate(360deg); }
+            to {
+                transform: rotate(360deg);
+            }
         }
 
         #page-loader .loader-text {
@@ -215,8 +218,40 @@
             color: #9ca3af;
         }
 
-        body.is-loading > *:not(#page-loader) {
+        body.is-loading> *:not(#page-loader) {
             visibility: hidden;
+        }
+
+        #videos-track.paused {
+            animation-play-state: paused !important;
+        }
+
+        .gallery-control-btn {
+            background: white;
+            color: #1a1a1a;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .gallery-control-btn:hover {
+            transform: scale(1.1);
+            background: var(--brand);
+            color: white;
+            border-color: var(--brand);
+        }
+
+        .gallery-control-btn.active {
+            background: var(--brand);
+            color: white;
+            border-color: var(--brand);
         }
     </style>
 </head>
@@ -635,9 +670,19 @@
                 </div>
             </div>
 
-            <div class="text-center max-w-3xl mx-auto mt-8 mb-10">
+            <div class="text-center max-w-3xl mx-auto mt-8 mb-4">
                 <h3 class="font-display text-3xl font-bold text-gray-900">Galleria Video</h3>
                 <div class="w-16 h-1 bg-brand mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <!-- Gallery Controls -->
+            <div class="flex justify-center gap-4 mb-6">
+                <button id="btn-play-videos" class="gallery-control-btn active" title="Continua scorrimento">
+                    <i class="fas fa-play text-sm"></i>
+                </button>
+                <button id="btn-pause-videos" class="gallery-control-btn" title="Ferma scorrimento">
+                    <i class="fas fa-pause text-sm"></i>
+                </button>
             </div>
 
             <div id="videos-gallery-wrapper" class="relative w-full overflow-hidden mt-8 pb-10">
@@ -1140,6 +1185,23 @@
                                 const vWidth = vTrack.scrollWidth;
                                 const vDuration = (configuredSpeed * vWidth) / pWidth;
                                 vTrack.style.animationDuration = vDuration + 's';
+
+                                // Manual Gallery Controls
+                                const btnPlay = document.getElementById('btn-play-videos');
+                                const btnPause = document.getElementById('btn-pause-videos');
+
+                                if (vTrack && btnPlay && btnPause) {
+                                    btnPlay.addEventListener('click', () => {
+                                        vTrack.classList.remove('paused');
+                                        btnPlay.classList.add('active');
+                                        btnPause.classList.remove('active');
+                                    });
+                                    btnPause.addEventListener('click', () => {
+                                        vTrack.classList.add('paused');
+                                        btnPause.classList.add('active');
+                                        btnPlay.classList.remove('active');
+                                    });
+                                }
                             }
                         }, 100);
                     } else {
