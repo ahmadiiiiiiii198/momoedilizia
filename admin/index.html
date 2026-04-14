@@ -754,7 +754,12 @@
                     return tab ? tab.label : ''
                 },
                 heroConfig() {
-                    return this.siteConfig.filter(item => item.key === 'hero_video_1' || item.key === 'hero_video_2')
+                    return this.siteConfig.filter(item => 
+                        item.key === 'hero_video_1' || 
+                        item.key === 'hero_video_2' || 
+                        item.key === 'hero_video_3' || 
+                        item.key === 'hero_video_4'
+                    )
                 },
                 configWithoutHero() {
                     return this.siteConfig.filter(item => !item.key.startsWith('hero_video'))
@@ -807,6 +812,8 @@
                     const icons = {
                         hero_video_1: 'fas fa-image',
                         hero_video_2: 'fas fa-image',
+                        hero_video_3: 'fas fa-image',
+                        hero_video_4: 'fas fa-image',
                         hero_video: 'fas fa-video-slash',
                         hero_title: 'fas fa-heading',
                         hero_subtitle: 'fas fa-align-left',
@@ -827,8 +834,10 @@
                 },
                 formatConfigLabel(key) {
                     const labels = {
-                        hero_video_1: 'Hero - Contenitore 1 (Sinistra)',
-                        hero_video_2: 'Hero - Contenitore 2 (Destra)',
+                        hero_video_1: 'Hero - Contenitore 1 (Estrema Sinistra)',
+                        hero_video_2: 'Hero - Contenitore 2 (Centro Sinistra)',
+                        hero_video_3: 'Hero - Contenitore 3 (Centro Destra)',
+                        hero_video_4: 'Hero - Contenitore 4 (Estrema Destra)',
                         hero_video: 'Video Hero (Vecchio, ignorare)',
                         hero_title: 'Titolo Hero',
                         hero_subtitle: 'Sottotitolo Hero',
@@ -862,7 +871,7 @@
 
                         this.siteConfig = confRes.data || []
 
-                        const heroKeys = ['hero_video_1', 'hero_video_2'];
+                        const heroKeys = ['hero_video_1', 'hero_video_2', 'hero_video_3', 'hero_video_4'];
                         const speedKeys = ['gallery_images_speed', 'gallery_videos_speed'];
                         const socialKeys = ['social_facebook', 'social_instagram', 'social_linkedin'];
                         const allAutoKeys = [...heroKeys, ...speedKeys, ...socialKeys];
