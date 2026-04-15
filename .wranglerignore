@@ -1,0 +1,12 @@
+node_modules
+.git
+.env
+server.js
+package.json
+package-lock.json
+postcss.config.js
+tailwind.config.js
+src
+netlify
+netlify.toml
+wrangler.toml
