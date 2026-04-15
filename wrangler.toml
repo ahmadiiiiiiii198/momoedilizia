@@ -1,27 +1,7 @@
-# Wrangler configuration for Cloudflare Workers with Static Assets
+# Wrangler configuration for Static Assets
 name = "momoedilizia"
-main = "server.js"
-compatibility_date = "2024-04-15"
-compatibility_flags = ["nodejs_compat"]
+compatibility_date = "2024-10-01"
 
 [assets]
 directory = "."
-binding = "ASSETS"
-
-# Exclude all non-frontend files from the asset upload
-# This prevents the "Asset too large" error caused by node_modules
-exclude = [
-  "node_modules",
-  ".git",
-  ".env",
-  "server.js",
-  "package.json",
-  "package-lock.json",
-  "postcss.config.js",
-  "tailwind.config.js",
-  "src",
-  "netlify",
-  "netlify.toml",
-  "wrangler.toml",
-  ".wranglerignore"
-]
+# Note: Patterns to ignore are handled by .wranglerignore
