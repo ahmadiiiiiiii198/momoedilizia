@@ -426,10 +426,10 @@
             <div id="hero_media_2" class="w-full h-full relative overflow-hidden bg-black lg:border-r lg:border-gray-800">
                 <!-- Dynamic Content -->
             </div>
-            <div id="hero_media_3" class="w-full h-full relative overflow-hidden bg-black border-r border-gray-800 hidden lg:block">
+            <div id="hero_media_3" class="w-full h-full relative overflow-hidden bg-black border-r border-gray-800">
                 <!-- Dynamic Content -->
             </div>
-            <div id="hero_media_4" class="w-full h-full relative overflow-hidden bg-black hidden lg:block">
+            <div id="hero_media_4" class="w-full h-full relative overflow-hidden bg-black">
                 <!-- Dynamic Content -->
             </div>
         </div>
@@ -1132,7 +1132,7 @@
                 if (confRes.data) {
                     confRes.data.forEach(item => {
                         if (item.key.startsWith('hero_video_')) {
-                            const mediaNum = item.key.split('_')[2] // '1' or '2'
+                            const mediaNum = item.key.split('_')[2] // '1', '2', '3' or '4'
                             const container = document.getElementById('hero_media_' + mediaNum)
                             if (container && item.value) {
                                 if (isVideoUrl(item.value)) {
