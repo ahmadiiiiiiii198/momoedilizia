@@ -196,7 +196,8 @@
             }
         }
 
-        #videos-track.paused {
+        #videos-track.paused,
+        #projects-track.paused {
             animation-play-state: paused !important;
         }
 
@@ -909,7 +910,7 @@
         <div class="absolute top-0 w-full overflow-hidden leading-none rotate-180">
             <svg class="relative block w-full h-[70px] md:h-[90px]" data-name="Layer 1"
                 xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 120" preserveAspectRatio="none">
-                <path d="M0,72 C160,112 340,16 600,56 C860,96 1040,32 1200,64 L1200,120 L0,120 Z" class="fill-white">
+                <path d="M0,72 C160,112 340,16 600,56 C860,96 1040,32 1200,64 L1200,120 L0,120 Z" class="fill-gray-50">
                 </path>
             </svg>
         </div>
@@ -1242,7 +1243,7 @@
                                 const vDuration = (configuredSpeed * vWidth) / pWidth;
                                 vTrack.style.animationDuration = vDuration + 's';
 
-                                // Manual Gallery Controls
+                                // Manual Gallery Controls (Videos)
                                 const btnPlayVideos = document.getElementById('btn-play-videos');
                                 const btnPauseVideos = document.getElementById('btn-pause-videos');
 
@@ -1258,23 +1259,6 @@
                                         btnPlayVideos.classList.remove('active');
                                     });
                                 }
-
-                                // Manual Gallery Controls (Projects)
-                                const btnPlayProjects = document.getElementById('btn-play-projects');
-                                const btnPauseProjects = document.getElementById('btn-pause-projects');
-
-                                if (pTrack && btnPlayProjects && btnPauseProjects) {
-                                    btnPlayProjects.addEventListener('click', () => {
-                                        pTrack.classList.remove('paused');
-                                        btnPlayProjects.classList.add('active');
-                                        btnPauseProjects.classList.remove('active');
-                                    });
-                                    btnPauseProjects.addEventListener('click', () => {
-                                        pTrack.classList.add('paused');
-                                        btnPauseProjects.classList.add('active');
-                                        btnPlayProjects.classList.remove('active');
-                                    });
-                                }
                             }
                         }, 100);
                     } else {
@@ -1283,6 +1267,26 @@
                         if (videosWrapper) videosWrapper.classList.add('hidden')
                         if (videosEmpty) videosEmpty.classList.remove('hidden')
                     }
+
+                    // Manual Gallery Controls (Projects) - always initialize regardless of videos
+                    setTimeout(() => {
+                        const pTrack = document.getElementById('projects-track');
+                        const btnPlayProjects = document.getElementById('btn-play-projects');
+                        const btnPauseProjects = document.getElementById('btn-pause-projects');
+
+                        if (pTrack && btnPlayProjects && btnPauseProjects) {
+                            btnPlayProjects.addEventListener('click', () => {
+                                pTrack.classList.remove('paused');
+                                btnPlayProjects.classList.add('active');
+                                btnPauseProjects.classList.remove('active');
+                            });
+                            btnPauseProjects.addEventListener('click', () => {
+                                pTrack.classList.add('paused');
+                                btnPauseProjects.classList.add('active');
+                                btnPlayProjects.classList.remove('active');
+                            });
+                        }
+                    }, 100);
                 }
 
                 const initBeforeAfter = () => {

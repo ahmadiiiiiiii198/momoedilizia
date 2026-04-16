@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const multer = require('multer');
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
+const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 const path = require('path');
 const cors = require('cors');
 
@@ -29,6 +30,40 @@ const s3Client = new S3Client({
         accessKeyId: process.env.R2_ACCESS_KEY_ID,
         secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
     },
+});
+
+// Get Pre-signed Upload URL Endpoint
+app.post('/api/get-upload-url', async (req, res) => {
+    try {
+        const body = req.body;
+        const files = body.files || [{ filename: body.filename, contentType: body.contentType }];
+        const results = [];
+
+        for (const file of files) {
+            const fileExt = path.extname(file.filename);
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}${fileExt}`;
+
+            const command = new PutObjectCommand({
+                Bucket: process.env.R2_BUCKET_NAME,
+                Key: fileName,
+                ContentType: file.contentType || 'application/octet-stream',
+            });
+
+            const uploadUrl = await getSignedUrl(s3Client, command, { expiresIn: 600 });
+            const publicUrl = `${process.env.R2_PUBLIC_URL}/${fileName}`;
+
+            results.push({ uploadUrl, publicUrl });
+        }
+
+        if (body.files) {
+            res.json({ results });
+        } else {
+            res.json(results[0]);
+        }
+    } catch (error) {
+        console.error('Get upload URL error:', error);
+        res.status(500).json({ error: 'Failed to generate upload URL' });
+    }
 });
 
 // Upload API Endpoint
