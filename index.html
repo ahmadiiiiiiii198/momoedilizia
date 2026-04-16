@@ -687,17 +687,25 @@
             </div>
 
             <!-- Image Gallery Controls -->
-            <div class="flex justify-center gap-4 mb-8">
-                <button id="btn-play-projects" class="gallery-control-btn active" title="Continua scorrimento">
-                    <i class="fas fa-play text-sm"></i>
+            <div class="flex justify-center items-center gap-4 mb-8">
+                <button id="btn-prev-projects" class="gallery-control-btn" title="Precedente">
+                    <i class="fas fa-chevron-left text-sm"></i>
                 </button>
-                <button id="btn-pause-projects" class="gallery-control-btn" title="Ferma scorrimento">
-                    <i class="fas fa-pause text-sm"></i>
+                <div class="flex gap-2 mx-2">
+                    <button id="btn-play-projects" class="gallery-control-btn" title="Continua scorrimento">
+                        <i class="fas fa-play text-sm"></i>
+                    </button>
+                    <button id="btn-pause-projects" class="gallery-control-btn active" title="Ferma scorrimento">
+                        <i class="fas fa-pause text-sm"></i>
+                    </button>
+                </div>
+                <button id="btn-next-projects" class="gallery-control-btn" title="Successivo">
+                    <i class="fas fa-chevron-right text-sm"></i>
                 </button>
             </div>
 
             <!-- Horizontal Scrolling Gallery -->
-            <div class="relative w-full overflow-hidden mt-10 pb-10" style="-webkit-overflow-scrolling: touch;">
+            <div id="projects-container" class="relative w-full overflow-hidden mt-10 pb-10 scroll-smooth" style="-webkit-overflow-scrolling: touch;">
                 <!-- Fade edges for smooth effect -->
                 <div
                     class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none">
@@ -707,7 +715,7 @@
                 </div>
 
                 <!-- Scrolling Track -->
-                <div id="projects-track" class="flex w-max animate-scroll">
+                <div id="projects-track" class="flex w-max animate-scroll paused">
                     <!-- Set 1 -->
                     <div id="projects-set-1" class="flex gap-6 px-3">
                     </div>
@@ -723,16 +731,24 @@
             </div>
 
             <!-- Gallery Controls -->
-            <div class="flex justify-center gap-4 mb-6">
-                <button id="btn-play-videos" class="gallery-control-btn active" title="Continua scorrimento">
-                    <i class="fas fa-play text-sm"></i>
+            <div class="flex justify-center items-center gap-4 mb-6">
+                <button id="btn-prev-videos" class="gallery-control-btn" title="Precedente">
+                    <i class="fas fa-chevron-left text-sm"></i>
                 </button>
-                <button id="btn-pause-videos" class="gallery-control-btn" title="Ferma scorrimento">
-                    <i class="fas fa-pause text-sm"></i>
+                <div class="flex gap-2 mx-2">
+                    <button id="btn-play-videos" class="gallery-control-btn" title="Continua scorrimento">
+                        <i class="fas fa-play text-sm"></i>
+                    </button>
+                    <button id="btn-pause-videos" class="gallery-control-btn active" title="Ferma scorrimento">
+                        <i class="fas fa-pause text-sm"></i>
+                    </button>
+                </div>
+                <button id="btn-next-videos" class="gallery-control-btn" title="Successivo">
+                    <i class="fas fa-chevron-right text-sm"></i>
                 </button>
             </div>
 
-            <div id="videos-gallery-wrapper" class="relative w-full overflow-hidden mt-8 pb-10" style="-webkit-overflow-scrolling: touch;">
+            <div id="videos-gallery-wrapper" class="relative w-full overflow-hidden mt-8 pb-10 scroll-smooth" style="-webkit-overflow-scrolling: touch;">
                 <div
                     class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none">
                 </div>
@@ -740,7 +756,7 @@
                     class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none">
                 </div>
 
-                <div id="videos-track" class="flex w-max animate-scroll-videos">
+                <div id="videos-track" class="flex w-max animate-scroll-videos paused">
                     <div id="videos-set-1" class="flex gap-6 px-3">
                     </div>
                     <div id="videos-set-2" class="flex gap-6 px-3">
@@ -1246,6 +1262,9 @@
                                 // Manual Gallery Controls (Videos)
                                 const btnPlayVideos = document.getElementById('btn-play-videos');
                                 const btnPauseVideos = document.getElementById('btn-pause-videos');
+                                const btnPrevVideos = document.getElementById('btn-prev-videos');
+                                const btnNextVideos = document.getElementById('btn-next-videos');
+                                const videosContainer = document.getElementById('videos-gallery-wrapper');
 
                                 if (vTrack && btnPlayVideos && btnPauseVideos) {
                                     btnPlayVideos.addEventListener('click', () => {
@@ -1257,6 +1276,22 @@
                                         vTrack.classList.add('paused');
                                         btnPauseVideos.classList.add('active');
                                         btnPlayVideos.classList.remove('active');
+                                    });
+                                }
+
+                                if (videosContainer && btnPrevVideos && btnNextVideos) {
+                                    const scrollAmount = 400;
+                                    btnNextVideos.addEventListener('click', () => {
+                                        vTrack.classList.add('paused');
+                                        btnPauseVideos.classList.add('active');
+                                        btnPlayVideos.classList.remove('active');
+                                        videosContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                                    });
+                                    btnPrevVideos.addEventListener('click', () => {
+                                        vTrack.classList.add('paused');
+                                        btnPauseVideos.classList.add('active');
+                                        btnPlayVideos.classList.remove('active');
+                                        videosContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
                                     });
                                 }
                             }
@@ -1273,6 +1308,9 @@
                         const pTrack = document.getElementById('projects-track');
                         const btnPlayProjects = document.getElementById('btn-play-projects');
                         const btnPauseProjects = document.getElementById('btn-pause-projects');
+                        const btnPrevProjects = document.getElementById('btn-prev-projects');
+                        const btnNextProjects = document.getElementById('btn-next-projects');
+                        const projectsContainer = document.getElementById('projects-container');
 
                         if (pTrack && btnPlayProjects && btnPauseProjects) {
                             btnPlayProjects.addEventListener('click', () => {
@@ -1284,6 +1322,22 @@
                                 pTrack.classList.add('paused');
                                 btnPauseProjects.classList.add('active');
                                 btnPlayProjects.classList.remove('active');
+                            });
+                        }
+
+                        if (projectsContainer && btnPrevProjects && btnNextProjects) {
+                            const scrollAmount = 400;
+                            btnNextProjects.addEventListener('click', () => {
+                                pTrack.classList.add('paused');
+                                btnPauseProjects.classList.add('active');
+                                btnPlayProjects.classList.remove('active');
+                                projectsContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                            });
+                            btnPrevProjects.addEventListener('click', () => {
+                                pTrack.classList.add('paused');
+                                btnPauseProjects.classList.add('active');
+                                btnPlayProjects.classList.remove('active');
+                                projectsContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
                             });
                         }
                     }, 100);
