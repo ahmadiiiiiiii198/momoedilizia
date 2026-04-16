@@ -201,6 +201,24 @@
             animation-play-state: paused !important;
         }
 
+        #projects-container,
+        #videos-gallery-wrapper {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+            overflow-x: auto;
+            scroll-snap-type: x mandatory;
+        }
+
+        #projects-container::-webkit-scrollbar,
+        #videos-gallery-wrapper::-webkit-scrollbar {
+            display: none;
+        }
+
+        #projects-track > div > div,
+        #videos-track > div > div {
+            scroll-snap-align: start;
+        }
+
         .gallery-control-btn {
             background: white;
             color: #1a1a1a;
@@ -705,7 +723,7 @@
             </div>
 
             <!-- Horizontal Scrolling Gallery -->
-            <div id="projects-container" class="relative w-full overflow-hidden mt-10 pb-10 scroll-smooth" style="-webkit-overflow-scrolling: touch;">
+            <div id="projects-container" class="relative w-full overflow-x-auto mt-10 pb-10 scroll-smooth touch-pan-x" style="-webkit-overflow-scrolling: touch;">
                 <!-- Fade edges for smooth effect -->
                 <div
                     class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none">
@@ -748,7 +766,7 @@
                 </button>
             </div>
 
-            <div id="videos-gallery-wrapper" class="relative w-full overflow-hidden mt-8 pb-10 scroll-smooth" style="-webkit-overflow-scrolling: touch;">
+            <div id="videos-gallery-wrapper" class="relative w-full overflow-x-auto mt-8 pb-10 scroll-smooth touch-pan-x" style="-webkit-overflow-scrolling: touch;">
                 <div
                     class="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none">
                 </div>
@@ -1205,7 +1223,7 @@
                     let imageHtml = ''
                     imageProjects.forEach(project => {
                         imageHtml += `
-                            <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer w-72 md:w-96 h-64 md:h-80 flex-shrink-0" data-aos="zoom-in"
+                            <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer w-72 md:w-96 h-64 md:h-80 flex-shrink-0 snap-start" data-aos="zoom-in"
                                  onclick="openLightbox('${project.image_url}', '${project.title.replace(/'/g, "\\'")}', '${project.category.replace(/'/g, "\\'")}')">
                                 <img src="${project.image_url}" alt="${project.title}" loading="lazy" decoding="async" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out" style="-webkit-transform: translateZ(0);" onerror="this.src='https://via.placeholder.com/600x500?text=Image+Error'">
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
@@ -1230,7 +1248,7 @@
                         let videoHtml = ''
                         videoProjects.forEach(project => {
                             videoHtml += `
-                                <div class="group relative overflow-hidden rounded-2xl shadow-lg w-72 md:w-96 h-64 md:h-80 flex-shrink-0 bg-black" data-aos="zoom-in">
+                                <div class="group relative overflow-hidden rounded-2xl shadow-lg w-72 md:w-96 h-64 md:h-80 flex-shrink-0 bg-black snap-start" data-aos="zoom-in">
                                     <video src="${project.image_url}${videoSuffix}" class="w-full h-full object-cover" playsinline preload="none" controls></video>
                                     <div class="gallery-video-play absolute inset-0 flex items-center justify-center bg-black/40 z-20 cursor-pointer" onclick="var v=this.parentElement.querySelector('video');if(v){v.play();}this.style.display='none';">
                                         <i class="fas fa-play text-white text-4xl drop-shadow-lg"></i>
@@ -1281,18 +1299,24 @@
 
                                 if (videosContainer && btnPrevVideos && btnNextVideos) {
                                     const scrollAmount = 400;
-                                    btnNextVideos.addEventListener('click', () => {
+                                    const pauseAuto = () => {
                                         vTrack.classList.add('paused');
                                         btnPauseVideos.classList.add('active');
                                         btnPlayVideos.classList.remove('active');
+                                    };
+
+                                    btnNextVideos.addEventListener('click', () => {
+                                        pauseAuto();
                                         videosContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
                                     });
                                     btnPrevVideos.addEventListener('click', () => {
-                                        vTrack.classList.add('paused');
-                                        btnPauseVideos.classList.add('active');
-                                        btnPlayVideos.classList.remove('active');
+                                        pauseAuto();
                                         videosContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
                                     });
+
+                                    // Pause on manual touch/interaction
+                                    videosContainer.addEventListener('touchstart', pauseAuto, { passive: true });
+                                    videosContainer.addEventListener('mousedown', pauseAuto);
                                 }
                             }
                         }, 100);
@@ -1338,6 +1362,18 @@
                                 btnPauseProjects.classList.add('active');
                                 btnPlayProjects.classList.remove('active');
                                 projectsContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                            });
+
+                            // Pause on manual touch/interaction
+                            projectsContainer.addEventListener('touchstart', () => {
+                                pTrack.classList.add('paused');
+                                btnPauseProjects.classList.add('active');
+                                btnPlayProjects.classList.remove('active');
+                            }, { passive: true });
+                            projectsContainer.addEventListener('mousedown', () => {
+                                pTrack.classList.add('paused');
+                                btnPauseProjects.classList.add('active');
+                                btnPlayProjects.classList.remove('active');
                             });
                         }
                     }, 100);
