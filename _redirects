@@ -1,0 +1,3 @@
+/api/get-upload-url /functions/get-upload-url 200
+/api/upload /functions/upload 200
+/api/upload-multiple /functions/upload-multiple 200
