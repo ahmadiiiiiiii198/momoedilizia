@@ -408,10 +408,9 @@
                     <span class="text-sm text-gray-600">&bull;</span>
                     <span class="text-sm font-semibold tracking-wide">Qualità & Sicurezza</span>
                 </div>
-                <h1 id="hero_title"
-                    class="font-display text-3xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
-                    Costruiamo il Tuo <span
-                        class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">Futuro</span>
+                <h1 class="font-display text-3xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-[0_20px_50px_rgba(0,0,0,0.35)]">
+                    <span id="hero_title_main">Costruiamo il Tuo</span>
+                    <span id="hero_title_highlight" class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-300">Futuro</span>
                 </h1>
                 <p id="hero_subtitle" class="text-xl text-gray-100/90 mb-10 max-w-2xl font-light leading-relaxed"
                     data-aos="fade-up" data-aos-delay="200">
@@ -443,24 +442,9 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <p class="text-center text-sm font-semibold text-gray-500 uppercase tracking-widest mb-8"
                 data-aos="fade-up" data-aos-duration="300">I Nostri Partner e Materiali Certificati</p>
-            <div class="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-70 grayscale hover:grayscale-0 transition-all duration-500"
+            <div id="partners_html" class="flex flex-wrap justify-center items-center gap-10 md:gap-20 opacity-70 grayscale hover:grayscale-0 transition-all duration-500"
                 data-aos="fade-up" data-aos-duration="300" data-aos-delay="50">
-                <div class="text-2xl font-display font-bold text-gray-800 tracking-tighter">MAPEI</div>
-                <div class="text-2xl font-display font-bold text-gray-800 tracking-widest">KERAKOLL</div>
-                <div class="text-xl font-display font-bold text-gray-800 uppercase border-b-2 border-brand pb-1">Fassa
-                    Bortolo</div>
-                <div class="text-2xl font-display font-black text-gray-800 italic">Saint-Gobain</div>
-                <div class="text-2xl font-display font-bold text-gray-800">weber</div>
-                <div class="text-2xl font-display font-bold text-gray-800 tracking-wide">KNAUF</div>
-                <div class="text-2xl font-display font-bold text-gray-800 italic tracking-tight">Litokol</div>
-                <div class="text-2xl font-display font-black text-gray-800 uppercase">Sika</div>
-                <div class="text-xl font-display font-bold text-gray-800 tracking-widest">FISCHER</div>
-                <div class="text-2xl font-display font-bold text-gray-800">Hilti</div>
-                <div class="text-xl font-display font-bold text-gray-800 uppercase tracking-wider">Würth</div>
-                <div class="text-2xl font-display font-black text-gray-800 italic tracking-tight">Bisazza</div>
-                <div class="text-2xl font-display font-bold text-gray-800 tracking-tighter">MARAZZI</div>
-                <div class="text-xl font-display font-bold text-gray-800 uppercase">Atlas Concorde</div>
-                <div class="text-2xl font-display font-bold text-gray-800 tracking-wide">GROHE</div>
+                <!-- Dynamic Content -->
             </div>
         </div>
     </section>
@@ -985,7 +969,7 @@
                             </div>
                             <div class="ml-6">
                                 <h4 class="text-lg font-bold">Telefono</h4>
-                                <p id="contact_phone" class="text-gray-400 mt-1">+39 012 345 6789</p>
+                                <p id="contact_phone" class="text-gray-400 mt-1">324.60.82.115 / 353.36.37.302 / 392.74.91.642</p>
                             </div>
                         </div>
                         <div class="flex items-start">
@@ -1101,15 +1085,28 @@
 
         async function loadData() {
             try {
-                const [confRes, aboutRes, servRes, projRes, baRes] = await Promise.all([
+                const [confRes, aboutRes, servRes, projRes, baRes, partRes] = await Promise.all([
                     supabaseClient.from('site_config').select('*'),
                     supabaseClient.from('about_images').select('*').order('id'),
                     supabaseClient.from('services').select('*').order('id'),
                     supabaseClient.from('projects').select('*').order('id'),
-                    supabaseClient.from('before_after').select('*').order('created_at', { ascending: false })
+                    supabaseClient.from('before_after').select('*').order('created_at', { ascending: false }),
+                    supabaseClient.from('partners').select('*').order('display_order')
                 ])
 
                 const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
+
+                // Load Partners
+                if (partRes.data && partRes.data.length > 0) {
+                    const partnersContainer = document.getElementById('partners_html')
+                    if (partnersContainer) {
+                        partnersContainer.innerHTML = partRes.data.map(p => `
+                            <div class="text-xl md:text-2xl font-display font-bold text-gray-800 tracking-tight uppercase hover:text-brand transition-colors duration-300">
+                                ${p.name}
+                            </div>
+                        `).join('')
+                    }
+                }
 
                 // Load Config
                 if (confRes.data) {
