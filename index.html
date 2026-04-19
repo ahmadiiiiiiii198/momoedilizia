@@ -1487,15 +1487,14 @@
                     const videosWrapper = document.getElementById('videos-gallery-wrapper')
                     const videosEmpty = document.getElementById('videos-empty')
 
-                    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)
-                    const videoSuffix = isIOS ? '#t=0.001' : ''
+                    const videoSuffix = '#t=0.001'
 
                     if (videoProjects.length > 0) {
                         let videoHtml = ''
                         videoProjects.forEach(project => {
                             videoHtml += `
                                 <div class="group relative overflow-hidden rounded-2xl shadow-lg w-72 md:w-96 h-64 md:h-80 flex-shrink-0 bg-black snap-start" data-aos="zoom-in">
-                                    <video src="${project.image_url}${videoSuffix}" class="w-full h-full object-cover" playsinline preload="none" controls></video>
+                                    <video src="${project.image_url}${videoSuffix}" class="w-full h-full object-cover" playsinline preload="metadata" controls></video>
                                     <div class="gallery-video-play absolute inset-0 flex items-center justify-center bg-black/40 z-20 cursor-pointer" onclick="var v=this.parentElement.querySelector('video');if(v){v.play();}this.style.display='none';">
                                         <i class="fas fa-play text-white text-4xl drop-shadow-lg"></i>
                                     </div>
@@ -1645,6 +1644,18 @@
                     }, { rootMargin: '200px' });
                     galleryObserver.observe(gallerySec);
                 }
+
+                // Re-load gallery videos when page becomes visible again (mobile idle fix)
+                document.addEventListener('visibilitychange', () => {
+                    if (document.visibilityState === 'visible') {
+                        const gs = document.getElementById('galleria');
+                        if (gs) {
+                            gs.querySelectorAll('video').forEach(v => {
+                                if (v.readyState === 0) v.load();
+                            });
+                        }
+                    }
+                });
 
                 const initBeforeAfter = () => {
                     document.querySelectorAll('[data-ba-wrapper]').forEach(wrapper => {
