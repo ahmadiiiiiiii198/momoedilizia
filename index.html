@@ -1637,6 +1637,7 @@
                                 });
                                 gallerySec.querySelectorAll('video[preload="none"]').forEach(el => {
                                     el.preload = 'metadata';
+                                    el.load();
                                 });
                                 galleryObserver.disconnect();
                             }
