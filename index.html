@@ -980,14 +980,6 @@
                 <button id="btn-prev-videos" class="gallery-control-btn" title="Precedente">
                     <i class="fas fa-chevron-left text-sm"></i>
                 </button>
-                <div class="flex gap-2 mx-2">
-                    <button id="btn-play-videos" class="gallery-control-btn active" title="Continua scorrimento">
-                        <i class="fas fa-play text-sm"></i>
-                    </button>
-                    <button id="btn-pause-videos" class="gallery-control-btn" title="Ferma scorrimento">
-                        <i class="fas fa-pause text-sm"></i>
-                    </button>
-                </div>
                 <button id="btn-next-videos" class="gallery-control-btn" title="Successivo">
                     <i class="fas fa-chevron-right text-sm"></i>
                 </button>
@@ -1001,11 +993,7 @@
                     class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none">
                 </div>
 
-                <div id="videos-track" class="flex w-max animate-scroll-videos">
-                    <div id="videos-set-1" class="flex gap-6 px-3">
-                    </div>
-                    <div id="videos-set-2" class="flex gap-6 px-3">
-                    </div>
+                <div id="videos-track" class="flex gap-6 px-3">
                 </div>
             </div>
 
@@ -1494,8 +1482,8 @@
                         videoProjects.forEach(project => {
                             videoHtml += `
                                 <div class="group relative overflow-hidden rounded-2xl shadow-lg w-72 md:w-96 h-64 md:h-80 flex-shrink-0 bg-black snap-start" data-aos="zoom-in">
-                                    <video src="${project.image_url}${videoSuffix}" class="w-full h-full object-cover" playsinline preload="none" controls></video>
-                                    <div class="gallery-video-play absolute inset-0 flex items-center justify-center bg-black/40 z-20 cursor-pointer" onclick="var v=this.parentElement.querySelector('video');if(v){v.play();}this.style.display='none';">
+                                    <video data-src="${project.image_url}${videoSuffix}" class="w-full h-full object-cover" playsinline preload="none" controls></video>
+                                    <div class="gallery-video-play absolute inset-0 flex items-center justify-center bg-black/40 z-20 cursor-pointer" onclick="var v=this.parentElement.querySelector('video');if(v){if(!v.src&&v.dataset.src){v.src=v.dataset.src;v.preload='metadata';v.load();}v.play();}this.style.display='none';">
                                         <i class="fas fa-play text-white text-4xl drop-shadow-lg"></i>
                                     </div>
                                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 pointer-events-none">
@@ -1507,67 +1495,44 @@
                                 </div>
                             `
                         })
-                        document.getElementById('videos-set-1').innerHTML = videoHtml
-                        document.getElementById('videos-set-2').innerHTML = videoHtml
+                        document.getElementById('videos-track').innerHTML = videoHtml
                         if (videosWrapper) videosWrapper.classList.remove('hidden')
                         if (videosEmpty) videosEmpty.classList.add('hidden')
 
+                        // Lazy-load each video only when scrolled into view
+                        const videoObserver = new IntersectionObserver((entries) => {
+                            entries.forEach(entry => {
+                                if (entry.isIntersecting) {
+                                    const video = entry.target;
+                                    if (video.dataset.src && !video.src) {
+                                        video.src = video.dataset.src;
+                                        video.preload = 'metadata';
+                                        video.load();
+                                    }
+                                    videoObserver.unobserve(video);
+                                }
+                            });
+                        }, { rootMargin: '200px' });
+                        document.querySelectorAll('#videos-track video[data-src]').forEach(v => videoObserver.observe(v));
+
+                        // Manual scroll controls (prev/next only)
                         setTimeout(() => {
-                            const pTrack = document.getElementById('projects-track');
-                            const vTrack = document.getElementById('videos-track');
-                            if (pTrack && vTrack && pTrack.scrollWidth > 0) {
-                                const configuredSpeed = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--gallery-videos-speed')) || 80;
-                                const pWidth = pTrack.scrollWidth;
-                                const vWidth = vTrack.scrollWidth;
-                                const vDuration = (configuredSpeed * vWidth) / pWidth;
-                                vTrack.style.animationDuration = vDuration + 's';
+                            const btnPrevVideos = document.getElementById('btn-prev-videos');
+                            const btnNextVideos = document.getElementById('btn-next-videos');
+                            const videosContainer = document.getElementById('videos-gallery-wrapper');
 
-                                // Manual Gallery Controls (Videos)
-                                const btnPlayVideos = document.getElementById('btn-play-videos');
-                                const btnPauseVideos = document.getElementById('btn-pause-videos');
-                                const btnPrevVideos = document.getElementById('btn-prev-videos');
-                                const btnNextVideos = document.getElementById('btn-next-videos');
-                                const videosContainer = document.getElementById('videos-gallery-wrapper');
-
-                                if (vTrack && btnPlayVideos && btnPauseVideos) {
-                                    btnPlayVideos.addEventListener('click', () => {
-                                        vTrack.classList.remove('paused');
-                                        btnPlayVideos.classList.add('active');
-                                        btnPauseVideos.classList.remove('active');
-                                    });
-                                    btnPauseVideos.addEventListener('click', () => {
-                                        vTrack.classList.add('paused');
-                                        btnPauseVideos.classList.add('active');
-                                        btnPlayVideos.classList.remove('active');
-                                    });
-                                }
-
-                                if (videosContainer && btnPrevVideos && btnNextVideos) {
-                                    const scrollAmount = 400;
-                                    const pauseAuto = () => {
-                                        vTrack.classList.add('paused');
-                                        btnPauseVideos.classList.add('active');
-                                        btnPlayVideos.classList.remove('active');
-                                    };
-
-                                    btnNextVideos.addEventListener('click', () => {
-                                        pauseAuto();
-                                        videosContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                                    });
-                                    btnPrevVideos.addEventListener('click', () => {
-                                        pauseAuto();
-                                        videosContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                                    });
-
-                                    // Pause on manual touch/interaction
-                                    videosContainer.addEventListener('touchstart', pauseAuto, { passive: true });
-                                    videosContainer.addEventListener('mousedown', pauseAuto);
-                                }
+                            if (videosContainer && btnPrevVideos && btnNextVideos) {
+                                const scrollAmount = 400;
+                                btnNextVideos.addEventListener('click', () => {
+                                    videosContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                                });
+                                btnPrevVideos.addEventListener('click', () => {
+                                    videosContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                                });
                             }
                         }, 100);
                     } else {
-                        document.getElementById('videos-set-1').innerHTML = ''
-                        document.getElementById('videos-set-2').innerHTML = ''
+                        document.getElementById('videos-track').innerHTML = ''
                         if (videosWrapper) videosWrapper.classList.add('hidden')
                         if (videosEmpty) videosEmpty.classList.remove('hidden')
                     }
@@ -1624,19 +1589,15 @@
                     }, 100);
                 }
 
-                // Force-load all lazy gallery media once the section is visible
+                // Force-load all lazy gallery images once the section is visible
                 // (CSS transform animations don't trigger lazy loading on mobile)
                 const gallerySec = document.getElementById('galleria');
                 if (gallerySec && 'IntersectionObserver' in window) {
                     const galleryObserver = new IntersectionObserver((entries) => {
                         entries.forEach(entry => {
                             if (entry.isIntersecting) {
-                                gallerySec.querySelectorAll('img[loading="lazy"], video[loading="lazy"]').forEach(el => {
+                                gallerySec.querySelectorAll('img[loading="lazy"]').forEach(el => {
                                     el.loading = 'eager';
-                                });
-                                gallerySec.querySelectorAll('video[preload="none"]').forEach(el => {
-                                    el.preload = 'metadata';
-                                    el.load();
                                 });
                                 galleryObserver.disconnect();
                             }
@@ -1650,7 +1611,7 @@
                     if (document.visibilityState === 'visible') {
                         const gs = document.getElementById('galleria');
                         if (gs) {
-                            gs.querySelectorAll('video').forEach(v => {
+                            gs.querySelectorAll('video[src]').forEach(v => {
                                 if (v.readyState === 0) v.load();
                             });
                         }
