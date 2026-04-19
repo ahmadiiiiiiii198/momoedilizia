@@ -1562,28 +1562,10 @@
                         if (projectsContainer && btnPrevProjects && btnNextProjects) {
                             const scrollAmount = 400;
                             btnNextProjects.addEventListener('click', () => {
-                                pTrack.classList.add('paused');
-                                btnPauseProjects.classList.add('active');
-                                btnPlayProjects.classList.remove('active');
                                 projectsContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
                             });
                             btnPrevProjects.addEventListener('click', () => {
-                                pTrack.classList.add('paused');
-                                btnPauseProjects.classList.add('active');
-                                btnPlayProjects.classList.remove('active');
                                 projectsContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                            });
-
-                            // Pause on manual touch/interaction
-                            projectsContainer.addEventListener('touchstart', () => {
-                                pTrack.classList.add('paused');
-                                btnPauseProjects.classList.add('active');
-                                btnPlayProjects.classList.remove('active');
-                            }, { passive: true });
-                            projectsContainer.addEventListener('mousedown', () => {
-                                pTrack.classList.add('paused');
-                                btnPauseProjects.classList.add('active');
-                                btnPlayProjects.classList.remove('active');
                             });
                         }
                     }, 100);
