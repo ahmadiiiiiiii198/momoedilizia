@@ -1625,6 +1625,26 @@
                     }, 100);
                 }
 
+                // Force-load all lazy gallery media once the section is visible
+                // (CSS transform animations don't trigger lazy loading on mobile)
+                const gallerySec = document.getElementById('galleria');
+                if (gallerySec && 'IntersectionObserver' in window) {
+                    const galleryObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                gallerySec.querySelectorAll('img[loading="lazy"], video[loading="lazy"]').forEach(el => {
+                                    el.loading = 'eager';
+                                });
+                                gallerySec.querySelectorAll('video[preload="none"]').forEach(el => {
+                                    el.preload = 'metadata';
+                                });
+                                galleryObserver.disconnect();
+                            }
+                        });
+                    }, { rootMargin: '200px' });
+                    galleryObserver.observe(gallerySec);
+                }
+
                 const initBeforeAfter = () => {
                     document.querySelectorAll('[data-ba-wrapper]').forEach(wrapper => {
                         const card = wrapper.querySelector('[data-ba-card]')
