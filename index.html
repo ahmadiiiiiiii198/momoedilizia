@@ -1194,7 +1194,11 @@
                             </div>
                             <div class="ml-6">
                                 <h4 class="text-lg font-bold">Telefono</h4>
-                                <p id="contact_phone" class="text-gray-400 mt-1">324.60.82.115 / 353.36.37.302 / 392.74.91.642</p>
+                                <div id="contact_phone" class="text-gray-400 mt-1 flex flex-wrap gap-x-2">
+                                    <a href="tel:+393246082115" class="hover:text-brand transition-colors">+39 324.60.82.115</a> <span class="text-gray-600">/</span> 
+                                    <a href="tel:+393533637302" class="hover:text-brand transition-colors">+39 353.36.37.302</a> <span class="text-gray-600">/</span> 
+                                    <a href="tel:+393927491642" class="hover:text-brand transition-colors">+39 392.74.91.642</a>
+                                </div>
                             </div>
                         </div>
                         <div class="flex items-start">
@@ -1372,7 +1376,18 @@
                         } else {
                             const elements = document.querySelectorAll(`[id="${item.key}"]`)
                             elements.forEach(el => {
-                                el.innerHTML = item.value
+                                if (item.key === 'contact_phone') {
+                                    const phones = item.value.split(/[/|]/);
+                                    el.innerHTML = phones.map(p => {
+                                        const trimmed = p.trim();
+                                        if (!trimmed) return '';
+                                        const clean = trimmed.replace(/\D/g, '');
+                                        const tel = clean.startsWith('39') ? `+${clean}` : `+39${clean}`;
+                                        return `<a href="tel:${tel}" class="hover:text-brand transition-colors font-medium">${trimmed}</a>`;
+                                    }).filter(h => h).join(' <span class="text-gray-600">/</span> ');
+                                } else {
+                                    el.innerHTML = item.value
+                                }
                             })
                             // Special case for PEC in footer
                             if (item.key === 'contact_pec') {
@@ -1388,8 +1403,9 @@
                             if (item.key === 'contact_phone') {
                                 const whatsappLink = document.getElementById('whatsapp_link')
                                 if (whatsappLink) {
-                                    const mainPhone = item.value.split('/')[0].trim().replace(/\./g, '').replace(/\s/g, '')
-                                    whatsappLink.href = `https://wa.me/39${mainPhone}`
+                                    const cleanPhone = item.value.split('/')[0].trim().replace(/\D/g, '')
+                                    const whatsappPhone = cleanPhone.startsWith('39') ? cleanPhone : `39${cleanPhone}`
+                                    whatsappLink.href = `https://wa.me/${whatsappPhone}`
                                 }
                             }
                             // Gallery scroll speeds
