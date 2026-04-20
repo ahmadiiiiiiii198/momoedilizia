@@ -980,6 +980,14 @@
                 <button id="btn-prev-videos" class="gallery-control-btn" title="Precedente">
                     <i class="fas fa-chevron-left text-sm"></i>
                 </button>
+                <div class="flex gap-2">
+                    <button id="btn-play-videos" class="gallery-control-btn active" title="Continua scorrimento">
+                        <i class="fas fa-play text-sm"></i>
+                    </button>
+                    <button id="btn-pause-videos" class="gallery-control-btn" title="Ferma scorrimento">
+                        <i class="fas fa-pause text-sm"></i>
+                    </button>
+                </div>
                 <button id="btn-next-videos" class="gallery-control-btn" title="Successivo">
                     <i class="fas fa-chevron-right text-sm"></i>
                 </button>
@@ -993,7 +1001,14 @@
                     class="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none">
                 </div>
 
-                <div id="videos-track" class="flex gap-6 px-3">
+                <!-- Scrolling Track -->
+                <div id="videos-track" class="flex w-max animate-scroll-videos">
+                    <!-- Set 1 -->
+                    <div id="videos-set-1" class="flex gap-6 px-3">
+                    </div>
+                    <!-- Set 2 -->
+                    <div id="videos-set-2" class="flex gap-6 px-3">
+                    </div>
                 </div>
             </div>
 
@@ -1529,31 +1544,67 @@
                                 </div>
                             `
                         })
-                        document.getElementById('videos-track').innerHTML = videoHtml
+                        document.getElementById('videos-set-1').innerHTML = videoHtml
+                        document.getElementById('videos-set-2').innerHTML = videoHtml
                         if (videosWrapper) videosWrapper.classList.remove('hidden')
                         if (videosEmpty) videosEmpty.classList.add('hidden')
 
-                        // Lazy-load each video only when scrolled into view
-                        const videoObserver = new IntersectionObserver((entries) => {
-                            entries.forEach(entry => {
-                                if (entry.isIntersecting) {
-                                    const video = entry.target;
-                                    if (video.dataset.src && !video.src) {
-                                        video.src = video.dataset.src;
-                                        video.preload = 'metadata';
-                                        video.load();
-                                    }
-                                    videoObserver.unobserve(video);
+                        // Sequential video loading: load one by one
+                        const loadVideosSequentially = () => {
+                            const allVideos = Array.from(document.querySelectorAll('#videos-track video[data-src]'));
+                            let currentIndex = 0;
+
+                            const loadNext = () => {
+                                if (currentIndex >= allVideos.length) return;
+                                
+                                const video = allVideos[currentIndex];
+                                if (video.dataset.src && !video.src) {
+                                    video.src = video.dataset.src;
+                                    video.preload = 'metadata';
+                                    
+                                    // When this video starts loading metadata, wait a bit then load the next one
+                                    video.onloadedmetadata = () => {
+                                        currentIndex++;
+                                        // Delay before loading the next one to save bandwidth and give time
+                                        setTimeout(loadNext, 1000); 
+                                    };
+                                    
+                                    video.onerror = () => {
+                                        currentIndex++;
+                                        loadNext();
+                                    };
+                                } else {
+                                    currentIndex++;
+                                    loadNext();
                                 }
-                            });
-                        }, { rootMargin: '200px' });
-                        document.querySelectorAll('#videos-track video[data-src]').forEach(v => videoObserver.observe(v));
+                            };
+
+                            loadNext();
+                        };
+
+                        loadVideosSequentially();
 
                         // Manual scroll controls (prev/next only)
                         setTimeout(() => {
+                            const vTrack = document.getElementById('videos-track');
+                            const btnPlayVideos = document.getElementById('btn-play-videos');
+                            const btnPauseVideos = document.getElementById('btn-pause-videos');
                             const btnPrevVideos = document.getElementById('btn-prev-videos');
                             const btnNextVideos = document.getElementById('btn-next-videos');
                             const videosContainer = document.getElementById('videos-gallery-wrapper');
+
+                            if (vTrack && btnPlayVideos && btnPauseVideos) {
+                                btnPlayVideos.addEventListener('click', () => {
+                                    vTrack.classList.remove('paused');
+                                    btnPlayVideos.classList.add('active');
+                                    btnPauseVideos.classList.remove('active');
+                                });
+                                btnPauseVideos.addEventListener('click', () => {
+                                    vTrack.classList.add('paused');
+                                    btnPauseVideos.classList.add('active');
+                                    btnPlayVideos.classList.remove('active');
+                                });
+                            }
 
                             if (videosContainer && btnPrevVideos && btnNextVideos) {
                                 const scrollAmount = 400;
