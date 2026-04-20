@@ -1,17 +1,18 @@
 # Robots.txt - Gruppo Momo Edilizia
-# https://www.gruppomomoedilizia.it
+# https://gruppo-momo-edilizia.it
 
 User-agent: *
 Allow: /
 Disallow: /admin/
 Disallow: /netlify/
 Disallow: /node_modules/
-Disallow: /src/
-Disallow: /dist/
-Disallow: /.netlify/
+Disallow: /*?
 
-# Sitemap
-Sitemap: https://www.gruppomomoedilizia.it/sitemap.xml
+# Sitemap location
+Sitemap: https://gruppo-momo-edilizia.it/sitemap.xml
+
+# Host preference
+Host: https://gruppo-momo-edilizia.it
 
 # Crawl-delay (optional, for polite crawlers)
 Crawl-delay: 1
