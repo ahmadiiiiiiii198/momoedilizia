@@ -941,6 +941,11 @@
                             items: this.siteConfig.filter(item => ['about_text1', 'about_text2'].includes(item.key))
                         },
                         {
+                            title: 'I Nostri Servizi (Header)',
+                            icon: 'fas fa-briefcase',
+                            items: this.siteConfig.filter(item => ['services_subtitle', 'services_title', 'services_heading', 'services_description'].includes(item.key))
+                        },
+                        {
                             title: 'Contatti & P.IVA',
                             icon: 'fas fa-address-book',
                             items: this.siteConfig.filter(item => ['contact_address', 'contact_phone', 'contact_email', 'contact_pec', 'contact_piva'].includes(item.key))
@@ -1074,7 +1079,11 @@
                         gallery_videos_speed: 'fas fa-tachometer-alt',
                         social_facebook: 'fab fa-facebook-f',
                         social_instagram: 'fab fa-instagram',
-                        social_linkedin: 'fab fa-linkedin-in'
+                        social_linkedin: 'fab fa-linkedin-in',
+                        services_subtitle: 'fas fa-tag',
+                        services_title: 'fas fa-heading',
+                        services_heading: 'fas fa-font',
+                        services_description: 'fas fa-paragraph'
                     }
                     return icons[key] || 'fas fa-sliders-h'
                 },
@@ -1099,7 +1108,11 @@
                         gallery_videos_speed: 'Velocita Video (secondi)',
                         social_facebook: 'Link Facebook',
                         social_instagram: 'Link Instagram',
-                        social_linkedin: 'Link LinkedIn'
+                        social_linkedin: 'Link LinkedIn',
+                        services_subtitle: 'Servizi - Sopra Titolo (es. Cosa Facciamo)',
+                        services_title: 'Servizi - Titolo Principale (es. I Nostri Servizi)',
+                        services_heading: 'Servizi - Sottotitolo (es. Edilizia Generale)',
+                        services_description: 'Servizi - Descrizione Principale'
                     }
                     return labels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())
                 },
@@ -1123,7 +1136,8 @@
                         const heroKeys = ['hero_video_1', 'hero_video_2', 'hero_video_3', 'hero_video_4'];
                         const speedKeys = ['gallery_images_speed', 'gallery_videos_speed'];
                         const socialKeys = ['social_facebook', 'social_instagram', 'social_linkedin'];
-                        const allAutoKeys = [...heroKeys, ...speedKeys, ...socialKeys];
+                        const servicesKeys = ['services_subtitle', 'services_title', 'services_heading', 'services_description'];
+                        const allAutoKeys = [...heroKeys, ...speedKeys, ...socialKeys, ...servicesKeys];
                         for (const key of allAutoKeys) {
                             if (!this.siteConfig.some(item => item.key === key)) {
                                 const defaultValue = speedKeys.includes(key) ? '80' : '';
