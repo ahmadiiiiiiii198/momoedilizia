@@ -1313,17 +1313,19 @@
 
         async function loadData() {
             try {
-                // Phase 1: Critical Data (Hero & Initial Config)
-                const [confRes, aboutRes, servRes, partRes] = await Promise.all([
+                // Fetch everything except reviews in parallel as before
+                const [confRes, aboutRes, servRes, projRes, baRes, partRes] = await Promise.all([
                     supabaseClient.from('site_config').select('*'),
                     supabaseClient.from('about_images').select('*').order('id'),
                     supabaseClient.from('services').select('*').order('id'),
+                    supabaseClient.from('projects').select('*').order('id'),
+                    supabaseClient.from('before_after').select('*').order('created_at', { ascending: false }),
                     supabaseClient.from('partners').select('*').order('display_order')
                 ])
 
                 const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
 
-                // Process Critical Data Immediately
+                // Load Config
                 if (confRes.data) {
                     confRes.data.forEach(item => {
                         if (item.key.startsWith('hero_video_')) {
@@ -1396,7 +1398,8 @@
                     })
                 }
 
-                if (partRes.data) {
+                // Load Partners
+                if (partRes.data && partRes.data.length > 0) {
                     const partnersContainer = document.getElementById('partners_html')
                     if (partnersContainer) {
                         partnersContainer.innerHTML = partRes.data.map(p => `
@@ -1405,6 +1408,7 @@
                     }
                 }
 
+                // Load About
                 if (aboutRes.data) {
                     const aboutImageElements = document.querySelectorAll('#chi-siamo img');
                     aboutRes.data.forEach((image, index) => {
@@ -1417,6 +1421,7 @@
                     });
                 }
 
+                // Load Services
                 if (servRes.data) {
                     const servicesContainer = document.getElementById('services-container')
                     if (servicesContainer) {
@@ -1432,37 +1437,126 @@
                     }
                 }
 
-                // Phase 2: Deferred/Lazy Loading for heavy sections
-                setupDeferredLoading();
+                // Load Projects (Gallery)
+                if (projRes.data) {
+                    const imageProjects = projRes.data.filter(p => !isVideoUrl(p.image_url))
+                    const videoProjects = projRes.data.filter(p => isVideoUrl(p.image_url))
+
+                    if (imageProjects.length > 0) {
+                        const html = imageProjects.map(project => `
+                            <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer w-72 md:w-96 h-64 md:h-80 flex-shrink-0 snap-start" onclick="openLightbox('${project.image_url}', '${project.title.replace(/'/g, "\\'")}', '${project.category.replace(/'/g, "\\'")}')">
+                                <img src="${project.image_url}" alt="${project.title}" loading="lazy" decoding="async" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                                    <div class="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                                        <span class="inline-block px-3 py-1 bg-brand text-white text-xs font-bold rounded-full mb-2 shadow-md">${project.category}</span>
+                                        <h4 class="text-white text-xl font-bold font-display">${project.title}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                        document.getElementById('projects-set-1').innerHTML = html;
+                        document.getElementById('projects-set-2').innerHTML = html;
+                    }
+
+                    if (videoProjects.length > 0) {
+                        const videoSuffix = '#t=0.001';
+                        const html = videoProjects.map(project => `
+                            <div class="group relative overflow-hidden rounded-2xl shadow-lg w-72 md:w-96 h-64 md:h-80 flex-shrink-0 bg-black snap-start">
+                                <video data-src="${project.image_url}${videoSuffix}" class="w-full h-full object-cover" playsinline preload="none" controls></video>
+                                <div class="gallery-video-play absolute inset-0 flex items-center justify-center bg-black/40 z-20 cursor-pointer" onclick="var v=this.parentElement.querySelector('video');if(v){if(!v.src&&v.dataset.src){v.src=v.dataset.src;v.preload='metadata';v.load();}v.play();}this.style.display='none';">
+                                    <i class="fas fa-play text-white text-4xl drop-shadow-lg"></i>
+                                </div>
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 pointer-events-none">
+                                    <div class="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                                        <span class="inline-block px-3 py-1 bg-brand text-white text-xs font-bold rounded-full mb-2 shadow-md">${project.category}</span>
+                                        <h4 class="text-white text-xl font-bold font-display">${project.title}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('');
+                        document.getElementById('videos-set-1').innerHTML = html;
+                        document.getElementById('videos-set-2').innerHTML = html;
+                        document.getElementById('videos-gallery-wrapper').classList.remove('hidden');
+                        document.getElementById('videos-empty').classList.add('hidden');
+                    }
+                }
+
+                // Load Before/After
+                if (baRes.data && baRes.data.length > 0) {
+                    const grid = document.getElementById('before-after-grid');
+                    grid.innerHTML = baRes.data.map((item, index) => {
+                        const beforeMedia = isVideoUrl(item.before_url) ?
+                            `<video src="${item.before_url}" autoplay loop muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover"></video>` :
+                            `<img src="${item.before_url}" alt="Prima" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">`;
+
+                        const afterMedia = isVideoUrl(item.after_url) ?
+                            `<video data-ba-after src="${item.after_url}" autoplay loop muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);"></video>` :
+                            `<img data-ba-after src="${item.after_url}" alt="Dopo" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);">`;
+
+                        return `
+                            <div class="glass rounded-3xl p-5 shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60" data-aos="fade-up" data-aos-delay="${index * 80}">
+                                <div class="flex items-start justify-between gap-4 mb-4">
+                                    <div>
+                                        <h4 class="font-display text-2xl font-bold text-gray-900">${item.title || 'Prima & Dopo'}</h4>
+                                        <p class="text-gray-600 text-sm mt-1">${item.category || 'Prima/Dopo'}</p>
+                                    </div>
+                                </div>
+                                <div data-ba-wrapper>
+                                    <div data-ba-card class="relative overflow-hidden rounded-2xl aspect-[16/10] bg-gray-200 cursor-ew-resize select-none touch-none">
+                                        ${beforeMedia}
+                                        ${afterMedia}
+                                        <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Prima</div>
+                                        <div class="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Dopo</div>
+                                        <div data-ba-line class="absolute inset-y-0 left-1/2 w-[2px] bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.12)] pointer-events-none"></div>
+                                        <div data-ba-knob class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-xl flex items-center justify-center pointer-events-none z-30">
+                                            <i class="fas fa-arrows-left-right text-brand text-sm"></i>
+                                        </div>
+                                        <input type="range" min="0" max="100" value="50" data-ba-range class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-40">
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    document.querySelectorAll('[data-ba-wrapper]').forEach(wrapper => {
+                        const range = wrapper.querySelector('[data-ba-range]');
+                        const afterImg = wrapper.querySelector('[data-ba-after]');
+                        const line = wrapper.querySelector('[data-ba-line]');
+                        const knob = wrapper.querySelector('[data-ba-knob]');
+                        const update = (val) => {
+                            afterImg.style.clipPath = `inset(0 0 0 ${val}%)`;
+                            line.style.left = `${val}%`;
+                            knob.style.left = `${val}%`;
+                        };
+                        range.addEventListener('input', (e) => update(e.target.value));
+                        update(50);
+                    });
+                }
+
+                // ONLY Reviews remain lazy-loaded for performance
+                setupReviewsLazyLoading();
+
+                if (window.AOS) window.AOS.refresh();
 
             } catch (err) {
                 console.error('Error loading initial data:', err);
             }
         }
 
-        function setupDeferredLoading() {
-            const sections = [
-                { id: 'galleria', loader: loadGalleryData },
-                { id: 'prima-dopo', loader: loadBeforeAfterData },
-                { id: 'reviews-container', loader: loadReviewsData }
-            ];
+        function setupReviewsLazyLoading() {
+            const section = document.getElementById('reviews-container');
+            if (!section) return;
 
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
-                        const section = sections.find(s => s.id === entry.target.id || entry.target.contains(document.getElementById(s.id)));
-                        if (section) {
-                            section.loader();
-                            observer.unobserve(entry.target);
-                        }
+                        loadReviewsData();
+                        observer.unobserve(entry.target);
                     }
                 });
             }, { rootMargin: '400px' });
 
-            sections.forEach(s => {
-                const el = document.getElementById(s.id);
-                if (el) observer.observe(el);
-            });
+            observer.observe(section);
         }
 
         async function loadReviewsData() {
@@ -1491,7 +1585,6 @@
                                 </div>
                             </div>
                         `).join('');
-                        // Trigger AOS for new elements
                         if (window.AOS) window.AOS.refresh();
                     } else {
                         reviewsContainer.innerHTML = `<div class="col-span-1 md:col-span-3 text-center text-white/70 italic">Sii il primo a lasciare una recensione!</div>`;
@@ -1499,125 +1592,6 @@
                 }
             } catch (err) {
                 console.error('Error loading reviews:', err);
-            }
-        }
-
-        async function loadGalleryData() {
-            try {
-                const { data, error } = await supabaseClient.from('projects').select('*').order('id');
-                if (error) throw error;
-                if (!data) return;
-
-                const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
-                const imageProjects = data.filter(p => !isVideoUrl(p.image_url))
-                const videoProjects = data.filter(p => isVideoUrl(p.image_url))
-
-                if (imageProjects.length > 0) {
-                    const html = imageProjects.map(project => `
-                        <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer w-72 md:w-96 h-64 md:h-80 flex-shrink-0 snap-start" onclick="openLightbox('${project.image_url}', '${project.title.replace(/'/g, "\\'")}', '${project.category.replace(/'/g, "\\'")}')">
-                            <img src="${project.image_url}" alt="${project.title}" loading="lazy" decoding="async" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                                <div class="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                                    <span class="inline-block px-3 py-1 bg-brand text-white text-xs font-bold rounded-full mb-2 shadow-md">${project.category}</span>
-                                    <h4 class="text-white text-xl font-bold font-display">${project.title}</h4>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                    document.getElementById('projects-set-1').innerHTML = html;
-                    document.getElementById('projects-set-2').innerHTML = html;
-                }
-
-                if (videoProjects.length > 0) {
-                    const videoSuffix = '#t=0.001';
-                    const html = videoProjects.map(project => `
-                        <div class="group relative overflow-hidden rounded-2xl shadow-lg w-72 md:w-96 h-64 md:h-80 flex-shrink-0 bg-black snap-start">
-                            <video data-src="${project.image_url}${videoSuffix}" class="w-full h-full object-cover" playsinline preload="none" controls></video>
-                            <div class="gallery-video-play absolute inset-0 flex items-center justify-center bg-black/40 z-20 cursor-pointer" onclick="var v=this.parentElement.querySelector('video');if(v){if(!v.src&&v.dataset.src){v.src=v.dataset.src;v.preload='metadata';v.load();}v.play();}this.style.display='none';">
-                                <i class="fas fa-play text-white text-4xl drop-shadow-lg"></i>
-                            </div>
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 pointer-events-none">
-                                <div class="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                                    <span class="inline-block px-3 py-1 bg-brand text-white text-xs font-bold rounded-full mb-2 shadow-md">${project.category}</span>
-                                    <h4 class="text-white text-xl font-bold font-display">${project.title}</h4>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('');
-                    document.getElementById('videos-set-1').innerHTML = html;
-                    document.getElementById('videos-set-2').innerHTML = html;
-                    document.getElementById('videos-gallery-wrapper').classList.remove('hidden');
-                    document.getElementById('videos-empty').classList.add('hidden');
-                    observeLazyVideos();
-                }
-            } catch (err) {
-                console.error('Error loading gallery:', err);
-            }
-        }
-
-        async function loadBeforeAfterData() {
-            try {
-                const { data, error } = await supabaseClient.from('before_after').select('*').order('created_at', { ascending: false });
-                if (error) throw error;
-                if (!data || data.length === 0) return;
-
-                const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
-                const grid = document.getElementById('before-after-grid');
-                
-                grid.innerHTML = data.map((item, index) => {
-                    const beforeMedia = isVideoUrl(item.before_url) ?
-                        `<video src="${item.before_url}" autoplay loop muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover"></video>` :
-                        `<img src="${item.before_url}" alt="Prima" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">`;
-
-                    const afterMedia = isVideoUrl(item.after_url) ?
-                        `<video data-ba-after src="${item.after_url}" autoplay loop muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);"></video>` :
-                        `<img data-ba-after src="${item.after_url}" alt="Dopo" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);">`;
-
-                    return `
-                        <div class="glass rounded-3xl p-5 shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60" data-aos="fade-up" data-aos-delay="${index * 80}">
-                            <div class="flex items-start justify-between gap-4 mb-4">
-                                <div>
-                                    <h4 class="font-display text-2xl font-bold text-gray-900">${item.title || 'Prima & Dopo'}</h4>
-                                    <p class="text-gray-600 text-sm mt-1">${item.category || 'Prima/Dopo'}</p>
-                                </div>
-                            </div>
-                            <div data-ba-wrapper>
-                                <div data-ba-card class="relative overflow-hidden rounded-2xl aspect-[16/10] bg-gray-200 cursor-ew-resize select-none touch-none">
-                                    ${beforeMedia}
-                                    ${afterMedia}
-                                    <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Prima</div>
-                                    <div class="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Dopo</div>
-                                    <div data-ba-line class="absolute inset-y-0 left-1/2 w-[2px] bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.12)] pointer-events-none"></div>
-                                    <div data-ba-knob class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-xl flex items-center justify-center pointer-events-none z-30">
-                                        <i class="fas fa-arrows-left-right text-brand text-sm"></i>
-                                    </div>
-                                    <input type="range" min="0" max="100" value="50" data-ba-range class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-40">
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                // Initialize the interactive parts
-                document.querySelectorAll('[data-ba-wrapper]').forEach(wrapper => {
-                    const range = wrapper.querySelector('[data-ba-range]');
-                    const afterImg = wrapper.querySelector('[data-ba-after]');
-                    const line = wrapper.querySelector('[data-ba-line]');
-                    const knob = wrapper.querySelector('[data-ba-knob]');
-                    
-                    const update = (val) => {
-                        afterImg.style.clipPath = `inset(0 0 0 ${val}%)`;
-                        line.style.left = `${val}%`;
-                        knob.style.left = `${val}%`;
-                    };
-                    
-                    range.addEventListener('input', (e) => update(e.target.value));
-                    update(50);
-                });
-                
-                if (window.AOS) window.AOS.refresh();
-            } catch (err) {
-                console.error('Error loading before/after:', err);
             }
         }
 
