@@ -850,6 +850,56 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- ===== RECENSIONI ===== -->
+                <div v-if="!loading && currentTab === 'reviews'" class="fade-in">
+                    <div v-if="reviews.length === 0" class="text-center py-16 text-slate-400">
+                        <i class="fas fa-star text-5xl mb-3"></i>
+                        <p class="font-medium text-lg">Nessuna recensione</p>
+                        <p class="text-sm mt-1">Le recensioni dei clienti appariranno qui</p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div v-for="(rev, index) in reviews" :key="rev.id"
+                            class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                            <div class="p-5 sm:p-6">
+                                <div class="flex flex-wrap items-start justify-between gap-3 mb-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-full bg-yellow-100 flex items-center justify-center text-yellow-600 font-bold uppercase text-sm">
+                                            {{ rev.name ? rev.name.charAt(0) : '?' }}
+                                        </div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800">{{ rev.name }}</h3>
+                                            <div class="flex text-yellow-400 text-[10px] mt-0.5">
+                                                <i v-for="i in 5" :key="i" :class="i <= rev.rating ? 'fas fa-star' : 'far fa-star'"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[10px] text-slate-400 bg-slate-50 px-2 py-1 rounded-lg">
+                                            {{ new Date(rev.created_at).toLocaleDateString('it-IT') }}
+                                        </span>
+                                        <button @click="toggleReviewApproval(rev)" 
+                                            :class="rev.is_approved ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-500'"
+                                            class="px-3 py-1 rounded-lg text-[10px] font-bold transition-all">
+                                            {{ rev.is_approved ? 'Approvata' : 'Approva' }}
+                                        </button>
+                                        <button @click="deleteReview(rev.id, index)"
+                                            class="w-7 h-7 rounded-lg bg-red-50 text-red-400 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
+                                            <i class="fas fa-trash-alt text-[10px]"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-50 rounded-xl p-4 text-slate-600 text-sm italic leading-relaxed">
+                                    "{{ rev.content }}"
+                                </div>
+                                <div v-if="rev.email" class="mt-2 text-[10px] text-slate-400 px-1">
+                                    Email: {{ rev.email }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
 
@@ -897,6 +947,7 @@
                     services: [],
                     projects: [],
                     beforeAfter: [],
+                    reviews: [],
                     messages: [],
                     isUploadingMultiple: false,
                     toasts: [],
@@ -910,6 +961,7 @@
                         { id: 'projects', label: 'Galleria', icon: 'fas fa-images' },
                         { id: 'partners', label: 'Partner', icon: 'fas fa-handshake' },
                         { id: 'beforeAfter', label: 'Prima & Dopo', icon: 'fas fa-exchange-alt' },
+                        { id: 'reviews', label: 'Recensioni', icon: 'fas fa-star' },
                         { id: 'messages', label: 'Messaggi', icon: 'fas fa-envelope' },
                         { id: 'security', label: 'Sicurezza', icon: 'fas fa-lock' },
                     ]
@@ -973,6 +1025,7 @@
                         projects: 'Gestisci foto e video della galleria',
                         partners: 'Gestisci i loghi testuali dei partner',
                         beforeAfter: 'Gestisci le trasformazioni prima e dopo',
+                        reviews: 'Gestisci le recensioni dei clienti',
                         messages: 'Messaggi ricevuti dal modulo di contatto',
                         security: 'Gestisci le credenziali di accesso'
                     }
@@ -984,6 +1037,7 @@
                         { label: 'Partner', value: this.partners.length, icon: 'fas fa-handshake', color: 'bg-gradient-to-br from-emerald-500 to-teal-500' },
                         { label: 'Servizi', value: this.services.length, icon: 'fas fa-wrench', color: 'bg-gradient-to-br from-brand to-brand-dark' },
                         { label: 'Prima & Dopo', value: this.beforeAfter.length, icon: 'fas fa-exchange-alt', color: 'bg-gradient-to-br from-amber-500 to-orange-500' },
+                        { label: 'Recensioni', value: this.reviews.length, icon: 'fas fa-star', color: 'bg-gradient-to-br from-yellow-400 to-yellow-600' },
                         { label: 'Messaggi', value: this.messages.length, icon: 'fas fa-envelope', color: 'bg-gradient-to-br from-red-500 to-pink-500' },
                     ]
                 }
@@ -1120,43 +1174,50 @@
                 async fetchData() {
                     this.loading = true
                     try {
-                        const [confRes, aboutRes, servRes, projRes, baRes, msgRes, partRes] = await Promise.all([
-                            supabaseClient.from('site_config').select('*').order('id'),
+                        const [conf, part, about, serv, proj, ba, msg, rev] = await Promise.all([
+                            supabaseClient.from('site_config').select('*'),
+                            supabaseClient.from('partners').select('*').order('display_order'),
                             supabaseClient.from('about_images').select('*').order('id'),
                             supabaseClient.from('services').select('*').order('id'),
-                            supabaseClient.from('projects').select('*').order('id'),
+                            supabaseClient.from('projects').select('*').order('id', { ascending: false }),
                             supabaseClient.from('before_after').select('*').order('created_at', { ascending: false }),
                             supabaseClient.from('contact_messages').select('*').order('created_at', { ascending: false }),
-                            supabaseClient.from('partners').select('*').order('display_order')
+                            supabaseClient.from('reviews').select('*').order('created_at', { ascending: false })
                         ])
 
-                        this.siteConfig = confRes.data || []
-                        this.partners = partRes.data || []
-
-                        const heroKeys = ['hero_video_1', 'hero_video_2', 'hero_video_3', 'hero_video_4'];
-                        const speedKeys = ['gallery_images_speed', 'gallery_videos_speed'];
-                        const socialKeys = ['social_facebook', 'social_instagram', 'social_linkedin'];
-                        const servicesKeys = ['services_subtitle', 'services_title', 'services_heading', 'services_description'];
-                        const allAutoKeys = [...heroKeys, ...speedKeys, ...socialKeys, ...servicesKeys];
-                        for (const key of allAutoKeys) {
-                            if (!this.siteConfig.some(item => item.key === key)) {
-                                const defaultValue = speedKeys.includes(key) ? '80' : '';
-                                const { data } = await supabaseClient.from('site_config').insert([{ key, value: defaultValue }]).select();
-                                if (data && data[0]) this.siteConfig.push(data[0]);
-                            }
-                        }
-                        this.siteConfig.sort((a, b) => a.id - b.id);
-
-                        this.aboutImages = aboutRes.data || []
-                        this.services = servRes.data || []
-                        this.projects = projRes.data || []
-                        this.beforeAfter = baRes.data || []
-                        this.messages = msgRes.data || []
-                    } catch (error) {
-                        console.error('Error fetching data:', error)
-                        this.showToast('Errore nel caricamento dei dati', 'error')
+                        if (conf.data) this.siteConfig = conf.data
+                        if (part.data) this.partners = part.data
+                        if (about.data) this.aboutImages = about.data
+                        if (serv.data) this.services = serv.data
+                        if (proj.data) this.projects = proj.data
+                        if (ba.data) this.beforeAfter = ba.data
+                        if (msg.data) this.messages = msg.data
+                        if (rev.data) this.reviews = rev.data
+                    } catch (e) {
+                        console.error(e)
+                        this.showToast('Errore caricamento dati', 'error')
+                    } finally {
+                        this.loading = false
                     }
-                    this.loading = false
+                },
+                async toggleReviewApproval(review) {
+                    const { error } = await supabaseClient.from('reviews').update({
+                        is_approved: !review.is_approved
+                    }).eq('id', review.id)
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else {
+                        review.is_approved = !review.is_approved
+                        this.showToast(review.is_approved ? 'Recensione approvata!' : 'Approvazione rimossa')
+                    }
+                },
+                async deleteReview(id, index) {
+                    if (!confirm('Sei sicuro di voler eliminare questa recensione?')) return
+                    const { error } = await supabaseClient.from('reviews').delete().eq('id', id)
+                    if (error) this.showToast('Errore: ' + error.message, 'error')
+                    else {
+                        this.reviews.splice(index, 1)
+                        this.showToast('Recensione eliminata')
+                    }
                 },
                 async updateConfig(item) {
                     const { error } = await supabaseClient.from('site_config').update({ value: item.value }).eq('id', item.id)

@@ -1054,70 +1054,38 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <!-- Review 1 -->
-                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative"
-                    data-aos="fade-up" data-aos-delay="0">
-                    <i class="fas fa-quote-left absolute text-5xl text-brand/10 top-6 right-6"></i>
-                    <div class="flex text-yellow-400 mb-5 text-sm">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
-                            class="fas fa-star"></i><i class="fas fa-star"></i>
+            <div id="reviews-container" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Approved reviews will be loaded here -->
+            </div>
+
+            <div class="mt-16 bg-white/10 p-8 rounded-3xl border border-white/20 backdrop-blur-sm max-w-2xl mx-auto" data-aos="fade-up">
+                <h4 class="text-2xl font-bold text-white mb-6 text-center">Lascia una Recensione</h4>
+                <form id="review-form" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <input type="text" id="rev-name" placeholder="Il tuo nome" required
+                            class="w-full px-4 py-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50">
+                        <input type="email" id="rev-email" placeholder="La tua email (opzionale)"
+                            class="w-full px-4 py-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50">
                     </div>
-                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Ci siamo affidati a Gruppo Momo per la
-                        ristrutturazione completa del nostro appartamento. Lavori eseguiti in modo impeccabile, pulizia
-                        in cantiere e rispetto dei tempi previsti. Personale molto qualificato."</p>
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
-                            MR</div>
-                        <div class="flex flex-col">
-                            <span class="font-bold text-gray-900">Marco R.</span>
-                            <span class="text-xs text-gray-500 uppercase tracking-wide">Privato (Torino)</span>
+                    <div>
+                        <label class="block text-white/80 text-sm font-medium mb-2">Valutazione</label>
+                        <div class="flex gap-2 text-2xl text-yellow-400" id="rev-rating-stars">
+                            <i class="fas fa-star cursor-pointer" data-value="1"></i>
+                            <i class="fas fa-star cursor-pointer" data-value="2"></i>
+                            <i class="fas fa-star cursor-pointer" data-value="3"></i>
+                            <i class="fas fa-star cursor-pointer" data-value="4"></i>
+                            <i class="fas fa-star cursor-pointer" data-value="5"></i>
                         </div>
+                        <input type="hidden" id="rev-rating" value="5">
                     </div>
-                </div>
-                <!-- Review 2 -->
-                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative"
-                    data-aos="fade-up" data-aos-delay="100">
-                    <i class="fas fa-quote-left absolute text-5xl text-brand/10 top-6 right-6"></i>
-                    <div class="flex text-yellow-400 mb-5 text-sm">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
-                            class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Azienda estremamente seria, un team affiatato
-                        e competente. Hanno rifatto il tetto e curato la messa in posa dei pavimenti. Il risultato
-                        finale ha superato ampiamente le nostre aspettative."</p>
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
-                            CV</div>
-                        <div class="flex flex-col">
-                            <span class="font-bold text-gray-900">Chiara V.</span>
-                            <span class="text-xs text-gray-500 uppercase tracking-wide">Condominio (Moncalieri)</span>
-                        </div>
-                    </div>
-                </div>
-                <!-- Review 3 -->
-                <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative"
-                    data-aos="fade-up" data-aos-delay="200">
-                    <i class="fas fa-quote-left absolute text-5xl text-brand/10 top-6 right-6"></i>
-                    <div class="flex text-yellow-400 mb-5 text-sm">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i
-                            class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                    <p class="text-gray-600 mb-6 italic leading-relaxed">"Precisione, ordine e disponibilità a venire
-                        incontro a ogni esigenza. Ci hanno fornito un servizio chiavi in mano sgravandoci da ogni
-                        preoccupazione. Li consiglio caldamente."</p>
-                    <div class="flex items-center gap-4">
-                        <div
-                            class="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center font-bold text-gray-500">
-                            AT</div>
-                        <div class="flex flex-col">
-                            <span class="font-bold text-gray-900">Alessandro T.</span>
-                            <span class="text-xs text-gray-500 uppercase tracking-wide">Attività Commerciale</span>
-                        </div>
-                    </div>
-                </div>
+                    <textarea id="rev-content" rows="4" placeholder="Cosa ne pensi del nostro lavoro?" required
+                        class="w-full px-4 py-3 rounded-xl bg-white/20 border border-white/30 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 resize-none"></textarea>
+                    <button type="submit"
+                        class="w-full bg-white text-brand font-bold py-4 rounded-xl shadow-lg hover:bg-gray-100 transition-colors">
+                        Invia Recensione
+                    </button>
+                    <p class="text-white/60 text-[10px] text-center mt-2 italic">La recensione verrà pubblicata dopo l'approvazione dello staff.</p>
+                </form>
             </div>
         </div>
     </section>
@@ -1345,13 +1313,14 @@
 
         async function loadData() {
             try {
-                const [confRes, aboutRes, servRes, projRes, baRes, partRes] = await Promise.all([
+                const [confRes, aboutRes, servRes, projRes, baRes, partRes, revRes] = await Promise.all([
                     supabaseClient.from('site_config').select('*'),
                     supabaseClient.from('about_images').select('*').order('id'),
                     supabaseClient.from('services').select('*').order('id'),
                     supabaseClient.from('projects').select('*').order('id'),
                     supabaseClient.from('before_after').select('*').order('created_at', { ascending: false }),
-                    supabaseClient.from('partners').select('*').order('display_order')
+                    supabaseClient.from('partners').select('*').order('display_order'),
+                    supabaseClient.from('reviews').select('*').eq('is_approved', true).order('created_at', { ascending: false })
                 ])
 
                 const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
@@ -1464,7 +1433,91 @@
                     })
                 }
 
-                // Load About Us Images
+                // Load Reviews
+                const reviewsContainer = document.getElementById('reviews-container');
+                if (revRes.data && reviewsContainer) {
+                    if (revRes.data.length > 0) {
+                        reviewsContainer.innerHTML = revRes.data.map((rev, index) => `
+                            <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative"
+                                data-aos="fade-up" data-aos-delay="${index * 100}">
+                                <i class="fas fa-quote-left absolute text-5xl text-brand/10 top-6 right-6"></i>
+                                <div class="flex text-yellow-400 mb-5 text-sm">
+                                    ${Array(5).fill(0).map((_, i) => `<i class="${i < rev.rating ? 'fas' : 'far'} fa-star"></i>`).join('')}
+                                </div>
+                                <p class="text-gray-600 mb-6 italic leading-relaxed">"${rev.content}"</p>
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-brand/10 rounded-full flex items-center justify-center font-bold text-brand">
+                                        ${rev.name.charAt(0).toUpperCase()}
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-gray-900">${rev.name}</span>
+                                        <span class="text-[10px] text-gray-400 uppercase tracking-wide">Recensione Verificata</span>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')
+                    } else {
+                        reviewsContainer.innerHTML = `
+                            <div class="col-span-1 md:col-span-3 text-center text-white/70 italic">
+                                Sii il primo a lasciare una recensione!
+                            </div>
+                        `
+                    }
+                }
+
+                // Initialize Review Form
+                const reviewForm = document.getElementById('review-form');
+                if (reviewForm) {
+                    const stars = document.querySelectorAll('#rev-rating-stars i');
+                    const ratingInput = document.getElementById('rev-rating');
+                    
+                    stars.forEach(star => {
+                        star.addEventListener('click', function() {
+                            const val = parseInt(this.dataset.value);
+                            ratingInput.value = val;
+                            stars.forEach((s, i) => {
+                                if (i < val) {
+                                    s.classList.remove('far');
+                                    s.classList.add('fas');
+                                } else {
+                                    s.classList.remove('fas');
+                                    s.classList.add('far');
+                                }
+                            });
+                        });
+                    });
+
+                    reviewForm.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const submitBtn = reviewForm.querySelector('button');
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Invio...';
+
+                        const name = document.getElementById('rev-name').value;
+                        const email = document.getElementById('rev-email').value;
+                        const rating = parseInt(ratingInput.value);
+                        const content = document.getElementById('rev-content').value;
+
+                        try {
+                            const { error } = await supabaseClient.from('reviews').insert([{
+                                name, email, rating, content
+                            }]);
+
+                            if (error) throw error;
+
+                            alert('Grazie! La tua recensione è stata inviata e sarà visibile dopo l\'approvazione.');
+                            reviewForm.reset();
+                            // Reset stars to 5
+                            ratingInput.value = 5;
+                            stars.forEach(s => { s.classList.remove('far'); s.classList.add('fas'); });
+                        } catch (err) {
+                            alert('Errore durante l\'invio: ' + err.message);
+                        } finally {
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = 'Invia Recensione';
+                        }
+                    });
+                }
                 if (aboutRes.data && aboutRes.data.length > 0) {
                     const aboutImageElements = document.querySelectorAll('#chi-siamo img');
                     aboutRes.data.forEach((image, index) => {
