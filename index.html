@@ -1313,48 +1313,27 @@
 
         async function loadData() {
             try {
-                const [confRes, aboutRes, servRes, projRes, baRes, partRes, revRes] = await Promise.all([
+                // Phase 1: Critical Data (Hero & Initial Config)
+                const [confRes, aboutRes, servRes, partRes] = await Promise.all([
                     supabaseClient.from('site_config').select('*'),
                     supabaseClient.from('about_images').select('*').order('id'),
                     supabaseClient.from('services').select('*').order('id'),
-                    supabaseClient.from('projects').select('*').order('id'),
-                    supabaseClient.from('before_after').select('*').order('created_at', { ascending: false }),
-                    supabaseClient.from('partners').select('*').order('display_order'),
-                    supabaseClient.from('reviews').select('*').eq('is_approved', true).order('created_at', { ascending: false })
+                    supabaseClient.from('partners').select('*').order('display_order')
                 ])
 
                 const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
 
-                // Load Partners
-                if (partRes.data && partRes.data.length > 0) {
-                    const partnersContainer = document.getElementById('partners_html')
-                    if (partnersContainer) {
-                        partnersContainer.innerHTML = partRes.data.map(p => `
-                            <div class="text-xl md:text-2xl font-display font-bold text-gray-800 tracking-tight uppercase hover:text-brand transition-colors duration-300">
-                                ${p.name}
-                            </div>
-                        `).join('')
-                    }
-                }
-
-                // Load Config
+                // Process Critical Data Immediately
                 if (confRes.data) {
                     confRes.data.forEach(item => {
                         if (item.key.startsWith('hero_video_')) {
-                            const mediaNum = item.key.split('_')[2] // '1', '2', '3' or '4'
+                            const mediaNum = item.key.split('_')[2]
                             const container = document.getElementById('hero_media_' + mediaNum)
                             if (container && item.value) {
                                 if (isVideoUrl(item.value)) {
-                                    container.innerHTML = `
-                                        <video autoplay loop muted playsinline preload="metadata"
-                                            class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000">
-                                            <source src="${item.value}" type="video/mp4">
-                                        </video>`
+                                    container.innerHTML = `<video autoplay loop muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"><source src="${item.value}" type="video/mp4"></video>`
                                 } else {
-                                    container.innerHTML = `
-                                        <img src="${item.value}" loading="eager" decoding="sync"
-                                            class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000"
-                                            onerror="this.src='https://via.placeholder.com/1920x1080?text=Immagine+Hero'">`
+                                    container.innerHTML = `<img src="${item.value}" loading="eager" decoding="sync" class="absolute inset-0 w-full h-full object-cover scale-105 group-hover:scale-100 transition-transform duration-1000" onerror="this.src='https://via.placeholder.com/1920x1080?text=Immagine+Hero'">`
                                 }
                             }
                         } else if (item.key === 'hero_video') {
@@ -1374,50 +1353,34 @@
                                 if (item.key === 'contact_phone') {
                                     const phones = item.value.split(/[/|]/);
                                     el.classList.add('flex-col', 'gap-3');
-                                    el.classList.remove('flex-wrap', 'gap-x-2');
                                     el.innerHTML = phones.map(p => {
                                         const trimmed = p.trim();
                                         if (!trimmed) return '';
                                         const clean = trimmed.replace(/\D/g, '');
                                         const tel = clean.startsWith('39') ? `+${clean}` : `+39${clean}`;
-                                        return `
-                                            <div class="flex items-center gap-3">
-                                                <a href="tel:${tel}" class="bg-brand/10 hover:bg-brand/20 text-brand px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2">
-                                                    <i class="fas fa-phone-alt text-xs"></i> Chiama ${trimmed}
-                                                </a>
-                                            </div>`;
+                                        return `<div class="flex items-center gap-3"><a href="tel:${tel}" class="bg-brand/10 hover:bg-brand/20 text-brand px-4 py-2 rounded-lg text-sm font-bold transition-all flex items-center gap-2"><i class="fas fa-phone-alt text-xs"></i> Chiama ${trimmed}</a></div>`;
                                     }).filter(h => h).join('');
                                 } else {
                                     el.innerHTML = item.value
                                 }
                             })
-                            // Special case for PEC in footer
                             if (item.key === 'contact_pec') {
                                 const footerPec = document.getElementById('contact_pec_footer')
                                 if (footerPec) footerPec.innerHTML = item.value
                             }
-                            // Special case for P.IVA in footer
                             if (item.key === 'contact_piva') {
                                 const footerPiva = document.getElementById('contact_piva')
                                 if (footerPiva) footerPiva.innerHTML = item.value
                             }
-                            // Special case for WhatsApp link
                             if (item.key === 'contact_phone') {
                                 const whatsappLink = document.getElementById('whatsapp_link')
                                 if (whatsappLink) {
                                     const cleanPhone = item.value.split('/')[0].trim().replace(/\D/g, '')
-                                    const whatsappPhone = cleanPhone.startsWith('39') ? cleanPhone : `39${cleanPhone}`
-                                    whatsappLink.href = `https://wa.me/${whatsappPhone}`
+                                    whatsappLink.href = `https://wa.me/${cleanPhone.startsWith('39') ? cleanPhone : '39'+cleanPhone}`
                                 }
                             }
-                            // Gallery scroll speeds
-                            if (item.key === 'gallery_images_speed' && item.value) {
-                                document.documentElement.style.setProperty('--gallery-images-speed', item.value + 's')
-                            }
-                            if (item.key === 'gallery_videos_speed' && item.value) {
-                                document.documentElement.style.setProperty('--gallery-videos-speed', item.value + 's')
-                            }
-                            // Special case for Social Links
+                            if (item.key === 'gallery_images_speed' && item.value) document.documentElement.style.setProperty('--gallery-images-speed', item.value + 's')
+                            if (item.key === 'gallery_videos_speed' && item.value) document.documentElement.style.setProperty('--gallery-videos-speed', item.value + 's')
                             if (item.key.startsWith('social_')) {
                                 const socialLink = document.getElementById(item.key)
                                 if (socialLink) {
@@ -1433,13 +1396,85 @@
                     })
                 }
 
-                // Load Reviews
+                if (partRes.data) {
+                    const partnersContainer = document.getElementById('partners_html')
+                    if (partnersContainer) {
+                        partnersContainer.innerHTML = partRes.data.map(p => `
+                            <div class="text-xl md:text-2xl font-display font-bold text-gray-800 tracking-tight uppercase hover:text-brand transition-colors duration-300">${p.name}</div>
+                        `).join('')
+                    }
+                }
+
+                if (aboutRes.data) {
+                    const aboutImageElements = document.querySelectorAll('#chi-siamo img');
+                    aboutRes.data.forEach((image, index) => {
+                        if (aboutImageElements[index] && image.image_url) {
+                            aboutImageElements[index].src = image.image_url;
+                            aboutImageElements[index].loading = "lazy";
+                            aboutImageElements[index].decoding = "async";
+                            if (image.alt_text) aboutImageElements[index].alt = image.alt_text;
+                        }
+                    });
+                }
+
+                if (servRes.data) {
+                    const servicesContainer = document.getElementById('services-container')
+                    if (servicesContainer) {
+                        servicesContainer.innerHTML = servRes.data.map((service, index) => `
+                            <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1" data-aos="fade-up" data-aos-delay="${index * 50}">
+                                <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
+                                    <i class="${service.icon} text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
+                                </div>
+                                <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">${service.title}</h4>
+                                <p class="text-gray-600 leading-relaxed">${service.description}</p>
+                            </div>
+                        `).join('')
+                    }
+                }
+
+                // Phase 2: Deferred/Lazy Loading for heavy sections
+                setupDeferredLoading();
+
+            } catch (err) {
+                console.error('Error loading initial data:', err);
+            }
+        }
+
+        function setupDeferredLoading() {
+            const sections = [
+                { id: 'galleria', loader: loadGalleryData },
+                { id: 'prima-dopo', loader: loadBeforeAfterData },
+                { id: 'reviews-container', loader: loadReviewsData }
+            ];
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const section = sections.find(s => s.id === entry.target.id || entry.target.contains(document.getElementById(s.id)));
+                        if (section) {
+                            section.loader();
+                            observer.unobserve(entry.target);
+                        }
+                    }
+                });
+            }, { rootMargin: '400px' });
+
+            sections.forEach(s => {
+                const el = document.getElementById(s.id);
+                if (el) observer.observe(el);
+            });
+        }
+
+        async function loadReviewsData() {
+            try {
+                const { data, error } = await supabaseClient.from('reviews').select('*').eq('is_approved', true).order('created_at', { ascending: false });
+                if (error) throw error;
+                
                 const reviewsContainer = document.getElementById('reviews-container');
-                if (revRes.data && reviewsContainer) {
-                    if (revRes.data.length > 0) {
-                        reviewsContainer.innerHTML = revRes.data.map((rev, index) => `
-                            <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative"
-                                data-aos="fade-up" data-aos-delay="${index * 100}">
+                if (reviewsContainer && data) {
+                    if (data.length > 0) {
+                        reviewsContainer.innerHTML = data.map((rev, index) => `
+                            <div class="bg-white p-8 rounded-3xl shadow-xl transform transition hover:-translate-y-2 duration-300 relative" data-aos="fade-up" data-aos-delay="${index * 100}">
                                 <i class="fas fa-quote-left absolute text-5xl text-brand/10 top-6 right-6"></i>
                                 <div class="flex text-yellow-400 mb-5 text-sm">
                                     ${Array(5).fill(0).map((_, i) => `<i class="${i < rev.rating ? 'fas' : 'far'} fa-star"></i>`).join('')}
@@ -1455,496 +1490,190 @@
                                     </div>
                                 </div>
                             </div>
-                        `).join('')
+                        `).join('');
+                        // Trigger AOS for new elements
+                        if (window.AOS) window.AOS.refresh();
                     } else {
-                        reviewsContainer.innerHTML = `
-                            <div class="col-span-1 md:col-span-3 text-center text-white/70 italic">
-                                Sii il primo a lasciare una recensione!
-                            </div>
-                        `
+                        reviewsContainer.innerHTML = `<div class="col-span-1 md:col-span-3 text-center text-white/70 italic">Sii il primo a lasciare una recensione!</div>`;
                     }
                 }
+            } catch (err) {
+                console.error('Error loading reviews:', err);
+            }
+        }
 
-                // Initialize Review Form
-                const reviewForm = document.getElementById('review-form');
-                if (reviewForm) {
-                    const stars = document.querySelectorAll('#rev-rating-stars i');
-                    const ratingInput = document.getElementById('rev-rating');
+        async function loadGalleryData() {
+            try {
+                const { data, error } = await supabaseClient.from('projects').select('*').order('id');
+                if (error) throw error;
+                if (!data) return;
+
+                const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
+                const imageProjects = data.filter(p => !isVideoUrl(p.image_url))
+                const videoProjects = data.filter(p => isVideoUrl(p.image_url))
+
+                if (imageProjects.length > 0) {
+                    const html = imageProjects.map(project => `
+                        <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer w-72 md:w-96 h-64 md:h-80 flex-shrink-0 snap-start" onclick="openLightbox('${project.image_url}', '${project.title.replace(/'/g, "\\'")}', '${project.category.replace(/'/g, "\\'")}')">
+                            <img src="${project.image_url}" alt="${project.title}" loading="lazy" decoding="async" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                                <div class="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                                    <span class="inline-block px-3 py-1 bg-brand text-white text-xs font-bold rounded-full mb-2 shadow-md">${project.category}</span>
+                                    <h4 class="text-white text-xl font-bold font-display">${project.title}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                    document.getElementById('projects-set-1').innerHTML = html;
+                    document.getElementById('projects-set-2').innerHTML = html;
+                }
+
+                if (videoProjects.length > 0) {
+                    const videoSuffix = '#t=0.001';
+                    const html = videoProjects.map(project => `
+                        <div class="group relative overflow-hidden rounded-2xl shadow-lg w-72 md:w-96 h-64 md:h-80 flex-shrink-0 bg-black snap-start">
+                            <video data-src="${project.image_url}${videoSuffix}" class="w-full h-full object-cover" playsinline preload="none" controls></video>
+                            <div class="gallery-video-play absolute inset-0 flex items-center justify-center bg-black/40 z-20 cursor-pointer" onclick="var v=this.parentElement.querySelector('video');if(v){if(!v.src&&v.dataset.src){v.src=v.dataset.src;v.preload='metadata';v.load();}v.play();}this.style.display='none';">
+                                <i class="fas fa-play text-white text-4xl drop-shadow-lg"></i>
+                            </div>
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 pointer-events-none">
+                                <div class="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+                                    <span class="inline-block px-3 py-1 bg-brand text-white text-xs font-bold rounded-full mb-2 shadow-md">${project.category}</span>
+                                    <h4 class="text-white text-xl font-bold font-display">${project.title}</h4>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                    document.getElementById('videos-set-1').innerHTML = html;
+                    document.getElementById('videos-set-2').innerHTML = html;
+                    document.getElementById('videos-gallery-wrapper').classList.remove('hidden');
+                    document.getElementById('videos-empty').classList.add('hidden');
+                    observeLazyVideos();
+                }
+            } catch (err) {
+                console.error('Error loading gallery:', err);
+            }
+        }
+
+        async function loadBeforeAfterData() {
+            try {
+                const { data, error } = await supabaseClient.from('before_after').select('*').order('created_at', { ascending: false });
+                if (error) throw error;
+                if (!data || data.length === 0) return;
+
+                const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
+                const grid = document.getElementById('before-after-grid');
+                
+                grid.innerHTML = data.map((item, index) => {
+                    const beforeMedia = isVideoUrl(item.before_url) ?
+                        `<video src="${item.before_url}" autoplay loop muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover"></video>` :
+                        `<img src="${item.before_url}" alt="Prima" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover">`;
+
+                    const afterMedia = isVideoUrl(item.after_url) ?
+                        `<video data-ba-after src="${item.after_url}" autoplay loop muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);"></video>` :
+                        `<img data-ba-after src="${item.after_url}" alt="Dopo" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);">`;
+
+                    return `
+                        <div class="glass rounded-3xl p-5 shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60" data-aos="fade-up" data-aos-delay="${index * 80}">
+                            <div class="flex items-start justify-between gap-4 mb-4">
+                                <div>
+                                    <h4 class="font-display text-2xl font-bold text-gray-900">${item.title || 'Prima & Dopo'}</h4>
+                                    <p class="text-gray-600 text-sm mt-1">${item.category || 'Prima/Dopo'}</p>
+                                </div>
+                            </div>
+                            <div data-ba-wrapper>
+                                <div data-ba-card class="relative overflow-hidden rounded-2xl aspect-[16/10] bg-gray-200 cursor-ew-resize select-none touch-none">
+                                    ${beforeMedia}
+                                    ${afterMedia}
+                                    <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Prima</div>
+                                    <div class="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Dopo</div>
+                                    <div data-ba-line class="absolute inset-y-0 left-1/2 w-[2px] bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.12)] pointer-events-none"></div>
+                                    <div data-ba-knob class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full shadow-xl flex items-center justify-center pointer-events-none z-30">
+                                        <i class="fas fa-arrows-left-right text-brand text-sm"></i>
+                                    </div>
+                                    <input type="range" min="0" max="100" value="50" data-ba-range class="absolute inset-0 w-full h-full opacity-0 cursor-ew-resize z-40">
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                // Initialize the interactive parts
+                document.querySelectorAll('[data-ba-wrapper]').forEach(wrapper => {
+                    const range = wrapper.querySelector('[data-ba-range]');
+                    const afterImg = wrapper.querySelector('[data-ba-after]');
+                    const line = wrapper.querySelector('[data-ba-line]');
+                    const knob = wrapper.querySelector('[data-ba-knob]');
                     
-                    stars.forEach(star => {
-                        star.addEventListener('click', function() {
-                            const val = parseInt(this.dataset.value);
-                            ratingInput.value = val;
-                            stars.forEach((s, i) => {
-                                if (i < val) {
-                                    s.classList.remove('far');
-                                    s.classList.add('fas');
-                                } else {
-                                    s.classList.remove('fas');
-                                    s.classList.add('far');
-                                }
-                            });
-                        });
-                    });
+                    const update = (val) => {
+                        afterImg.style.clipPath = `inset(0 0 0 ${val}%)`;
+                        line.style.left = `${val}%`;
+                        knob.style.left = `${val}%`;
+                    };
+                    
+                    range.addEventListener('input', (e) => update(e.target.value));
+                    update(50);
+                });
+                
+                if (window.AOS) window.AOS.refresh();
+            } catch (err) {
+                console.error('Error loading before/after:', err);
+            }
+        }
 
-                    reviewForm.addEventListener('submit', async (e) => {
-                        e.preventDefault();
-                        const submitBtn = reviewForm.querySelector('button');
-                        submitBtn.disabled = true;
-                        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Invio...';
-
-                        const name = document.getElementById('rev-name').value;
-                        const email = document.getElementById('rev-email').value;
-                        const rating = parseInt(ratingInput.value);
-                        const content = document.getElementById('rev-content').value;
-
-                        try {
-                            const { error } = await supabaseClient.from('reviews').insert([{
-                                name, email, rating, content
-                            }]);
-
-                            if (error) throw error;
-
-                            alert('Grazie! La tua recensione è stata inviata e sarà visibile dopo l\'approvazione.');
-                            reviewForm.reset();
-                            // Reset stars to 5
-                            ratingInput.value = 5;
-                            stars.forEach(s => { s.classList.remove('far'); s.classList.add('fas'); });
-                        } catch (err) {
-                            alert('Errore durante l\'invio: ' + err.message);
-                        } finally {
-                            submitBtn.disabled = false;
-                            submitBtn.innerHTML = 'Invia Recensione';
-                        }
-                    });
-                }
-                if (aboutRes.data && aboutRes.data.length > 0) {
-                    const aboutImageElements = document.querySelectorAll('#chi-siamo img');
-                    aboutRes.data.forEach((image, index) => {
-                        if (aboutImageElements[index] && image.image_url) {
-                            aboutImageElements[index].src = image.image_url;
-                            aboutImageElements[index].loading = "lazy";
-                            aboutImageElements[index].decoding = "async";
-                            if (image.alt_text) {
-                                aboutImageElements[index].alt = image.alt_text;
-                            }
-                        }
-                    });
-                }
-
-                // Load Services
-                if (servRes.data && servRes.data.length > 0) {
-                    const servicesContainer = document.getElementById('services-container')
-                    servicesContainer.innerHTML = ''
-                    servRes.data.forEach((service, index) => {
-                        servicesContainer.innerHTML += `
-                            <div class="glass p-8 rounded-3xl shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60 group hover:-translate-y-1" 
-                                 data-aos="fade-up" data-aos-duration="300" data-aos-delay="${index * 50}">
-                                <div class="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 bg-gradient-to-br from-brand/15 to-brand/5 group-hover:from-brand group-hover:to-brand-dark transition-colors duration-300">
-                                    <i class="${service.icon} text-2xl text-brand group-hover:text-white transition-colors duration-300"></i>
-                                </div>
-                                <h4 class="text-xl font-bold text-gray-900 mb-3 font-display">${service.title}</h4>
-                                <p class="text-gray-600 leading-relaxed">${service.description}</p>
-                            </div>
-                        `
-                    })
-                }
-
-                // Load Projects
-                if (projRes.data && projRes.data.length > 0) {
-                    const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
-                    const imageProjects = projRes.data.filter(p => !isVideoUrl(p.image_url))
-                    const videoProjects = projRes.data.filter(p => isVideoUrl(p.image_url))
-
-                    let imageHtml = ''
-                    imageProjects.forEach(project => {
-                        imageHtml += `
-                            <div class="group relative overflow-hidden rounded-2xl shadow-lg cursor-pointer w-72 md:w-96 h-64 md:h-80 flex-shrink-0 snap-start" data-aos="zoom-in"
-                                 onclick="openLightbox('${project.image_url}', '${project.title.replace(/'/g, "\\'")}', '${project.category.replace(/'/g, "\\'")}')">
-                                <img src="${project.image_url}" alt="${project.title}" loading="lazy" decoding="async" class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 ease-in-out" style="-webkit-transform: translateZ(0);" onerror="this.src='https://via.placeholder.com/600x500?text=Image+Error'">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                                    <div class="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                                        <span class="inline-block px-3 py-1 bg-brand text-white text-xs font-bold rounded-full mb-2 shadow-md">${project.category}</span>
-                                        <h4 class="text-white text-xl font-bold font-display">${project.title}</h4>
-                                    </div>
-                                </div>
-                            </div>
-                        `
-                    })
-                    document.getElementById('projects-set-1').innerHTML = imageHtml
-                    document.getElementById('projects-set-2').innerHTML = imageHtml
-
-                    const videosWrapper = document.getElementById('videos-gallery-wrapper')
-                    const videosEmpty = document.getElementById('videos-empty')
-
-                    const videoSuffix = '#t=0.001'
-
-                    if (videoProjects.length > 0) {
-                        let videoHtml = ''
-                        videoProjects.forEach(project => {
-                            videoHtml += `
-                                <div class="group relative overflow-hidden rounded-2xl shadow-lg w-72 md:w-96 h-64 md:h-80 flex-shrink-0 bg-black snap-start" data-aos="zoom-in">
-                                    <video data-src="${project.image_url}${videoSuffix}" class="w-full h-full object-cover" playsinline preload="none" controls></video>
-                                    <div class="gallery-video-play absolute inset-0 flex items-center justify-center bg-black/40 z-20 cursor-pointer" onclick="var v=this.parentElement.querySelector('video');if(v){if(!v.src&&v.dataset.src){v.src=v.dataset.src;v.preload='metadata';v.load();}v.play();}this.style.display='none';">
-                                        <i class="fas fa-play text-white text-4xl drop-shadow-lg"></i>
-                                    </div>
-                                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 pointer-events-none">
-                                        <div class="transform translate-y-8 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-                                            <span class="inline-block px-3 py-1 bg-brand text-white text-xs font-bold rounded-full mb-2 shadow-md">${project.category}</span>
-                                            <h4 class="text-white text-xl font-bold font-display">${project.title}</h4>
-                                        </div>
-                                    </div>
-                                </div>
-                            `
-                        })
-                        document.getElementById('videos-set-1').innerHTML = videoHtml
-                        document.getElementById('videos-set-2').innerHTML = videoHtml
-                        if (videosWrapper) videosWrapper.classList.remove('hidden')
-                        if (videosEmpty) videosEmpty.classList.add('hidden')
-
-                        // Sequential video loading: load one by one
-                        const loadVideosSequentially = () => {
-                            const allVideos = Array.from(document.querySelectorAll('#videos-track video[data-src]'));
-                            let currentIndex = 0;
-
-                            const loadNext = () => {
-                                if (currentIndex >= allVideos.length) return;
-                                
-                                const video = allVideos[currentIndex];
-                                if (video.dataset.src && !video.src) {
-                                    video.src = video.dataset.src;
-                                    video.preload = 'metadata';
-                                    
-                                    // When this video starts loading metadata, wait a bit then load the next one
-                                    video.onloadedmetadata = () => {
-                                        currentIndex++;
-                                        // Delay before loading the next one to save bandwidth and give time
-                                        setTimeout(loadNext, 1000); 
-                                    };
-                                    
-                                    video.onerror = () => {
-                                        currentIndex++;
-                                        loadNext();
-                                    };
-                                } else {
-                                    currentIndex++;
-                                    loadNext();
-                                }
-                            };
-
-                            loadNext();
-                        };
-
-                        loadVideosSequentially();
-
-                        // Manual scroll controls (prev/next only)
-                        setTimeout(() => {
-                            const vTrack = document.getElementById('videos-track');
-                            const btnPlayVideos = document.getElementById('btn-play-videos');
-                            const btnPauseVideos = document.getElementById('btn-pause-videos');
-                            const btnPrevVideos = document.getElementById('btn-prev-videos');
-                            const btnNextVideos = document.getElementById('btn-next-videos');
-                            const videosContainer = document.getElementById('videos-gallery-wrapper');
-
-                            if (vTrack && btnPlayVideos && btnPauseVideos) {
-                                btnPlayVideos.addEventListener('click', () => {
-                                    vTrack.classList.remove('paused');
-                                    btnPlayVideos.classList.add('active');
-                                    btnPauseVideos.classList.remove('active');
-                                });
-                                btnPauseVideos.addEventListener('click', () => {
-                                    vTrack.classList.add('paused');
-                                    btnPauseVideos.classList.add('active');
-                                    btnPlayVideos.classList.remove('active');
-                                });
-                            }
-
-                            if (videosContainer && btnPrevVideos && btnNextVideos) {
-                                const scrollAmount = 400;
-                                btnNextVideos.addEventListener('click', () => {
-                                    videosContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                                });
-                                btnPrevVideos.addEventListener('click', () => {
-                                    videosContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                                });
-                            }
-                        }, 100);
-                    } else {
-                        document.getElementById('videos-track').innerHTML = ''
-                        if (videosWrapper) videosWrapper.classList.add('hidden')
-                        if (videosEmpty) videosEmpty.classList.remove('hidden')
-                    }
-
-                    // Manual Gallery Controls (Projects) - always initialize regardless of videos
-                    setTimeout(() => {
-                        const pTrack = document.getElementById('projects-track');
-                        const btnPlayProjects = document.getElementById('btn-play-projects');
-                        const btnPauseProjects = document.getElementById('btn-pause-projects');
-                        const btnPrevProjects = document.getElementById('btn-prev-projects');
-                        const btnNextProjects = document.getElementById('btn-next-projects');
-                        const projectsContainer = document.getElementById('projects-container');
-
-                        if (pTrack && btnPlayProjects && btnPauseProjects) {
-                            btnPlayProjects.addEventListener('click', () => {
-                                pTrack.classList.remove('paused');
-                                btnPlayProjects.classList.add('active');
-                                btnPauseProjects.classList.remove('active');
-                            });
-                            btnPauseProjects.addEventListener('click', () => {
-                                pTrack.classList.add('paused');
-                                btnPauseProjects.classList.add('active');
-                                btnPlayProjects.classList.remove('active');
-                            });
-                        }
-
-                        if (projectsContainer && btnPrevProjects && btnNextProjects) {
-                            const scrollAmount = 400;
-                            btnNextProjects.addEventListener('click', () => {
-                                projectsContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-                            });
-                            btnPrevProjects.addEventListener('click', () => {
-                                projectsContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-                            });
-                        }
-                    }, 100);
-                }
-
-                // Force-load all lazy gallery images once the section is visible
-                // (CSS transform animations don't trigger lazy loading on mobile)
-                const gallerySec = document.getElementById('galleria');
-                if (gallerySec && 'IntersectionObserver' in window) {
-                    const galleryObserver = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                gallerySec.querySelectorAll('img[loading="lazy"]').forEach(el => {
-                                    el.loading = 'eager';
-                                });
-                                galleryObserver.disconnect();
+        // Initialize Review Form Handling (stays outside loadData)
+        function initReviewForm() {
+            const reviewForm = document.getElementById('review-form');
+            if (reviewForm) {
+                const stars = document.querySelectorAll('#rev-rating-stars i');
+                const ratingInput = document.getElementById('rev-rating');
+                
+                stars.forEach(star => {
+                    star.addEventListener('click', function() {
+                        const val = parseInt(this.dataset.value);
+                        ratingInput.value = val;
+                        stars.forEach((s, i) => {
+                            if (i < val) {
+                                s.classList.remove('far');
+                                s.classList.add('fas');
+                            } else {
+                                s.classList.remove('fas');
+                                s.classList.add('far');
                             }
                         });
-                    }, { rootMargin: '200px' });
-                    galleryObserver.observe(gallerySec);
-                }
-
-                // Re-load gallery videos when page becomes visible again (mobile idle fix)
-                document.addEventListener('visibilitychange', () => {
-                    if (document.visibilityState === 'visible') {
-                        const gs = document.getElementById('galleria');
-                        if (gs) {
-                            gs.querySelectorAll('video[src]').forEach(v => {
-                                if (v.readyState === 0) v.load();
-                            });
-                        }
-                    }
+                    });
                 });
 
-                const initBeforeAfter = () => {
-                    document.querySelectorAll('[data-ba-wrapper]').forEach(wrapper => {
-                        const card = wrapper.querySelector('[data-ba-card]')
-                        const range = wrapper.querySelector('[data-ba-range]')
-                        const afterImg = wrapper.querySelector('[data-ba-after]')
-                        const line = wrapper.querySelector('[data-ba-line]')
-                        const knob = wrapper.querySelector('[data-ba-knob]')
-                        if (!card || !range || !afterImg || !line || !knob) return
+                reviewForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const submitBtn = reviewForm.querySelector('button');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Invio...';
 
-                        const update = (val) => {
-                            const v = Math.max(0, Math.min(100, Number(val)))
-                            afterImg.style.clipPath = `inset(0 0 0 ${v}%)`
-                            line.style.left = `${v}%`
-                            knob.style.left = `${v}%`
-                        }
+                    const name = document.getElementById('rev-name').value;
+                    const email = document.getElementById('rev-email').value;
+                    const rating = parseInt(ratingInput.value);
+                    const content = document.getElementById('rev-content').value;
 
-                        update(range.value)
-                        range.addEventListener('input', (e) => update(e.target.value))
-
-                        const setFromClientX = (clientX) => {
-                            const rect = card.getBoundingClientRect()
-                            const v = ((clientX - rect.left) / rect.width) * 100
-                            range.value = String(Math.max(0, Math.min(100, v)))
-                            update(range.value)
-                        }
-
-                        card.addEventListener('pointerdown', (e) => {
-                            setFromClientX(e.clientX)
-                            const move = (ev) => setFromClientX(ev.clientX)
-                            const up = () => {
-                                card.removeEventListener('pointermove', move)
-                                card.removeEventListener('pointerup', up)
-                                card.removeEventListener('pointercancel', up)
-                            }
-                            card.addEventListener('pointermove', move)
-                            card.addEventListener('pointerup', up)
-                            card.addEventListener('pointercancel', up)
-                        })
-                    })
-                }
-
-                const grid = document.getElementById('before-after-grid')
-                const empty = document.getElementById('before-after-empty')
-
-                if (grid) {
-                    if (baRes.data && baRes.data.length > 0) {
-                        const isVideoUrl = (url) => /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(String(url || ''))
-                        let html = ''
-                        baRes.data.forEach((item, index) => {
-                            const beforeMedia = isVideoUrl(item.before_url) ?
-                                `<video src="${item.before_url}" autoplay loop muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover" onerror="this.outerHTML='<div class=\\'absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center\\'>Error</div>'"></video>` :
-                                `<img src="${item.before_url}" alt="Prima" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover" style="-webkit-transform: translateZ(0);" onerror="this.src='https://via.placeholder.com/900x600?text=Before'">`;
-
-                            const afterMedia = isVideoUrl(item.after_url) ?
-                                `<video data-ba-after src="${item.after_url}" autoplay loop muted playsinline preload="metadata" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%);" onerror="this.outerHTML='<div class=\\'absolute inset-0 w-full h-full bg-gray-200 flex items-center justify-center\\'>Error</div>'"></video>` :
-                                `<img data-ba-after src="${item.after_url}" alt="Dopo" loading="lazy" decoding="async" class="absolute inset-0 w-full h-full object-cover" style="clip-path: inset(0 0 0 50%); -webkit-transform: translateZ(0);" onerror="this.src='https://via.placeholder.com/900x600?text=After'">`;
-
-                            html += `
-                                <div class="glass rounded-3xl p-5 shadow-sm hover:shadow-2xl transition-all duration-300 border border-white/60" data-aos="fade-up" data-aos-delay="${index * 80}">
-                                    <div class="flex items-start justify-between gap-4 mb-4">
-                                        <div>
-                                            <h4 class="font-display text-2xl font-bold text-gray-900">${item.title || 'Prima & Dopo'}</h4>
-                                            <p class="text-gray-600 text-sm mt-1">${item.category || 'Prima/Dopo'}</p>
-                                        </div>
-                                    </div>
-                                    <div data-ba-wrapper>
-                                        <div data-ba-card class="relative overflow-hidden rounded-2xl aspect-[16/10] bg-gray-200 cursor-ew-resize select-none touch-none">
-                                            ${beforeMedia}
-                                            ${afterMedia}
-                                            <div class="absolute top-4 left-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Prima</div>
-                                            <div class="absolute top-4 right-4 px-3 py-1 rounded-full bg-black/55 text-white text-xs font-bold backdrop-blur">Dopo</div>
-                                            <div data-ba-line class="absolute inset-y-0 left-1/2 w-[2px] bg-white/90 shadow-[0_0_0_1px_rgba(0,0,0,0.12)] pointer-events-none"></div>
-                                            <div data-ba-knob class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-white/90 border border-white shadow-xl flex items-center justify-center text-gray-900 pointer-events-none">
-                                                <i class="fas fa-arrows-left-right"></i>
-                                            </div>
-                                        </div>
-                                        <div class="mt-4">
-                                            <input data-ba-range type="range" min="0" max="100" value="50" class="ba-range w-full">
-                                            <div class="flex justify-between text-xs text-gray-500 mt-2">
-                                                <span>Prima</span>
-                                                <span>Dopo</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `
-                        })
-                        grid.innerHTML = html
-                        if (empty) empty.classList.add('hidden')
-                        initBeforeAfter()
-                    } else {
-                        grid.innerHTML = ''
-                        if (empty) empty.classList.remove('hidden')
+                    try {
+                        const { error } = await supabaseClient.from('reviews').insert([{
+                            name, email, rating, content
+                        }]);
+                        if (error) throw error;
+                        alert('Grazie! La tua recensione è stata inviata e sarà visibile dopo l\'approvazione.');
+                        reviewForm.reset();
+                        ratingInput.value = 5;
+                        stars.forEach(s => { s.classList.remove('far'); s.classList.add('fas'); });
+                    } catch (err) {
+                        alert('Errore durante l\'invio: ' + err.message);
+                    } finally {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = 'Invia Recensione';
                     }
-                }
-
-                // Initialize AOS with mobile optimizations
-                const disableScrollAnimations = window.innerWidth < 768 || window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-                AOS.init({
-                    duration: 600, // Faster animations
-                    once: true,
-                    offset: 50, // Trigger sooner
-
-                    disable: disableScrollAnimations
-                })
-
-            } catch (error) {
-                console.error('Error loading data from Supabase:', error)
+                });
             }
         }
-
-        // Contact Form Submission
-        document.getElementById('contact-form').addEventListener('submit', async (e) => {
-            e.preventDefault()
-            const name = document.getElementById('contact-name').value
-            const email = document.getElementById('contact-email-input').value
-            const message = document.getElementById('contact-message').value
-
-            const submitBtn = e.target.querySelector('button[type="submit"]')
-            const originalText = submitBtn.innerText
-            submitBtn.innerText = 'Invio in corso...'
-            submitBtn.disabled = true
-
-            try {
-                const { error } = await supabaseClient.from('contact_messages').insert([
-                    { name, email, message }
-                ])
-                if (error) throw error
-
-                alert('Messaggio inviato con successo! Ti contatteremo al piu presto.')
-                e.target.reset()
-            } catch (error) {
-                alert('Si e verificato un errore. Riprova piu tardi.')
-                console.error(error)
-            } finally {
-                submitBtn.innerText = originalText
-                submitBtn.disabled = false
-            }
-        })
-
-        // Initialize
-        const setupNav = () => {
-            const nav = document.getElementById('navbar')
-            const btn = document.getElementById('mobileMenuBtn')
-            const menu = document.getElementById('mobileMenu')
-            const icon = document.getElementById('mobileMenuIcon')
-            if (!nav || !btn || !menu || !icon) return
-
-            const closeMenu = () => {
-                menu.classList.add('hidden')
-                icon.classList.remove('fa-xmark')
-                icon.classList.add('fa-bars')
-                btn.setAttribute('aria-expanded', 'false')
-            }
-
-            btn.addEventListener('click', () => {
-                const willOpen = menu.classList.contains('hidden')
-                if (willOpen) {
-                    menu.classList.remove('hidden')
-                    icon.classList.remove('fa-bars')
-                    icon.classList.add('fa-xmark')
-                    btn.setAttribute('aria-expanded', 'true')
-                } else {
-                    closeMenu()
-                }
-            })
-
-            menu.querySelectorAll('a[href^="#"]').forEach(a => {
-                a.addEventListener('click', () => closeMenu())
-            })
-
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 8) nav.classList.add('shadow-xl')
-                else nav.classList.remove('shadow-xl')
-            }, { passive: true })
-        }
-
-        setupNav()
-
-        const lightbox = document.getElementById('lightbox');
-        const lightboxImg = document.getElementById('lightbox-content');
-        const lightboxCaption = document.getElementById('lightbox-caption');
-        const lightboxCategory = document.getElementById('lightbox-category');
-        const lightboxClose = document.getElementById('lightbox-close');
-
-        window.openLightbox = (url, title, category) => {
-            lightboxImg.src = url;
-            lightboxCaption.innerText = title;
-            lightboxCategory.innerText = category;
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        };
-
-        const closeLightbox = () => {
-            lightbox.classList.remove('active');
-            document.body.style.overflow = '';
-        };
-
-        if (lightboxClose) {
-            lightboxClose.addEventListener('click', closeLightbox);
-        }
-        if (lightbox) {
-            lightbox.addEventListener('click', (e) => {
-                if (e.target === lightbox) closeLightbox();
-            });
-        }
+        initReviewForm();
 
         // Lazy-load gallery videos: switch preload from 'none' to 'metadata' when near viewport
         const lazyVideoObserver = new IntersectionObserver((entries, observer) => {
@@ -1959,15 +1688,16 @@
             });
         }, { rootMargin: '200px' });
 
-        const observeLazyVideos = () => {
+        function observeLazyVideos() {
             document.querySelectorAll('#galleria video[preload="none"]').forEach(v => {
                 lazyVideoObserver.observe(v);
             });
-        };
+        }
 
+        // Wait for initial load, then setup observers
         loadData().then(() => {
             observeLazyVideos();
-        })
+        });
     </script>
 </body>
 
