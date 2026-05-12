@@ -47,10 +47,8 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
     const urls = allSlots.filter(u => u && isVideo(u))
     if (urls.length > 0) {
       const link = document.createElement('link')
-      link.rel = 'preload'
-      link.as = 'video'
-      link.href = urls[0]
-      link.type = 'video/mp4'
+      link.rel = 'preconnect'
+      link.href = new URL(urls[0]).origin
       document.head.appendChild(link)
     }
     const t = setTimeout(() => setDeferredReady(true), 1500)
