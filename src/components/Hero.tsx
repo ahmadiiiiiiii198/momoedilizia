@@ -64,7 +64,7 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
           const isDeferred = i >= 2
           const shouldRender = !isDeferred || deferredReady
           return (
-            <div key={i} className={`w-full h-full relative overflow-hidden bg-gray-950 ${i >= 2 ? 'hidden lg:block' : ''}`}>
+            <div key={i} className="w-full h-full relative overflow-hidden bg-gray-950">
               {url && shouldRender && (isVideo(url) ? (
                 <HeroVideo url={url} priority={i === 0} />
               ) : (
