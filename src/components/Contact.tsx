@@ -16,11 +16,19 @@ export default function Contact({ config }: { config: SiteConfig[] }) {
     e.preventDefault()
     setSubmitting(true)
     const fd = new FormData(e.currentTarget)
+    const name = fd.get('name') as string
+    const userEmail = fd.get('email') as string
+    const message = fd.get('message') as string
     try {
       const { error } = await supabase.from('contact_messages').insert([{
-        name: fd.get('name'), email: fd.get('email'), message: fd.get('message')
+        name, email: userEmail, message
       }])
       if (error) throw error
+
+      supabase.functions.invoke('send-contact-email', {
+        body: { name, email: userEmail, message }
+      }).catch(() => {})
+
       alert('Messaggio inviato con successo! Ti contatteremo al piu presto.')
       e.currentTarget.reset()
     } catch {
