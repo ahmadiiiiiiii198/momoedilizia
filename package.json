@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "postbuild": "node -e \"if(process.env.CI){var fs=require('fs');fs.rmSync('node_modules',{recursive:true,force:true});console.log('Cleaned node_modules for deploy')}\"",
+    "postbuild": "node -e \"var fs=require('fs');fs.rmSync('node_modules',{recursive:true,force:true});console.log('Cleaned node_modules for deploy')\"",
     "start": "next start",
     "lint": "next lint"
   },
