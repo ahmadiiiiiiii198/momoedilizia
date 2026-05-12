@@ -32,8 +32,13 @@ export default function Contact({ config }: { config: SiteConfig[] }) {
     } finally { setSubmitting(false) }
 
     try {
-      await supabase.functions.invoke('send-contact-email', {
-        body: { name, email: userEmail, message }
+      await fetch('https://msqdvvetjyrnnvaqmqwr.supabase.co/functions/v1/send-contact-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zcWR2dmV0anlybm52YXFtcXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5OTQ0MjgsImV4cCI6MjA5MDU3MDQyOH0.Qy8A6OkwS_f6LPXIH76kJ12A4l-NNys_cSz_qXaOL4s',
+        },
+        body: JSON.stringify({ name, email: userEmail, message }),
       })
     } catch {}
   }
