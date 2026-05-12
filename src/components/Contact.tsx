@@ -15,7 +15,8 @@ export default function Contact({ config }: { config: SiteConfig[] }) {
   const submitForm = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setSubmitting(true)
-    const fd = new FormData(e.currentTarget)
+    const form = e.currentTarget
+    const fd = new FormData(form)
     const name = fd.get('name') as string
     const userEmail = fd.get('email') as string
     const message = fd.get('message') as string
@@ -24,16 +25,17 @@ export default function Contact({ config }: { config: SiteConfig[] }) {
         name, email: userEmail, message
       }])
       if (error) throw error
-
-      supabase.functions.invoke('send-contact-email', {
-        body: { name, email: userEmail, message }
-      }).catch(() => {})
-
       alert('Messaggio inviato con successo! Ti contatteremo al piu presto.')
-      e.currentTarget.reset()
+      form.reset()
     } catch {
       alert('Si e verificato un errore. Riprova piu tardi.')
     } finally { setSubmitting(false) }
+
+    try {
+      await supabase.functions.invoke('send-contact-email', {
+        body: { name, email: userEmail, message }
+      })
+    } catch {}
   }
 
   return (
