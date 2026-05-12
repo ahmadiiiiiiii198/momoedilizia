@@ -14,7 +14,7 @@ import Footer from '@/components/Footer'
 import FloatingButtons from '@/components/FloatingButtons'
 import LazySection from '@/components/LazySection'
 
-export const revalidate = 60
+export const dynamic = 'force-static'
 
 async function getData() {
   const [confRes, aboutRes, servRes, projRes, baRes] = await Promise.all([
