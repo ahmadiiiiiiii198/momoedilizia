@@ -64,12 +64,12 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
 
   return (
     <section id="home" className="min-h-screen flex items-center relative overflow-hidden bg-gray-950">
-      <div className="absolute inset-0 z-0 grid grid-cols-2 lg:grid-cols-4 w-full h-full">
+      <div className="absolute inset-0 z-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 w-full h-full">
         {allSlots.map((url, i) => {
           const isDeferred = i >= 2
           const shouldRender = !isDeferred || deferredReady
           return (
-            <div key={i} className="w-full h-full relative overflow-hidden bg-gray-950">
+            <div key={i} className={`w-full h-full relative overflow-hidden bg-gray-950 ${i === 1 ? 'hidden md:block' : i >= 2 ? 'hidden lg:block' : ''}`}>
               {url && shouldRender && (isVideo(url) ? (
                 <HeroVideo url={url} priority={i === 0} preloadValue={i === 0 ? 'auto' : 'none'} poster={i === 0 ? posterUrl : undefined} />
               ) : (
