@@ -63,7 +63,7 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
   }, [])
 
   return (
-    <section id="home" className="min-h-screen flex items-center relative overflow-hidden bg-gray-950">
+    <section id="home" className="h-screen flex items-center relative overflow-hidden bg-gray-950">
       <div className="absolute inset-0 z-0 grid grid-cols-2 grid-rows-2 lg:grid-cols-4 lg:grid-rows-1 w-full h-full">
         {allSlots.map((url, i) => {
           const isDeferred = i >= 2
