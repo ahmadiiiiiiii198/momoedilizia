@@ -47,8 +47,6 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
   })
 
   const [allSlots, setAllSlots] = useState(buildSlots)
-  const [deferredReady, setDeferredReady] = useState(false)
-  const [isLargeScreen, setIsLargeScreen] = useState(false)
 
   useEffect(() => {
     supabase.from('site_config').select('*').in('key', ['hero_video_1', 'hero_video_2', 'hero_video_3', 'hero_video_4', 'hero_video'])
@@ -61,25 +59,14 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
       })
   }, [])
 
-  useEffect(() => {
-    const mq = window.matchMedia('(min-width: 1024px)')
-    setIsLargeScreen(mq.matches)
-    const handler = (e: MediaQueryListEvent) => setIsLargeScreen(e.matches)
-    mq.addEventListener('change', handler)
-    const t = setTimeout(() => setDeferredReady(true), 2000)
-    return () => { clearTimeout(t); mq.removeEventListener('change', handler) }
-  }, [])
-
   return (
     <section id="home" className="h-screen flex items-start sm:items-center relative overflow-hidden bg-gray-950">
       <div className="absolute inset-0 z-0 grid grid-cols-2 grid-rows-2 lg:grid-cols-4 lg:grid-rows-1 w-full h-full">
         {allSlots.map((url, i) => {
-          const isDeferred = i >= 2
-          const shouldRender = isDeferred ? deferredReady : true
           return (
             <div key={i} className="w-full h-full relative overflow-hidden bg-gray-950">
-              {url && shouldRender && (isVideo(url) ? (
-                <HeroVideo url={url} priority={i === 0} preloadValue={i === 0 ? 'auto' : i === 1 ? 'metadata' : 'none'} poster={i === 0 ? posterUrl : undefined} />
+              {url && (isVideo(url) ? (
+                <HeroVideo url={url} priority={i === 0} preloadValue="auto" poster={i === 0 ? posterUrl : undefined} />
               ) : (
                 <img src={url} alt="" className="absolute inset-0 w-full h-full object-cover scale-105" loading={i === 0 ? 'eager' : 'lazy'} />
               ))}
