@@ -54,7 +54,9 @@ export default async function Home() {
         <LazySection>
           <Process />
         </LazySection>
-        <Gallery projects={projects} />
+        <LazySection>
+          <Gallery projects={projects} />
+        </LazySection>
         <LazySection>
           <BeforeAfter items={beforeAfter} />
         </LazySection>

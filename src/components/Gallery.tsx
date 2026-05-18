@@ -1,8 +1,33 @@
 'use client'
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { Project } from '@/lib/supabase'
 
 function isVideo(url: string) { return /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(url || '') }
+
+function LazyVideo({ src, className, ...props }: React.VideoHTMLAttributes<HTMLVideoElement> & { src: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setVisible(true); obs.disconnect() }
+    }, { rootMargin: '200px' })
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [])
+
+  return (
+    <div ref={ref} className={className} style={{ width: '100%', height: '100%' }}>
+      {visible ? (
+        <video src={src} className="w-full h-full object-cover" {...props} />
+      ) : (
+        <div className="w-full h-full bg-gray-800" />
+      )}
+    </div>
+  )
+}
 
 function Lightbox({ url, title, category, onClose }: { url: string; title: string; category: string; onClose: () => void }) {
   return (
@@ -94,7 +119,7 @@ export default function Gallery({ projects }: { projects: Project[] }) {
                   <div key={set} className="flex gap-6 px-3">
                     {videoProjects.map(p => (
                       <div key={`${set}-${p.id}`} className="group relative overflow-hidden rounded-2xl shadow-lg w-72 md:w-96 h-64 md:h-80 flex-shrink-0 bg-black">
-                        <video src={`${p.image_url}#t=0.001`} className="w-full h-full object-cover" playsInline preload="metadata" controls />
+                        <LazyVideo src={`${p.image_url}#t=0.001`} className="w-full h-full object-cover" playsInline preload="metadata" controls />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6 pointer-events-none">
                           <span className="inline-block px-3 py-1 bg-brand text-white text-xs font-bold rounded-full mb-2 shadow-md">{p.category}</span>
                           <h4 className="text-white text-xl font-bold font-display">{p.title}</h4>
