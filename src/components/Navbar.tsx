@@ -34,7 +34,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-[72px] items-center">
           <a href="#home" className="flex-shrink-0 flex items-center gap-3 group">
-            <Image src="/icon.png" alt="Gruppo Momo Edilizia" width={48} height={48} className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300" priority />
+            <Image src="/logo.png" alt="Pontina Ponteggi" width={120} height={48} className="h-12 w-auto object-contain group-hover:scale-105 transition-transform duration-300" priority />
             <div className="font-display font-bold flex flex-col leading-none">
               <span className="text-dark text-xl tracking-[0.2em]">GRUPPO</span>
               <span className="text-brand uppercase text-sm tracking-wider">Momo Edilizia</span>
