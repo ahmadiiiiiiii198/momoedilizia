@@ -54,6 +54,10 @@ export default function Gallery({ projects }: { projects: Project[] }) {
   const imageProjects = projects.filter(p => !isVideo(p.image_url))
   const videoProjects = projects.filter(p => isVideo(p.image_url))
 
+  const SECONDS_PER_ITEM = 8
+  const imgDuration = `${imageProjects.length * SECONDS_PER_ITEM}s`
+  const vidDuration = `${videoProjects.length * SECONDS_PER_ITEM}s`
+
   const scroll = useCallback((ref: React.RefObject<HTMLDivElement | null>, dir: number) => {
     ref.current?.scrollBy({ left: dir * 400, behavior: 'smooth' })
   }, [])
@@ -84,7 +88,7 @@ export default function Gallery({ projects }: { projects: Project[] }) {
         <div ref={imgScrollRef} className="relative w-full overflow-x-auto mt-10 pb-10 scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
           <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
           <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
-          <div className={`flex w-max ${imgPaused ? 'animate-scroll paused' : 'animate-scroll'}`}>
+          <div className={`flex w-max ${imgPaused ? 'animate-scroll paused' : 'animate-scroll'}`} style={{ animationDuration: imgDuration }}>
             {[0, 1].map(set => (
               <div key={set} className="flex gap-6 px-3">
                 {imageProjects.map(p => (
@@ -114,7 +118,7 @@ export default function Gallery({ projects }: { projects: Project[] }) {
             <div ref={vidScrollRef} className="relative w-full overflow-x-auto mt-8 pb-10 scroll-smooth" style={{ WebkitOverflowScrolling: 'touch' }}>
               <div className="absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-gray-50 to-transparent z-10 pointer-events-none" />
               <div className="absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-gray-50 to-transparent z-10 pointer-events-none" />
-              <div className={`flex w-max ${vidPaused ? 'animate-scroll-videos paused' : 'animate-scroll-videos'}`}>
+              <div className={`flex w-max ${vidPaused ? 'animate-scroll-videos paused' : 'animate-scroll-videos'}`} style={{ animationDuration: vidDuration }}>
                 {[0, 1].map(set => (
                   <div key={set} className="flex gap-6 px-3">
                     {videoProjects.map(p => (
