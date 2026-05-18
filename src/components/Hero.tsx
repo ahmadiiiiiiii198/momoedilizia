@@ -4,7 +4,7 @@ import { SiteConfig } from '@/lib/supabase'
 
 function isVideo(url: string) { return /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(url || '') }
 
-function HeroVideo({ url, priority }: { url: string; priority: boolean }) {
+function HeroVideo({ url, priority, preloadValue = 'auto', poster }: { url: string; priority: boolean; preloadValue?: 'auto' | 'metadata' | 'none'; poster?: string }) {
   const ref = useRef<HTMLVideoElement>(null)
   const [ready, setReady] = useState(false)
 
@@ -12,19 +12,25 @@ function HeroVideo({ url, priority }: { url: string; priority: boolean }) {
     const v = ref.current
     if (!v) return
     const show = () => setReady(true)
+    if (v.readyState >= 3) show()
     v.addEventListener('canplay', show, { once: true })
     return () => v.removeEventListener('canplay', show)
   }, [])
+
+  // Generate webm URL by replacing .mp4/.MP4 with .webm
+  const webmUrl = url.replace(/\.(mp4|MP4)$/, '.webm')
 
   return (
     <video
       ref={ref}
       autoPlay loop muted playsInline
-      preload="auto"
+      preload={preloadValue}
+      poster={poster}
       disableRemotePlayback
       className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'}`}
       {...(priority ? { fetchPriority: 'high' } as any : {})}
     >
+      <source src={webmUrl} type="video/webm" />
       <source src={url} type="video/mp4" />
     </video>
   )
@@ -35,6 +41,7 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
   const heroTitle = get('hero_title_main') || 'Costruiamo il Tuo'
   const heroHighlight = get('hero_title_highlight') || 'Futuro'
   const heroSubtitle = get('hero_subtitle') || 'Eccellenza, passione e professionalità nel settore edile. Dalla progettazione alla realizzazione, diamo forma alle tue idee con materiali di altissima qualità.'
+  const posterUrl = get('hero_poster_url') || ''
 
   const allSlots = [1, 2, 3, 4].map(i => {
     const specific = get(`hero_video_${i}`)
@@ -51,7 +58,7 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
       link.href = new URL(urls[0]).origin
       document.head.appendChild(link)
     }
-    const t = setTimeout(() => setDeferredReady(true), 1500)
+    const t = setTimeout(() => setDeferredReady(true), 4000)
     return () => clearTimeout(t)
   }, [])
 
@@ -64,7 +71,7 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
           return (
             <div key={i} className="w-full h-full relative overflow-hidden bg-gray-950">
               {url && shouldRender && (isVideo(url) ? (
-                <HeroVideo url={url} priority={i === 0} />
+                <HeroVideo url={url} priority={i === 0} preloadValue={i === 0 ? 'auto' : 'none'} poster={i === 0 ? posterUrl : undefined} />
               ) : (
                 <img src={url} alt="" className="absolute inset-0 w-full h-full object-cover scale-105" loading={i === 0 ? 'eager' : 'lazy'} />
               ))}

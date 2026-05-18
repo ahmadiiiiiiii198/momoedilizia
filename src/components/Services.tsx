@@ -36,7 +36,7 @@ export default function Services({ services, config }: { services: Service[]; co
               <div key={s.id} className="bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 border border-gray-100 hover:border-brand/30 group hover:-translate-y-2 overflow-hidden">
                 {hasImg ? (
                   <div className="relative h-52 overflow-hidden">
-                    <Image src={s.image_url!} alt={s.title} fill className="object-cover transform group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 768px) 100vw, 300px" />
+                    <Image src={s.image_url!} alt={s.title} fill className="object-cover transform group-hover:scale-105 transition-transform duration-700" sizes="(max-width: 768px) 100vw, 300px" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-gray-900/60 via-gray-900/10 to-transparent" />
                     <div className="absolute bottom-4 left-4 w-11 h-11 rounded-lg bg-white/95 backdrop-blur-sm flex items-center justify-center shadow-md">
                       <i className={`${s.icon} text-lg text-brand`} />

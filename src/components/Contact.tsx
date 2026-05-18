@@ -68,7 +68,7 @@ export default function Contact({ config }: { config: SiteConfig[] }) {
               </div>
               <div className="text-gray-400 space-y-1 text-sm ml-14">
                 <p><span className="text-gray-200">Moncalieri:</span> Corso Roma 87</p>
-                <p><span className="text-gray-200">Collegno:</span> Via A. Manzoni 7</p>
+                <p><span className="text-gray-200">Collegno:</span> Via Alessandro Manzoni 7</p>
                 <p><span className="text-gray-200">Torino:</span> Via Baretti 2</p>
               </div>
             </div>

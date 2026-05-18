@@ -39,14 +39,14 @@ export default function Carpenteria() {
               <div className="space-y-3 sm:space-y-4">
                 {images.slice(0, 2).map((img, i) => (
                   <div key={i} className={`relative ${img.h} rounded-2xl shadow-lg overflow-hidden transform transition hover:-translate-y-1 hover:shadow-2xl duration-300`}>
-                    <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="300px" />
+                    <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="300px" loading="lazy" />
                   </div>
                 ))}
               </div>
               <div className="space-y-3 sm:space-y-4 mt-6">
                 {images.slice(2).map((img, i) => (
                   <div key={i} className={`relative ${img.h} rounded-2xl shadow-lg overflow-hidden transform transition hover:-translate-y-1 hover:shadow-2xl duration-300`}>
-                    <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="300px" />
+                    <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="300px" loading="lazy" />
                   </div>
                 ))}
               </div>

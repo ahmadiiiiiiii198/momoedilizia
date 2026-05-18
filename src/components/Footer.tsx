@@ -20,7 +20,7 @@ export default function Footer({ config }: { config: SiteConfig[] }) {
             </div>
           </div>
           <div className="text-center text-xs space-y-1">
-            <p>&copy; {new Date().getFullYear()} Gruppo Momo Edilizia. Tutti i diritti riservati.</p>
+            <p>&copy; Gruppo Momo Edilizia. Tutti i diritti riservati.</p>
             <p className="text-gray-600">PEC: {pec} {piva ? `| P.IVA: ${piva}` : ''}</p>
           </div>
           <div className="flex items-center gap-4">

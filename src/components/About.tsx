@@ -35,14 +35,14 @@ export default function About({ aboutImages, config }: { aboutImages: AboutImage
               <div className="space-y-4 mt-8">
                 {imgs.slice(0, 2).map((img, i) => (
                   <div key={i} className={`relative ${i === 0 ? 'h-64' : 'h-48'} rounded-2xl shadow-xl overflow-hidden transform transition hover:-translate-y-2 hover:shadow-2xl duration-300`}>
-                    <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="350px" />
+                    <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="350px" loading="lazy" />
                   </div>
                 ))}
               </div>
               <div className="space-y-4">
                 {imgs.slice(2, 4).map((img, i) => (
                   <div key={i} className={`relative ${i === 0 ? 'h-48' : 'h-64'} rounded-2xl shadow-xl overflow-hidden transform transition hover:-translate-y-2 hover:shadow-2xl duration-300`}>
-                    <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="350px" />
+                    <Image src={img.src} alt={img.alt} fill className="object-cover" sizes="350px" loading="lazy" />
                   </div>
                 ))}
               </div>
