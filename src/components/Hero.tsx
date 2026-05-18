@@ -63,7 +63,7 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
   }, [])
 
   return (
-    <section id="home" className="h-screen flex items-center relative overflow-hidden bg-gray-950">
+    <section id="home" className="h-screen flex items-start sm:items-center relative overflow-hidden bg-gray-950">
       <div className="absolute inset-0 z-0 grid grid-cols-2 grid-rows-2 lg:grid-cols-4 lg:grid-rows-1 w-full h-full">
         {allSlots.map((url, i) => {
           const isDeferred = i >= 2
@@ -80,28 +80,28 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
         })}
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-32">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full py-16 sm:py-32">
         <div className="max-w-3xl animate-fade-in-up">
-          <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white shadow-lg mb-8">
+          <div className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-full bg-white/10 backdrop-blur-md border border-white/10 text-white shadow-lg mb-4 sm:mb-8">
             <span className="w-2 h-2 rounded-full bg-brand animate-pulse" />
             <span className="text-sm font-semibold tracking-wide">Impresa Edile</span>
             <span className="text-sm text-white/40">/</span>
             <span className="text-sm font-semibold tracking-wide">Qualità &amp; Sicurezza</span>
           </div>
-          <h1 className="font-display text-4xl sm:text-5xl md:text-7xl font-bold text-white mb-8 leading-[1.1] tracking-tight">
+          <h1 className="font-display text-3xl sm:text-5xl md:text-7xl font-bold text-white mb-4 sm:mb-8 leading-[1.1] tracking-tight">
             <span>{heroTitle}</span>
             <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-light via-brand to-brand-dark">{heroHighlight}</span>
           </h1>
-          <p className="text-lg md:text-xl text-gray-300 mb-12 max-w-2xl leading-relaxed">{heroSubtitle}</p>
-          <div className="flex flex-col sm:flex-row gap-4 mb-16">
-            <a href="#servizi" className="group bg-gradient-to-r from-brand to-brand-dark text-white px-8 py-4 rounded-full font-bold text-lg text-center shadow-2xl shadow-brand/25 hover:shadow-brand/40 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
+          <p className="text-sm sm:text-lg md:text-xl text-gray-300 mb-6 sm:mb-12 max-w-2xl leading-relaxed">{heroSubtitle}</p>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-16">
+            <a href="#servizi" className="group bg-gradient-to-r from-brand to-brand-dark text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-base sm:text-lg text-center shadow-2xl shadow-brand/25 hover:shadow-brand/40 hover:-translate-y-1 transition-all duration-300 flex items-center justify-center gap-2">
               Scopri i Servizi <i className="fas fa-arrow-right text-sm group-hover:translate-x-1 transition-transform" />
             </a>
-            <a href="#contatti" className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-4 rounded-full font-bold text-lg text-center hover:bg-white/20 hover:-translate-y-1 transition-all duration-300">Richiedi Preventivo</a>
+            <a href="#contatti" className="bg-white/10 backdrop-blur-md border border-white/20 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-base sm:text-lg text-center hover:bg-white/20 hover:-translate-y-1 transition-all duration-300">Richiedi Preventivo</a>
           </div>
 
-          <div className="flex flex-wrap gap-8 sm:gap-12">
+          <div className="hidden sm:flex flex-wrap gap-8 sm:gap-12">
             {[
               { num: '10+', label: 'Anni di Esperienza' },
               { num: '500+', label: 'Progetti Completati' },
