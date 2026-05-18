@@ -12,13 +12,12 @@ function HeroVideo({ url, priority, preloadValue = 'auto', poster }: { url: stri
     const v = ref.current
     if (!v) return
     const show = () => setReady(true)
-    if (v.readyState >= 3) show()
-    v.addEventListener('canplay', show, { once: true })
-    return () => v.removeEventListener('canplay', show)
+    if (v.readyState >= 2) show()
+    v.addEventListener('loadeddata', show, { once: true })
+    return () => v.removeEventListener('loadeddata', show)
   }, [])
 
-  // Generate webm URL by replacing .mp4/.MP4 with .webm
-  const webmUrl = url.replace(/\.(mp4|MP4)$/, '.webm')
+  const videoSrc = url.includes('#') ? url : `${url}#t=0.1`
 
   return (
     <video
@@ -27,11 +26,10 @@ function HeroVideo({ url, priority, preloadValue = 'auto', poster }: { url: stri
       preload={preloadValue}
       poster={poster}
       disableRemotePlayback
-      className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-700 ${ready ? 'opacity-100' : 'opacity-0'}`}
+      className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-500 ${ready ? 'opacity-100' : 'opacity-0'}`}
       {...(priority ? { fetchPriority: 'high' } as any : {})}
     >
-      <source src={webmUrl} type="video/webm" />
-      <source src={url} type="video/mp4" />
+      <source src={videoSrc} type="video/mp4" />
     </video>
   )
 }
