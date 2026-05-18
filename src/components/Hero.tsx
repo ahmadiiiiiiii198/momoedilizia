@@ -75,7 +75,7 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
       <div className="absolute inset-0 z-0 grid grid-cols-2 grid-rows-2 lg:grid-cols-4 lg:grid-rows-1 w-full h-full">
         {allSlots.map((url, i) => {
           const isDeferred = i >= 2
-          const shouldRender = isDeferred ? (deferredReady && isLargeScreen) : true
+          const shouldRender = isDeferred ? deferredReady : true
           return (
             <div key={i} className="w-full h-full relative overflow-hidden bg-gray-950">
               {url && shouldRender && (isVideo(url) ? (
