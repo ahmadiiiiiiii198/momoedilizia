@@ -14,7 +14,6 @@ export default function Footer({ config }: { config: SiteConfig[] }) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
         <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="Pontina Ponteggi" className="h-10 w-auto object-contain brightness-0 invert" />
             <div className="font-display font-bold flex flex-col leading-none">
               <span className="text-gray-300 text-sm tracking-[0.15em]">GRUPPO</span>
               <span className="text-brand text-xs tracking-wider uppercase">Momo Edilizia</span>
