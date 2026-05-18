@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { SiteConfig } from '@/lib/supabase'
+import { supabase, SiteConfig } from '@/lib/supabase'
 
 function isVideo(url: string) { return /\.(mp4|webm|mov|m4v|ogv|ogg)(\?|#|$)/i.test(url || '') }
 
@@ -41,13 +41,25 @@ export default function Hero({ config }: { config: SiteConfig[] }) {
   const heroSubtitle = get('hero_subtitle') || 'Eccellenza, passione e professionalità nel settore edile. Dalla progettazione alla realizzazione, diamo forma alle tue idee con materiali di altissima qualità.'
   const posterUrl = get('hero_poster_url') || ''
 
-  const allSlots = [1, 2, 3, 4].map(i => {
+  const buildSlots = [1, 2, 3, 4].map(i => {
     const specific = get(`hero_video_${i}`)
     return specific || get('hero_video') || ''
   })
 
+  const [allSlots, setAllSlots] = useState(buildSlots)
   const [deferredReady, setDeferredReady] = useState(false)
   const [isLargeScreen, setIsLargeScreen] = useState(false)
+
+  useEffect(() => {
+    supabase.from('site_config').select('*').in('key', ['hero_video_1', 'hero_video_2', 'hero_video_3', 'hero_video_4', 'hero_video'])
+      .then(({ data }) => {
+        if (data && data.length > 0) {
+          const g = (k: string) => data.find(c => c.key === k)?.value || ''
+          const fresh = [1, 2, 3, 4].map(i => g(`hero_video_${i}`) || g('hero_video') || '')
+          if (fresh.some(u => u)) setAllSlots(fresh)
+        }
+      })
+  }, [])
 
   useEffect(() => {
     const mq = window.matchMedia('(min-width: 1024px)')
