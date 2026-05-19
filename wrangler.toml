@@ -1,5 +1,5 @@
 # Wrangler configuration for Static Assets
-name = "momoedilizia"
+name = "momoediliziamain"
 compatibility_date = "2024-10-01"
 
 [assets]
