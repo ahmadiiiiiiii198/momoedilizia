@@ -31,6 +31,9 @@ export default function Footer({ config }: { config: SiteConfig[] }) {
           </div>
         </div>
       </div>
+      <div className="border-t border-white/5 py-4 text-center text-xs text-gray-600">
+        This website is designed and created by Adib Tech: +39 351 6158210 | Instagram: adib_tech
+      </div>
     </footer>
   )
 }
