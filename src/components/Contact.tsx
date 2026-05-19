@@ -19,10 +19,11 @@ export default function Contact({ config }: { config: SiteConfig[] }) {
     const fd = new FormData(form)
     const name = fd.get('name') as string
     const userEmail = fd.get('email') as string
+    const phone_number = fd.get('phone') as string
     const message = fd.get('message') as string
     try {
       const { error } = await supabase.from('contact_messages').insert([{
-        name, email: userEmail, message
+        name, email: userEmail, phone: phone_number, message
       }])
       if (error) throw error
       alert('Messaggio inviato con successo! Ti contatteremo al piu presto.')
@@ -39,7 +40,7 @@ export default function Contact({ config }: { config: SiteConfig[] }) {
           'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zcWR2dmV0anlybm52YXFtcXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5OTQ0MjgsImV4cCI6MjA5MDU3MDQyOH0.Qy8A6OkwS_f6LPXIH76kJ12A4l-NNys_cSz_qXaOL4s',
           'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1zcWR2dmV0anlybm52YXFtcXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5OTQ0MjgsImV4cCI6MjA5MDU3MDQyOH0.Qy8A6OkwS_f6LPXIH76kJ12A4l-NNys_cSz_qXaOL4s',
         },
-        body: JSON.stringify({ name, email: userEmail, message }),
+        body: JSON.stringify({ name, email: userEmail, phone: phone_number, message }),
       })
     } catch {}
   }
@@ -125,6 +126,10 @@ export default function Contact({ config }: { config: SiteConfig[] }) {
                     <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Email</label>
                     <input name="email" type="email" required className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand transition-all text-gray-900 text-sm" placeholder="mario.rossi@email.it" />
                   </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Telefono</label>
+                  <input name="phone" type="tel" className="w-full px-4 py-3 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand transition-all text-gray-900 text-sm" placeholder="+39 333 1234567" />
                 </div>
                 <div>
                   <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Messaggio</label>
